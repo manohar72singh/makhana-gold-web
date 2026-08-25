@@ -41,7 +41,8 @@ export async function SiteFooter() {
               <div className="relative w-40 h-14 sm:w-52 sm:h-20">
                 <Image
                   src="/images/logo/logo.png"
-                  alt="Makhana Gold - Pure, Healthy, Premium"
+                  alt="Makhana Gold — Premium Artisanal Roasted Fox Nuts from Bihar"
+                  title="Makhana Gold"
                   fill
                   sizes="208px"
                   className="object-contain drop-shadow-[0_2px_12px_rgba(212,175,55,0.25)]"
@@ -149,19 +150,23 @@ export async function SiteFooter() {
             <h4 className="font-label-md text-xs font-bold text-amber-400 uppercase tracking-widest mb-1">
               Customer Care
             </h4>
-            <Link href="/support" className="text-xs sm:text-sm text-amber-100/70 hover:text-amber-300 transition-colors">
+            <Link href="/support" title="Makhana Gold Help & FAQ Center" className="text-xs sm:text-sm text-amber-100/70 hover:text-amber-300 transition-colors">
               Help &amp; FAQ Center
             </Link>
-            <Link href="/track" className="text-xs sm:text-sm text-amber-100/70 hover:text-amber-300 transition-colors">
+            <Link href="/track" title="Track your Makhana Gold order" className="text-xs sm:text-sm text-amber-100/70 hover:text-amber-300 transition-colors">
               Track Your Order
             </Link>
-            <Link href="/shipping-policy" className="text-xs sm:text-sm text-amber-100/70 hover:text-amber-300 transition-colors">
+            <Link href="/shipping-policy" title="Makhana Gold Shipping & Delivery Policy" className="text-xs sm:text-sm text-amber-100/70 hover:text-amber-300 transition-colors">
               Shipping &amp; Delivery
             </Link>
-            <Link href="/refund-policy" className="text-xs sm:text-sm text-amber-100/70 hover:text-amber-300 transition-colors">
+            <Link href="/refund-policy" title="Makhana Gold Returns & Refunds Policy" className="text-xs sm:text-sm text-amber-100/70 hover:text-amber-300 transition-colors">
               Returns &amp; Refunds
             </Link>
-            <Link href="/corporate-gifting" className="text-xs sm:text-sm text-amber-100/70 hover:text-amber-300 transition-colors">
+            <Link href="/certifications" title="View Makhana Gold FSSAI certifications and lab reports" className="text-xs sm:text-sm text-amber-100/70 hover:text-amber-300 transition-colors inline-flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[12px] text-amber-400">verified</span>
+              Certifications &amp; Quality
+            </Link>
+            <Link href="/corporate-gifting" title="Corporate and bulk gifting solutions from Makhana Gold" className="text-xs sm:text-sm text-amber-100/70 hover:text-amber-300 transition-colors">
               Corporate &amp; Bulk Gifting
             </Link>
           </div>

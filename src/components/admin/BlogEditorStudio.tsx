@@ -33,6 +33,8 @@ export interface BlogFormData {
   authorRole: string;
   isPublished: boolean;
   featured: boolean;
+  scheduledAt?: string; // ISO date string
+  blogFaqs?: string;    // JSON string of FAQItem[]
   metaTitle: string;
   metaDescription: string;
   metaKeywords: string;
@@ -77,6 +79,33 @@ export function BlogEditorStudio({
   const [authorRole, setAuthorRole] = useState(initialData?.authorRole || "Senior Clinical Nutritionist & Food Biochemist");
   const [isPublished, setIsPublished] = useState(initialData?.isPublished ?? true);
   const [featured, setFeatured] = useState(initialData?.featured ?? false);
+
+  // Post Scheduling
+  const [scheduleMode, setScheduleMode] = useState(!!initialData?.scheduledAt);
+  const [scheduledAt, setScheduledAt] = useState(
+    initialData?.scheduledAt
+      ? new Date(initialData.scheduledAt).toISOString().slice(0, 16)
+      : ""
+  );
+
+  // Per-blog FAQ fields (3 Q&A pairs for FAQPage schema)
+  interface FaqPair { q: string; a: string; }
+  const parseFaqs = (raw?: string): FaqPair[] => {
+    try {
+      if (raw) {
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr)) return arr.slice(0, 3).map((f: { q?: string; question?: string; a?: string; answer?: string }) => ({ q: f.q || f.question || "", a: f.a || f.answer || "" }));
+      }
+    } catch { /**/ }
+    return [{ q: "", a: "" }, { q: "", a: "" }, { q: "", a: "" }];
+  };
+  const [faqs, setFaqs] = useState<FaqPair[]>(parseFaqs(initialData?.blogFaqs));
+
+  const updateFaq = (idx: number, field: "q" | "a", value: string) => {
+    setFaqs((prev) => prev.map((f, i) => i === idx ? { ...f, [field]: value } : f));
+  };
+
+  const faqsJson = JSON.stringify(faqs.filter(f => f.q && f.a).map(f => ({ question: f.q, answer: f.a })));
 
   // SEO
   const [metaTitle, setMetaTitle] = useState(initialData?.metaTitle || "");
@@ -159,8 +188,10 @@ export function BlogEditorStudio({
       {/* Hidden form fields */}
       <input type="hidden" name="coverImage" value={coverImage} />
       <input type="hidden" name="content" value={content} />
-      <input type="hidden" name="isPublished" value={isPublished ? "true" : "false"} />
+      <input type="hidden" name="isPublished" value={scheduleMode ? "false" : (isPublished ? "true" : "false")} />
       <input type="hidden" name="featured" value={featured ? "true" : "false"} />
+      <input type="hidden" name="scheduledAt" value={scheduleMode ? scheduledAt : ""} />
+      <input type="hidden" name="blogFaqs" value={faqsJson} />
 
       {/* Top Header Bar */}
       <Stack
@@ -186,36 +217,50 @@ export function BlogEditorStudio({
         </div>
 
         <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={isPublished}
-                onChange={(e) => setIsPublished(e.target.checked)}
-                color="success"
-              />
-            }
-            label={
-              <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                {isPublished ? "🟢 Published" : "🟡 Draft"}
+          {!scheduleMode && (
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={isPublished}
+                  onChange={(e) => setIsPublished(e.target.checked)}
+                  color="success"
+                />
+              }
+              label={
+                <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                  {isPublished ? "🟢 Published" : "🟡 Draft"}
+                </Typography>
+              }
+            />
+          )}
+
+          {scheduleMode && (
+            <Box sx={{ bgcolor: "#FFF8E1", px: 2, py: 0.8, borderRadius: 2, border: "1px solid #FFD54F" }}>
+              <Typography variant="caption" sx={{ fontWeight: 800, color: "#F57F17" }}>
+                🕐 Scheduled: {scheduledAt ? new Date(scheduledAt).toLocaleString("en-IN") : "Set date below"}
               </Typography>
-            }
-          />
+            </Box>
+          )}
 
           <Button
             type="submit"
             variant="contained"
             size="large"
             sx={{
-              bgcolor: "#D84315",
-              "&:hover": { bgcolor: "#BF360C" },
+              bgcolor: scheduleMode ? "#F57F17" : "#D84315",
+              "&:hover": { bgcolor: scheduleMode ? "#E65100" : "#BF360C" },
               borderRadius: 2.5,
               fontWeight: 800,
               px: 4,
               py: 1.2,
-              boxShadow: "0 8px 20px -4px rgba(216, 67, 21, 0.4)",
+              boxShadow: scheduleMode
+                ? "0 8px 20px -4px rgba(245,127,23,0.4)"
+                : "0 8px 20px -4px rgba(216, 67, 21, 0.4)",
             }}
           >
-            {initialData?.id ? "Update & Sync SEO" : "🚀 Publish & Sync Google Sitemap"}
+            {initialData?.id
+              ? scheduleMode ? "📅 Schedule Update" : "Update & Sync SEO"
+              : scheduleMode ? "📅 Schedule Post" : "🚀 Publish & Sync Google Sitemap"}
           </Button>
         </Stack>
       </Stack>
@@ -525,6 +570,55 @@ export function BlogEditorStudio({
                 placeholder="Makhana, Sattu, High Protein, Diabetes"
               />
 
+              {/* ── Scheduled Publishing ── */}
+              <Box sx={{ border: "1px solid", borderColor: scheduleMode ? "#FFD54F" : "rgba(0,0,0,0.12)", borderRadius: 2, p: 2, bgcolor: scheduleMode ? "#FFFDE7" : "transparent" }}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={scheduleMode}
+                      onChange={(e) => {
+                        setScheduleMode(e.target.checked);
+                        if (e.target.checked) setIsPublished(false);
+                        else setIsPublished(true);
+                      }}
+                      color="warning"
+                    />
+                  }
+                  label={
+                    <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                      📅 Schedule for Later
+                    </Typography>
+                  }
+                />
+
+                {scheduleMode && (
+                  <Box sx={{ mt: 1.5 }}>
+                    <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", display: "block", mb: 1 }}>
+                      Publish Date & Time
+                    </Typography>
+                    <input
+                      type="datetime-local"
+                      value={scheduledAt}
+                      onChange={(e) => setScheduledAt(e.target.value)}
+                      min={new Date().toISOString().slice(0, 16)}
+                      style={{
+                        width: "100%",
+                        padding: "8px 12px",
+                        border: "1px solid #FFD54F",
+                        borderRadius: 8,
+                        fontSize: 13,
+                        fontWeight: 600,
+                        background: "white",
+                        outline: "none",
+                      }}
+                    />
+                    <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block" }}>
+                      Post will auto-publish at this time via scheduled task.
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+
               <FormControlLabel
                 control={
                   <Switch
@@ -609,6 +703,45 @@ export function BlogEditorStudio({
                 value={authorRole}
                 onChange={(e) => setAuthorRole(e.target.value)}
               />
+            </Stack>
+          </Paper>
+
+          {/* ── Per-Blog FAQ Section for FAQPage Schema ── */}
+          <Paper variant="outlined" sx={{ p: 3, borderRadius: 3, border: "1px solid #FFD54F", bgcolor: "#FFFDE7" }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 0.5, display: "flex", alignItems: "center", gap: 1 }}>
+              <span>❓</span> Page FAQs (Google Rich Results)
+            </Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 2 }}>
+              Add 3 FAQs visible on this article page. These generate FAQPage JSON-LD schema for Google rich results (expandable answers in search).
+            </Typography>
+
+            <Stack spacing={3}>
+              {faqs.map((faq, idx) => (
+                <Box key={idx} sx={{ p: 2, border: "1px solid rgba(120,53,15,0.15)", borderRadius: 2, bgcolor: "white" }}>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: "#F57F17", display: "block", mb: 1 }}>
+                    FAQ #{idx + 1}
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    label="Question"
+                    value={faq.q}
+                    onChange={(e) => updateFaq(idx, "q", e.target.value)}
+                    placeholder={`e.g. Is makhana good for ${["weight loss?", "diabetics?", "children?"][idx]}`}
+                    sx={{ mb: 1.5 }}
+                  />
+                  <TextField
+                    fullWidth
+                    size="small"
+                    multiline
+                    rows={2}
+                    label="Answer"
+                    value={faq.a}
+                    onChange={(e) => updateFaq(idx, "a", e.target.value)}
+                    placeholder="Detailed, helpful answer (50-300 words recommended)"
+                  />
+                </Box>
+              ))}
             </Stack>
           </Paper>
         </Stack>

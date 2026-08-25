@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { ProductGridCard } from "@/components/storefront/ProductGridCard";
 import { HeroBannerSlider } from "@/components/storefront/HeroBannerSlider";
 import { MarketplaceShowcaseBanner } from "@/components/storefront/MarketplaceShowcaseBanner";
+import { PageFAQ } from "@/components/storefront/PageFAQ";
 import {
   getHeroBanners,
   getTrustBadges,
@@ -12,6 +13,7 @@ import {
   getMarketplaceLinks,
   getStorefrontReviews,
 } from "@/lib/content";
+import { generateBreadcrumbSchema, DEFAULT_HOME_FAQS } from "@/lib/seo";
 
 async function getBestSellers() {
   try {
@@ -70,26 +72,39 @@ export default async function HomePage() {
   }
   const wishlistedIds = new Set(wishlist.map((w) => w.variantId));
 
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Home", url: "/" },
+    { name: "Shop Makhana Gold", url: "/shop" },
+  ]);
+
   return (
     <main className="overflow-hidden">
+      {/* BreadcrumbList JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+
       {/* 1. Dynamic Multi-Banner Hero Slider (100% DB-driven) */}
       <HeroBannerSlider slides={heroBanners} />
 
       {/* 2. Trust Badges Bar (100% DB-driven) */}
       {trustBadges.length > 0 && (
-        <section className="bg-white border-y border-amber-900/10 py-5 px-gutter shadow-xs">
+        <section aria-label="Trust badges and quality guarantees" className="bg-white border-y border-amber-900/10 py-5 px-gutter shadow-xs">
           <div className="max-w-container-max mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
             {trustBadges.map((badge) => (
               <div key={badge.title} className="flex items-center gap-3.5 p-2 rounded-2xl">
                 <div
                   className={`w-11 h-11 rounded-2xl ${badge.color} flex items-center justify-center shrink-0 shadow-xs`}
+                  title={badge.title}
+                  aria-hidden="true"
                 >
                   <span className="material-symbols-outlined text-xl">{badge.icon}</span>
                 </div>
                 <div>
-                  <h4 className="font-label-md text-xs sm:text-sm font-bold text-on-surface mb-0.5">
+                  <h3 className="font-label-md text-xs sm:text-sm font-bold text-on-surface mb-0.5">
                     {badge.title}
-                  </h4>
+                  </h3>
                   <p className="font-body-sm text-[11px] sm:text-xs text-on-surface-variant line-clamp-1 leading-relaxed">
                     {badge.description}
                   </p>
@@ -146,7 +161,8 @@ export default async function HomePage() {
           <div className="lg:col-span-6 relative aspect-video sm:aspect-[16/8] lg:aspect-auto lg:h-[380px]">
             <Image
               src="/images/vibrant/wetlands.jpg"
-              alt="Harvesting Makhana in Bihar Wetlands"
+              alt="Traditional makhana harvesting in the certified wetland ponds of Mithila, Bihar — Makhana Gold sourcing"
+              title="Bihar Wetland Makhana Harvesting — Makhana Gold"
               fill
               sizes="(min-width: 1024px) 50vw, 100vw"
               className="object-cover"
@@ -196,7 +212,7 @@ export default async function HomePage() {
 
       {/* 5. Health Pillars Bento (100% DB-driven) */}
       {healthBenefits.length > 0 && (
-        <section className="py-10 md:py-16 bg-[#FAF6EE] px-5 sm:px-gutter border-y border-amber-900/10">
+        <section aria-label="Health benefits of Makhana Gold" className="py-10 md:py-16 bg-[#FAF6EE] px-5 sm:px-gutter border-y border-amber-900/10">
           <div className="max-w-container-max mx-auto">
             <div className="text-center mb-8 sm:mb-10 max-w-xl mx-auto">
               <span className="font-label-sm text-xs uppercase tracking-widest text-amber-700 font-bold block mb-1">
@@ -219,6 +235,8 @@ export default async function HomePage() {
                   <div>
                     <div
                       className={`w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br ${benefit.accent} flex items-center justify-center mb-2 sm:mb-3 shadow-xs`}
+                      aria-hidden="true"
+                      title={benefit.title}
                     >
                       <span className="material-symbols-outlined text-lg sm:text-xl">{benefit.icon}</span>
                     </div>
@@ -295,6 +313,15 @@ export default async function HomePage() {
 
       {/* 7. Marketplace Quick-Commerce Banner (100% DB-driven) */}
       <MarketplaceShowcaseBanner platforms={marketplaceLinks} />
+
+      {/* 8. FAQ Section — Homepage FAQs with FAQPage JSON-LD Schema */}
+      <div className="bg-white border-t border-amber-900/10">
+        <PageFAQ
+          faqs={DEFAULT_HOME_FAQS}
+          title="Frequently Asked Questions"
+          subtitle="Everything you need to know about Makhana Gold — sourcing, nutrition, and delivery"
+        />
+      </div>
     </main>
   );
 }

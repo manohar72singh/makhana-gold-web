@@ -37,6 +37,9 @@ export async function createBlogPostAction(formData: FormData) {
   const authorRole = (formData.get("authorRole") as string)?.trim() || "Holistic Wellness & Food Science";
   const isPublished = formData.get("isPublished") === "true" || formData.get("isPublished") === "on";
   const featured = formData.get("featured") === "true" || formData.get("featured") === "on";
+  const scheduledAtRaw = (formData.get("scheduledAt") as string)?.trim();
+  const scheduledAt = scheduledAtRaw ? new Date(scheduledAtRaw) : null;
+  const blogFaqs = (formData.get("blogFaqs") as string)?.trim() || null;
 
   // SEO Fields (Auto-generated if left empty)
   const metaTitle = (formData.get("metaTitle") as string)?.trim() || `${title} | Makhana Gold`;
@@ -60,6 +63,8 @@ export async function createBlogPostAction(formData: FormData) {
       readingTimeMinutes,
       isPublished,
       featured,
+      scheduledAt,
+      blogFaqs,
       metaTitle,
       metaDescription,
       metaKeywords,
@@ -90,6 +95,9 @@ export async function updateBlogPostAction(id: number, formData: FormData) {
   const authorRole = (formData.get("authorRole") as string)?.trim() || "Holistic Wellness & Food Science";
   const isPublished = formData.get("isPublished") === "true" || formData.get("isPublished") === "on";
   const featured = formData.get("featured") === "true" || formData.get("featured") === "on";
+  const scheduledAtRaw = (formData.get("scheduledAt") as string)?.trim();
+  const scheduledAt = scheduledAtRaw ? new Date(scheduledAtRaw) : null;
+  const blogFaqs = (formData.get("blogFaqs") as string)?.trim() || null;
 
   // SEO Fields
   const metaTitle = (formData.get("metaTitle") as string)?.trim() || `${title} | Makhana Gold`;
@@ -114,6 +122,8 @@ export async function updateBlogPostAction(id: number, formData: FormData) {
       readingTimeMinutes,
       isPublished,
       featured,
+      scheduledAt,
+      blogFaqs,
       metaTitle,
       metaDescription,
       metaKeywords,

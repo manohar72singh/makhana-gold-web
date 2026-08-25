@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { Pagination } from "@/components/storefront/Pagination";
+import { PageFAQ } from "@/components/storefront/PageFAQ";
+import { generateBreadcrumbSchema, generateCollectionPageSchema, DEFAULT_BLOG_FAQS } from "@/lib/seo";
 
 const PAGE_SIZE = 6;
 
@@ -59,8 +61,21 @@ export default async function BlogHubPage({
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
+  const collectionSchema = generateCollectionPageSchema({
+    name: "Makhana Gold Superfoods & Nutrition Journal",
+    description: "Science-backed guides on Fox Nuts, Chana Sattu, and Red Rice Poha nutrition, recipes, and health benefits.",
+    url: "/blog",
+  });
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Home", url: "/" },
+    { name: "Superfoods Journal", url: "/blog" },
+  ]);
+
   return (
     <main className="max-w-container-max mx-auto px-5 sm:px-gutter py-10 sm:py-16">
+      {/* Structured Data */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
       {/* Breadcrumb */}
       <nav aria-label="Breadcrumb" className="text-on-surface-variant font-label-sm text-xs mb-8">
         <ol className="flex items-center space-x-2">
@@ -118,12 +133,13 @@ export default async function BlogHubPage({
         <div className="mb-14 bg-gradient-to-br from-[#2B1B04] to-[#1C150C] rounded-3xl overflow-hidden text-white shadow-2xl border border-amber-500/20 grid grid-cols-1 lg:grid-cols-2">
           <div className="relative min-h-[300px] lg:min-h-full">
             <Image
-              src={featuredPost.coverImage || "/images/vibrant/hero.jpg"}
-              alt={featuredPost.title}
-              fill
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              className="object-cover"
-            />
+                      src={featuredPost.coverImage || "/images/vibrant/hero.jpg"}
+                      alt={`${featuredPost.title} — Featured article on Makhana Gold Superfoods Journal`}
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      className="object-cover"
+                      title={featuredPost.title}
+                    />
             <div className="absolute top-4 left-4 bg-gradient-to-r from-[#E64A19] to-[#D84315] text-white font-extrabold text-[10px] uppercase tracking-wider px-3 py-1 rounded-full shadow-md">
               ⭐ Editor&apos;s Pick
             </div>
@@ -151,14 +167,15 @@ export default async function BlogHubPage({
             <div className="flex items-center justify-between pt-6 border-t border-white/10">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-400/30 overflow-hidden relative">
-                  <Image
-                    src={featuredPost.authorAvatar || "/images/logo/logo.png"}
-                    alt={featuredPost.authorName}
-                    fill
-                    sizes="40px"
-                    className="object-contain p-1"
-                  />
-                </div>
+                    <Image
+                      src={featuredPost.authorAvatar || "/images/logo/logo.png"}
+                      alt={`${featuredPost.authorName} — ${featuredPost.authorRole || "Nutritionist at Makhana Gold"}`}
+                      fill
+                      sizes="40px"
+                      className="object-contain p-1"
+                      title={featuredPost.authorName}
+                    />
+                  </div>
                 <div>
                   <p className="text-xs font-bold text-white">{featuredPost.authorName}</p>
                   <p className="text-[10px] text-amber-300/80">{featuredPost.authorRole}</p>
@@ -198,12 +215,13 @@ export default async function BlogHubPage({
                 <div>
                   {/* Cover Photo */}
                   <Link href={`/blog/${blog.slug}`} className="block relative h-52 overflow-hidden bg-[#FAF6EE]">
-                    <Image
+                      <Image
                       src={blog.coverImage || "/images/vibrant/hero.jpg"}
-                      alt={blog.title}
+                      alt={`${blog.title} — ${blog.category} article on Makhana Gold Journal`}
                       fill
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      title={blog.title}
                     />
                     <div className="absolute top-3 left-3 bg-[#FAF6EE]/90 backdrop-blur-xs text-amber-950 font-bold text-[10px] uppercase tracking-wider px-3 py-1 rounded-full border border-amber-900/10">
                       {blog.category}
@@ -234,10 +252,11 @@ export default async function BlogHubPage({
                     <div className="w-8 h-8 rounded-full bg-[#FAF6EE] border border-amber-900/10 overflow-hidden relative">
                       <Image
                         src={blog.authorAvatar || "/images/logo/logo.png"}
-                        alt={blog.authorName}
+                        alt={`${blog.authorName} — author at Makhana Gold`}
                         fill
                         sizes="32px"
                         className="object-contain p-0.5"
+                        title={blog.authorName}
                       />
                     </div>
                     <span className="text-[11px] font-bold text-on-surface">{blog.authorName}</span>
@@ -263,6 +282,15 @@ export default async function BlogHubPage({
           />
         </>
       )}
+
+      {/* FAQ Section — Blog hub FAQs */}
+      <div className="mt-16 border-t border-amber-900/10">
+        <PageFAQ
+          faqs={DEFAULT_BLOG_FAQS}
+          title="Makhana Health FAQs"
+          subtitle="Answers to the most common questions about makhana nutrition, benefits, and usage"
+        />
+      </div>
     </main>
   );
 }

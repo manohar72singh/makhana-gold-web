@@ -6,6 +6,8 @@ export interface OrderEmailItem {
   lineTotal: string | number;
 }
 
+const APP_URL = (process.env.NEXT_PUBLIC_APP_URL || "https://makhanagold.com").replace(/\/+$/, "");
+
 export interface OrderEmailProps {
   orderNumber: string;
   customerName: string;
@@ -179,7 +181,7 @@ export function generateOrderConfirmationEmailHtml(props: OrderEmailProps): stri
           <!-- Action Button -->
           <tr>
             <td align="center" style="padding: 0 32px 32px 32px;">
-              <a href="http://localhost:3000/account/orders" style="display: inline-block; background: linear-gradient(135deg, #E64A19 0%, #D84315 100%); color: #FFFFFF; text-decoration: none; padding: 14px 32px; border-radius: 14px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 12px rgba(216,67,21,0.25);">
+              <a href="${APP_URL}/account/orders" style="display: inline-block; background: linear-gradient(135deg, #E64A19 0%, #D84315 100%); color: #FFFFFF; text-decoration: none; padding: 14px 32px; border-radius: 14px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 12px rgba(216,67,21,0.25);">
                 Track Order & View Invoice
               </a>
             </td>
@@ -256,7 +258,7 @@ export function generateNewsletterWelcomeEmailHtml(email: string, promoCode = "G
               </div>
 
               <!-- CTA -->
-              <a href="http://localhost:3000/shop" style="display: inline-block; background: linear-gradient(135deg, #E64A19 0%, #D84315 100%); color: #FFFFFF; text-decoration: none; padding: 14px 36px; border-radius: 14px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 12px rgba(216,67,21,0.25);">
+              <a href="${APP_URL}/shop" style="display: inline-block; background: linear-gradient(135deg, #E64A19 0%, #D84315 100%); color: #FFFFFF; text-decoration: none; padding: 14px 36px; border-radius: 14px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 12px rgba(216,67,21,0.25);">
                 Explore Signature Flavours
               </a>
             </td>
@@ -341,7 +343,7 @@ export function generateInquiryAcknowledgementEmailHtml({
               </p>
 
               <div style="text-align: center;">
-                <a href="http://localhost:3000" style="display: inline-block; background: #1C150C; color: #FFFFFF; text-decoration: none; padding: 12px 28px; border-radius: 12px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
+                <a href="${APP_URL}" style="display: inline-block; background: #1C150C; color: #FFFFFF; text-decoration: none; padding: 12px 28px; border-radius: 12px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
                   Return to Makhana Gold
                 </a>
               </div>
@@ -499,8 +501,8 @@ export function generateBroadcastEmailHtml(props: BroadcastEmailProps): string {
               <p style="margin: 0 0 6px 0; font-weight: 600;">Makhana Gold India Pvt. Ltd. • Artisanal Wetland Harvest</p>
               <p style="margin: 0 0 8px 0;">You received this notification because you are a valued customer or subscribed to the Gold Standard Society.</p>
               <p style="margin: 0;">
-                <a href="http://localhost:3000" style="color: #8B5A2B; text-decoration: none;">Visit Store</a> • 
-                <a href="http://localhost:3000/shop" style="color: #8B5A2B; text-decoration: none;">Shop Flavours</a> • 
+                <a href="${APP_URL}" style="color: #8B5A2B; text-decoration: none;">Visit Store</a> • 
+                <a href="${APP_URL}/shop" style="color: #8B5A2B; text-decoration: none;">Shop Flavours</a> • 
                 <a href="https://wa.me/916001684216" style="color: #D84315; text-decoration: none; font-weight: bold;">WhatsApp Concierge</a>
               </p>
             </td>
@@ -604,7 +606,7 @@ export function generateAdminNewOrderAlertHtml(props: OrderEmailProps): string {
               </div>
 
               <div style="text-align: center;">
-                <a href="http://localhost:3000/admin/orders/${props.orderNumber}" style="display: inline-block; background-color: #1C150C; color: #FFFFFF; text-decoration: none; padding: 12px 28px; border-radius: 10px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                <a href="${APP_URL}/admin/orders/${props.orderNumber}" style="display: inline-block; background-color: #1C150C; color: #FFFFFF; text-decoration: none; padding: 12px 28px; border-radius: 10px; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
                   Open Order in Admin Panel →
                 </a>
               </div>

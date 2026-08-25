@@ -1,10 +1,50 @@
-import { marked } from "marked";
+import { marked, Renderer } from "marked";
 
 // Configure marked options
 marked.setOptions({
   gfm: true,
   breaks: true,
 });
+
+// Custom renderer to add id anchors to headings (for Table of Contents)
+// and enforce alt tags on images
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+const renderer = new Renderer();
+
+// Override heading rendering to inject id + anchor link for TOC
+renderer.heading = function ({ text, depth }) {
+  const id = slugify(text);
+  // Only anchor h2, h3, h4, h5 (skip h1 — that's the article title)
+  if (depth >= 2 && depth <= 5) {
+    return `<h${depth} id="${id}" class="scroll-mt-24">\n  <a class="heading-anchor" href="#${id}" title="Link to ${text}" aria-label="Anchor link for: ${text}">#</a>\n  ${text}\n</h${depth}>\n`;
+  }
+  return `<h${depth}>${text}</h${depth}>\n`;
+};
+
+// Override image rendering to enforce descriptive alt text
+renderer.image = function ({ href, title, text }) {
+  const alt = text || title || "Makhana Gold article image";
+  const titleAttr = title ? ` title="${title}"` : alt ? ` title="${alt}"` : "";
+  return `<img src="${href}" alt="${alt}"${titleAttr} loading="lazy" class="rounded-2xl w-full my-4" />`;
+};
+
+// Override link rendering to add title attributes
+renderer.link = function ({ href, title, text }) {
+  const titleAttr = title ? ` title="${title}"` : text ? ` title="${text}"` : "";
+  const isExternal = href?.startsWith("http");
+  const relAttr = isExternal ? ' rel="noopener noreferrer"' : "";
+  const targetAttr = isExternal ? ' target="_blank"' : "";
+  return `<a href="${href}"${titleAttr}${relAttr}${targetAttr}>${text}</a>`;
+};
+
+marked.use({ renderer });
 
 export function MarkdownRenderer({ content }: { content: string }) {
   // Pre-process GitHub alerts like > [!TIP] or > [!NOTE]

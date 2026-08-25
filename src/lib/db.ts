@@ -8,7 +8,7 @@ const globalForPrisma = globalThis as unknown as {
 
 function getPoolConfig(): PoolConfig {
   const rawUrl = process.env.DATABASE_URL || "mysql://root:123456@127.0.0.1:3306/makhana_gold";
-  const cleanedUrl = rawUrl.replace("localhost", "127.0.0.1");
+  const cleanedUrl = rawUrl.replace(/@localhost(?=[:/]|$)/i, "@127.0.0.1");
 
   try {
     const parsed = new URL(cleanedUrl);

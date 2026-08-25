@@ -572,33 +572,86 @@ model BroadcastLog {
 }
 
 model BlogPost {
-  id                 Int          @id @default(autoincrement())
-  title              String       @db.VarChar(255)
-  slug               String       @unique @db.VarChar(255)
-  excerpt            String?      @db.Text
-  content            String       @db.LongText
-  coverImage         String?      @map("cover_image") @db.VarChar(500)
-  category           String       @default("Health & Wellness")
-  tags               String?      @db.VarChar(255)
-  authorName         String       @default("Makhana Gold Nutritionist") @map("author_name")
-  authorRole         String       @default("Holistic Wellness & Food Science") @map("author_role")
-  authorAvatar       String?      @default("/images/logo/logo.png") @map("author_avatar")
-  readingTimeMinutes Int          @default(5) @map("reading_time_minutes")
-  isPublished        Boolean      @default(true) @map("is_published")
-  featured           Boolean      @default(false)
-  viewsCount         Int          @default(0) @map("views_count")
-  
+  id                 Int           @id @default(autoincrement())
+  title              String        @db.VarChar(255)
+  slug               String        @unique @db.VarChar(255)
+  excerpt            String?       @db.Text
+  content            String        @db.LongText
+  coverImage         String?       @map("cover_image") @db.VarChar(500)
+  category           String        @default("Health & Wellness")
+  tags               String?       @db.VarChar(255)
+  authorName         String        @default("Makhana Gold Nutritionist") @map("author_name")
+  authorRole         String        @default("Holistic Wellness & Food Science") @map("author_role")
+  authorAvatar       String?       @default("/images/logo/logo.png") @map("author_avatar")
+  readingTimeMinutes Int           @default(5) @map("reading_time_minutes")
+  isPublished        Boolean       @default(true) @map("is_published")
+  featured           Boolean       @default(false)
+  viewsCount         Int           @default(0) @map("views_count")
+
+  // Scheduled Publishing — null means publish immediately when isPublished=true
+  scheduledAt        DateTime?     @map("scheduled_at")
+
+  // Per-post FAQ pairs for FAQPage schema (stored as JSON array [{q, a}])
+  blogFaqs           String?       @map("blog_faqs") @db.Text
+
   // SEO Metadata for Google Auto-Indexing & Rich Cards
-  metaTitle          String?      @map("meta_title") @db.VarChar(255)
-  metaDescription    String?      @map("meta_description") @db.Text
-  metaKeywords       String?      @map("meta_keywords") @db.VarChar(500)
-  canonicalUrl       String?      @map("canonical_url") @db.VarChar(500)
-  
-  createdAt          DateTime     @default(now()) @map("created_at")
-  updatedAt          DateTime     @updatedAt @map("updated_at")
+  metaTitle          String?       @map("meta_title") @db.VarChar(255)
+  metaDescription    String?       @map("meta_description") @db.Text
+  metaKeywords       String?       @map("meta_keywords") @db.VarChar(500)
+  canonicalUrl       String?       @map("canonical_url") @db.VarChar(500)
+
+  comments           BlogComment[]
+
+  createdAt          DateTime      @default(now()) @map("created_at")
+  updatedAt          DateTime      @updatedAt @map("updated_at")
 
   @@index([isPublished, category])
+  @@index([scheduledAt])
   @@index([createdAt])
   @@map("blog_posts")
+}
+
+// ---------------------------------------------------------------------------
+// Blog Comments (with threaded replies & admin moderation)
+// ---------------------------------------------------------------------------
+
+model BlogComment {
+  id          Int          @id @default(autoincrement())
+  blogPostId  Int          @map("blog_post_id")
+  blogPost    BlogPost     @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+  parentId    Int?         @map("parent_id")
+  parent      BlogComment? @relation("CommentReplies", fields: [parentId], references: [id])
+  replies     BlogComment[] @relation("CommentReplies")
+  authorName  String       @map("author_name") @db.VarChar(100)
+  authorEmail String       @map("author_email") @db.VarChar(255)
+  body        String       @db.Text
+  isApproved  Boolean      @default(false) @map("is_approved")
+  createdAt   DateTime     @default(now()) @map("created_at")
+
+  @@index([blogPostId, isApproved])
+  @@index([parentId])
+  @@map("blog_comments")
+}
+
+// ---------------------------------------------------------------------------
+// Certifications & Quality Documents
+// ---------------------------------------------------------------------------
+
+model Certification {
+  id                Int      @id @default(autoincrement())
+  name              String   // e.g. "FSSAI License", "Organic India Certificate"
+  issuingBody       String   @map("issuing_body") // e.g. "Food Safety and Standards Authority of India"
+  certificateNumber String?  @map("certificate_number")
+  validUntil        DateTime? @map("valid_until")
+  documentUrl       String?  @map("document_url") @db.VarChar(500) // PDF download link
+  badgeImage        String?  @map("badge_image") @db.VarChar(500)  // Logo/badge of cert
+  description       String?  @db.Text
+  sortOrder         Int      @default(0) @map("sort_order")
+  isActive          Boolean  @default(true) @map("is_active")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@index([isActive, sortOrder])
+  @@map("certifications")
 }
 

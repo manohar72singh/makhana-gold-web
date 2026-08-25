@@ -127,7 +127,8 @@ export function ProductGridCard({
         {image && (
           <Image
             src={image.url}
-            alt={image.altText ?? product.name}
+            alt={image.altText ?? `${product.name}${variant?.packSize ? ` — ${variant.packSize}` : ""} — Makhana Gold`}
+            title={`${product.name} — Buy Online at Makhana Gold`}
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
             className={`object-cover group-hover:scale-106 transition-transform duration-700 ease-out ${

@@ -51,6 +51,26 @@ export default async function AdminBlogsPage() {
         </Box>
 
         <Stack direction="row" spacing={1.5} sx={{ width: { xs: "100%", md: "auto" } }}>
+          <Link href="/admin/blogs/comments" style={{ textDecoration: "none" }}>
+            <Button
+              variant="outlined"
+              size="small"
+              sx={{
+                textTransform: "none",
+                fontWeight: 700,
+                borderRadius: 2,
+                borderColor: "rgba(120, 53, 15, 0.25)",
+                color: "#D84315",
+                bgcolor: "white",
+                "&:hover": { bgcolor: "#FAF6EE", borderColor: "#D84315" },
+                px: 2,
+                py: 1,
+              }}
+            >
+              💬 Manage Comments
+            </Button>
+          </Link>
+
           <Link href="/blog" target="_blank" style={{ textDecoration: "none" }}>
             <Button
               variant="outlined"
