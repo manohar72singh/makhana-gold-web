@@ -9,19 +9,41 @@ const globalForPrisma = globalThis as unknown as {
 
 function getPoolConfig(): PoolConfig {
   const rawUrl = process.env.DATABASE_URL || "mysql://root:123456@127.0.0.1:3306/makhana_gold";
+  // Set this when TCP to 127.0.0.1 can't reach MariaDB from the app's container
+  // (e.g. shared hosting where the app and DB run in isolated network namespaces).
+  // Find the real path with: mysql_config --socket
+  const socketPath = process.env.DB_SOCKET_PATH;
 
   try {
     const parsed = new URL(rawUrl);
     const host = parsed.hostname || "127.0.0.1";
     // On Hostinger container, self-ip and localhost map to 127.0.0.1 TCP socket
     const resolvedHost = (host === "localhost" || host === "31.97.2.35") ? "127.0.0.1" : host;
+    const user = decodeURIComponent(parsed.username) || "root";
+    const password = decodeURIComponent(parsed.password) || "";
+    const database = parsed.pathname.replace(/^\//, "") || "makhana_gold";
+
+    if (socketPath) {
+      return {
+        socketPath,
+        user,
+        password,
+        database,
+        connectionLimit: 5,
+        connectTimeout: 8000,
+        acquireTimeout: 8000,
+        idleTimeout: 30000,
+        minDelayValidation: 500,
+        allowPublicKeyRetrieval: true,
+      } as PoolConfig;
+    }
 
     return {
       host: resolvedHost,
       port: Number(parsed.port) || 3306,
-      user: decodeURIComponent(parsed.username) || "root",
-      password: decodeURIComponent(parsed.password) || "",
-      database: parsed.pathname.replace(/^\//, "") || "makhana_gold",
+      user,
+      password,
+      database,
       connectionLimit: 5,
       connectTimeout: 8000,
       acquireTimeout: 8000,

@@ -1,5 +1,12 @@
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/db";
+
+// Site-wide content (categories, settings, banners, etc.) rarely changes.
+// Cache across requests so normal traffic doesn't re-query the DB pool
+// (limit=5) on every single page load — only React-request-dedupe via
+// `cache()` alone was hitting the DB on every visit.
+const CONTENT_REVALIDATE_SECONDS = 60;
 
 export interface HeroSlideData {
   id: string;
@@ -50,7 +57,7 @@ export interface MarketplaceLinkData {
 /**
  * Fetch all active Hero Banners from the database.
  */
-export const getHeroBanners = cache(async function getHeroBanners(): Promise<HeroSlideData[]> {
+export const getHeroBanners = cache(unstable_cache(async function getHeroBanners(): Promise<HeroSlideData[]> {
   try {
     if (!prisma.heroBanner) return [];
     const banners = await prisma.heroBanner.findMany({
@@ -80,12 +87,12 @@ export const getHeroBanners = cache(async function getHeroBanners(): Promise<Her
     console.error("Error fetching hero banners:", error);
     return [];
   }
-});
+}, ["hero-banners"], { revalidate: CONTENT_REVALIDATE_SECONDS }));
 
 /**
  * Fetch Trust Badges & Health Benefits from feature pillars table.
  */
-export const getTrustBadges = cache(async function getTrustBadges(): Promise<TrustBadgeData[]> {
+export const getTrustBadges = cache(unstable_cache(async function getTrustBadges(): Promise<TrustBadgeData[]> {
   try {
     if (!prisma.featurePillar) return [];
     const items = await prisma.featurePillar.findMany({
@@ -105,9 +112,9 @@ export const getTrustBadges = cache(async function getTrustBadges(): Promise<Tru
     console.error("Error fetching trust badges:", error);
     return [];
   }
-});
+}, ["trust-badges"], { revalidate: CONTENT_REVALIDATE_SECONDS }));
 
-export const getHealthBenefits = cache(async function getHealthBenefits(): Promise<HealthBenefitData[]> {
+export const getHealthBenefits = cache(unstable_cache(async function getHealthBenefits(): Promise<HealthBenefitData[]> {
   try {
     if (!prisma.featurePillar) return [];
     const items = await prisma.featurePillar.findMany({
@@ -128,12 +135,12 @@ export const getHealthBenefits = cache(async function getHealthBenefits(): Promi
     console.error("Error fetching health benefits:", error);
     return [];
   }
-});
+}, ["health-benefits"], { revalidate: CONTENT_REVALIDATE_SECONDS }));
 
 /**
  * Fetch all active FAQs grouped by category from the database.
  */
-export const getFaqCategories = cache(async function getFaqCategories(): Promise<FaqCategoryData[]> {
+export const getFaqCategories = cache(unstable_cache(async function getFaqCategories(): Promise<FaqCategoryData[]> {
   try {
     if (!prisma.faqItem) return [];
     const faqs = await prisma.faqItem.findMany({
@@ -162,12 +169,12 @@ export const getFaqCategories = cache(async function getFaqCategories(): Promise
     console.error("Error fetching FAQs:", error);
     return [];
   }
-});
+}, ["faq-categories"], { revalidate: CONTENT_REVALIDATE_SECONDS }));
 
 /**
  * Fetch all active Marketplace Quick-Commerce links from the database.
  */
-export const getMarketplaceLinks = cache(async function getMarketplaceLinks(): Promise<MarketplaceLinkData[]> {
+export const getMarketplaceLinks = cache(unstable_cache(async function getMarketplaceLinks(): Promise<MarketplaceLinkData[]> {
   try {
     if (!prisma.marketplaceLink) return [];
     const links = await prisma.marketplaceLink.findMany({
@@ -189,12 +196,12 @@ export const getMarketplaceLinks = cache(async function getMarketplaceLinks(): P
     console.error("Error fetching marketplace links:", error);
     return [];
   }
-});
+}, ["marketplace-links"], { revalidate: CONTENT_REVALIDATE_SECONDS }));
 
 /**
  * Fetch key-value Site Settings from the database.
  */
-export const getSiteSettings = cache(async function getSiteSettings(): Promise<Record<string, string>> {
+export const getSiteSettings = cache(unstable_cache(async function getSiteSettings(): Promise<Record<string, string>> {
   try {
     if (!prisma.siteSetting) return {};
     const settings = await prisma.siteSetting.findMany({});
@@ -207,12 +214,12 @@ export const getSiteSettings = cache(async function getSiteSettings(): Promise<R
     console.error("Error fetching site settings:", error);
     return {};
   }
-});
+}, ["site-settings"], { revalidate: CONTENT_REVALIDATE_SECONDS }));
 
 /**
  * Fetch approved customer reviews from the database for the storefront.
  */
-export const getStorefrontReviews = cache(async function getStorefrontReviews() {
+export const getStorefrontReviews = cache(unstable_cache(async function getStorefrontReviews() {
   try {
     if (!prisma.review) return [];
     return await prisma.review.findMany({
@@ -232,4 +239,23 @@ export const getStorefrontReviews = cache(async function getStorefrontReviews() 
     console.error("Error fetching reviews:", error);
     return [];
   }
-});
+}, ["storefront-reviews"], { revalidate: CONTENT_REVALIDATE_SECONDS }));
+
+/**
+ * Fetch the top-level category tree (with children) used in site navigation.
+ */
+export const getCategoryTree = cache(unstable_cache(async function getCategoryTree() {
+  try {
+    if (!prisma.category) return [];
+    return await prisma.category.findMany({
+      where: { parentId: null },
+      include: {
+        children: { orderBy: { name: "asc" } },
+      },
+      orderBy: { name: "asc" },
+    });
+  } catch (error) {
+    console.error("Error fetching categories in SiteHeader:", error);
+    return [];
+  }
+}, ["category-tree"], { revalidate: CONTENT_REVALIDATE_SECONDS }));

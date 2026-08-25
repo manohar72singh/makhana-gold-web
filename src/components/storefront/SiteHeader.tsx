@@ -1,7 +1,6 @@
-import { prisma } from "@/lib/db";
 import { getCartItemCount } from "@/lib/cart";
 import { auth } from "@/lib/auth";
-import { getSiteSettings } from "@/lib/content";
+import { getSiteSettings, getCategoryTree } from "@/lib/content";
 import { SiteHeaderClient } from "./SiteHeaderClient";
 
 export async function SiteHeader() {
@@ -17,18 +16,7 @@ export async function SiteHeader() {
       getCartItemCount().catch(() => 0),
       auth().catch(() => null),
       getSiteSettings().catch(() => ({})),
-      prisma.category
-        .findMany({
-          where: { parentId: null },
-          include: {
-            children: { orderBy: { name: "asc" } },
-          },
-          orderBy: { name: "asc" },
-        })
-        .catch((err) => {
-          console.error("Error fetching categories in SiteHeader:", err);
-          return [];
-        }),
+      getCategoryTree().catch(() => []),
     ]);
     cartCount = results[0];
     session = results[1];
