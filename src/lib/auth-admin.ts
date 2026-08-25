@@ -18,6 +18,7 @@ export const {
   signOut: adminSignOut,
 } = NextAuth({
   secret: process.env.AUTH_SECRET,
+  trustHost: true,
   session: { strategy: "jwt" },
   basePath: "/api/admin/auth",
   pages: {
