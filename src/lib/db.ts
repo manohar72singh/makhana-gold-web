@@ -1,9 +1,10 @@
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
-import type { PoolConfig } from "mariadb";
+import mariadb, { type Pool, type PoolConfig } from "mariadb";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
+  pool: Pool | undefined;
 };
 
 function getPoolConfig(): PoolConfig {
@@ -17,9 +18,9 @@ function getPoolConfig(): PoolConfig {
       user: decodeURIComponent(parsed.username) || "root",
       password: decodeURIComponent(parsed.password) || "",
       database: parsed.pathname.replace(/^\//, "") || "makhana_gold",
-      connectionLimit: 20,
-      connectTimeout: 8000,
-      acquireTimeout: 10000,
+      connectionLimit: 5,
+      connectTimeout: 5000,
+      acquireTimeout: 5000,
       idleTimeout: 30000,
       minDelayValidation: 500,
     };
@@ -30,14 +31,14 @@ function getPoolConfig(): PoolConfig {
       user: "root",
       password: "",
       database: "makhana_gold",
-      connectionLimit: 20,
-      connectTimeout: 8000,
-      acquireTimeout: 10000,
+      connectionLimit: 5,
+      connectTimeout: 5000,
+      acquireTimeout: 5000,
     };
   }
 }
 
-function createPrismaClient() {
+function createPrismaClient(): PrismaClient {
   const poolConfig = getPoolConfig();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const adapter = new PrismaMariaDb(poolConfig as any);
@@ -46,6 +47,7 @@ function createPrismaClient() {
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
-}
+// Always attach to global scope to avoid pool leaks in production
+globalForPrisma.prisma = prisma;
+
+

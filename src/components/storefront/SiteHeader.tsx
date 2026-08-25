@@ -5,18 +5,39 @@ import { getSiteSettings } from "@/lib/content";
 import { SiteHeaderClient } from "./SiteHeaderClient";
 
 export async function SiteHeader() {
-  const [cartCount, session, settings, categoryTree] = await Promise.all([
-    getCartItemCount(),
-    auth(),
-    getSiteSettings(),
-    prisma.category.findMany({
-      where: { parentId: null },
-      include: {
-        children: { orderBy: { name: "asc" } },
-      },
-      orderBy: { name: "asc" },
-    }),
-  ]);
+  let cartCount = 0;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let session: any = null;
+  let settings: Record<string, string> = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let categoryTree: any[] = [];
+
+  try {
+    const results = await Promise.all([
+      getCartItemCount().catch(() => 0),
+      auth().catch(() => null),
+      getSiteSettings().catch(() => ({})),
+      prisma.category
+        .findMany({
+          where: { parentId: null },
+          include: {
+            children: { orderBy: { name: "asc" } },
+          },
+          orderBy: { name: "asc" },
+        })
+        .catch((err) => {
+          console.error("Error fetching categories in SiteHeader:", err);
+          return [];
+        }),
+    ]);
+    cartCount = results[0];
+    session = results[1];
+    settings = results[2];
+    categoryTree = results[3];
+  } catch (err) {
+    console.error("Error loading header data:", err);
+  }
+
 
   const isAnnouncementEnabled = settings["announcement_enabled"] !== "false";
   const badgeText = settings["announcement_badge"] || "Special Privilege:";

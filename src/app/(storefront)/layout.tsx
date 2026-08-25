@@ -4,9 +4,16 @@ import { WhatsAppConcierge } from "@/components/storefront/WhatsAppConcierge";
 import { getSiteSettings } from "@/lib/content";
 
 export default async function StorefrontLayout({ children }: LayoutProps<"/">) {
-  const settings = await getSiteSettings();
-  const whatsappNumber = settings["support_whatsapp"] || "916001684216";
-  const storeName = settings["store_name"] || "Makhana Gold";
+  let whatsappNumber = "916001684216";
+  let storeName = "Makhana Gold";
+
+  try {
+    const settings = await getSiteSettings();
+    whatsappNumber = settings["support_whatsapp"] || "916001684216";
+    storeName = settings["store_name"] || "Makhana Gold";
+  } catch (error) {
+    console.error("Error loading site settings in StorefrontLayout:", error);
+  }
 
   return (
     <>
@@ -17,3 +24,4 @@ export default async function StorefrontLayout({ children }: LayoutProps<"/">) {
     </>
   );
 }
+
