@@ -12,18 +12,24 @@ function getPoolConfig(): PoolConfig {
 
   try {
     const parsed = new URL(rawUrl);
+    const host = parsed.hostname || "127.0.0.1";
+    // On Hostinger container, self-ip and localhost map to 127.0.0.1 TCP socket
+    const resolvedHost = (host === "localhost" || host === "31.97.2.35") ? "127.0.0.1" : host;
+
     return {
-      host: parsed.hostname || "127.0.0.1",
+      host: resolvedHost,
       port: Number(parsed.port) || 3306,
       user: decodeURIComponent(parsed.username) || "root",
       password: decodeURIComponent(parsed.password) || "",
       database: parsed.pathname.replace(/^\//, "") || "makhana_gold",
       connectionLimit: 5,
-      connectTimeout: 5000,
-      acquireTimeout: 5000,
+      connectTimeout: 8000,
+      acquireTimeout: 8000,
       idleTimeout: 30000,
       minDelayValidation: 500,
-    };
+      allowPublicKeyRetrieval: true,
+      ssl: false,
+    } as PoolConfig;
   } catch {
     return {
       host: "127.0.0.1",
@@ -32,9 +38,11 @@ function getPoolConfig(): PoolConfig {
       password: "",
       database: "makhana_gold",
       connectionLimit: 5,
-      connectTimeout: 5000,
-      acquireTimeout: 5000,
-    };
+      connectTimeout: 8000,
+      acquireTimeout: 8000,
+      allowPublicKeyRetrieval: true,
+      ssl: false,
+    } as PoolConfig;
   }
 }
 
@@ -49,5 +57,6 @@ export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
 // Always attach to global scope to avoid pool leaks in production
 globalForPrisma.prisma = prisma;
+
 
 
