@@ -1,6 +1,6 @@
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
-import mariadb, { type Pool, type PoolConfig } from "mariadb";
+import type { Pool, PoolConfig } from "mariadb";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -17,8 +17,6 @@ function getPoolConfig(): PoolConfig {
   try {
     const parsed = new URL(rawUrl);
     const host = parsed.hostname || "127.0.0.1";
-    // On Hostinger container, self-ip and localhost map to 127.0.0.1 TCP socket
-    const resolvedHost = (host === "localhost" || host === "31.97.2.35") ? "127.0.0.1" : host;
     const user = decodeURIComponent(parsed.username) || "root";
     const password = decodeURIComponent(parsed.password) || "";
     const database = parsed.pathname.replace(/^\//, "") || "makhana_gold";
@@ -39,7 +37,7 @@ function getPoolConfig(): PoolConfig {
     }
 
     return {
-      host: resolvedHost,
+      host,
       port: Number(parsed.port) || 3306,
       user,
       password,
@@ -70,6 +68,10 @@ function getPoolConfig(): PoolConfig {
 
 function createPrismaClient(): PrismaClient {
   const poolConfig = getPoolConfig();
+  // One-time visibility into what the pool will actually try to connect to —
+  // helps confirm env vars (DB_SOCKET_PATH etc.) are really loaded at runtime.
+  const { password: _password, ...safeConfig } = poolConfig as PoolConfig & { password?: string };
+  console.log("[db] Prisma pool config:", safeConfig);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const adapter = new PrismaMariaDb(poolConfig as any);
   return new PrismaClient({ adapter });
