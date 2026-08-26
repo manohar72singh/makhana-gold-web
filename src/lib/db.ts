@@ -1,3 +1,4 @@
+import fs from "fs";
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import type { PoolConfig } from "mariadb";
@@ -5,6 +6,27 @@ import type { PoolConfig } from "mariadb";
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
+
+const COMMON_LINUX_SOCKETS = [
+  "/var/run/mysqld/mysqld.sock",
+  "/tmp/mysql.sock",
+  "/var/lib/mysql/mysql.sock",
+  "/var/run/mysql/mysql.sock",
+];
+
+function detectLinuxSocket(): string | undefined {
+  if (typeof process === "undefined" || process.platform === "win32") return undefined;
+  for (const socket of COMMON_LINUX_SOCKETS) {
+    try {
+      if (fs.existsSync(socket)) {
+        return socket;
+      }
+    } catch {
+      // ignore permission or access error
+    }
+  }
+  return undefined;
+}
 
 /**
  * Intelligent Database Configuration Parser
@@ -45,8 +67,9 @@ function getPoolConfig(): PoolConfig {
     const password = decodeURIComponent(process.env.DB_PASSWORD || parsed.password || "");
     const database = (process.env.DB_NAME || parsed.pathname.replace(/^\//, "") || "makhana_gold").split("?")[0];
 
-    // Socket path from URL parameter or env
-    const socketPath = explicitSocket || params.get("socket") || params.get("socketPath") || undefined;
+    // Socket path from explicit override, URL parameter, or auto-detected on Linux
+    const detectedSocket = (host === "127.0.0.1" || host === "localhost") ? detectLinuxSocket() : undefined;
+    const socketPath = explicitSocket || params.get("socket") || params.get("socketPath") || detectedSocket || undefined;
 
     // Connection limits & timeouts
     const connectionLimit = Number(
@@ -91,9 +114,6 @@ function getPoolConfig(): PoolConfig {
       connectTimeout,
       acquireTimeout,
       idleTimeout,
-      minDelayValidation: 500,
-      allowPublicKeyRetrieval: true,
-      compress: host !== "127.0.0.1", // Compress traffic for remote database connections
       ssl: isSsl ? { rejectUnauthorized: false } : false,
     };
 
@@ -121,8 +141,6 @@ function getPoolConfig(): PoolConfig {
       connectTimeout: 15000,
       acquireTimeout: 15000,
       idleTimeout: 60000,
-      minDelayValidation: 500,
-      allowPublicKeyRetrieval: true,
       ssl: false,
     };
   }
