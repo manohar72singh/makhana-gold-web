@@ -12,11 +12,17 @@ const globalForPrisma = globalThis as unknown as {
  * SSL certificates, and custom connection pool tuning for production scalability.
  */
 function getPoolConfig(): PoolConfig {
-  const rawUrl =
+  let rawUrl = (
     process.env.DATABASE_URL ||
     process.env.MYSQL_URL ||
     process.env.DATABASE_URI ||
-    "mysql://root:123456@127.0.0.1:3306/makhana_gold";
+    "mysql://root:123456@127.0.0.1:3306/makhana_gold"
+  ).trim();
+
+  // Auto-repair malformed protocol if colon is missing (e.g. "mysql//..." -> "mysql://...")
+  if (/^(mysql|mariadb)\/\//i.test(rawUrl)) {
+    rawUrl = rawUrl.replace(/^(mysql|mariadb)\/\//i, "$1://");
+  }
 
   // Explicit socket path override (e.g. Hostinger / cPanel / Docker: /var/run/mysqld/mysqld.sock)
   const explicitSocket = process.env.DB_SOCKET_PATH;
@@ -126,9 +132,8 @@ function createPrismaClient(): PrismaClient {
   const poolConfig = getPoolConfig();
   const { password: _password, ...safeConfig } = poolConfig as PoolConfig & { password?: string };
   
-  if (process.env.NODE_ENV !== "production") {
-    console.log("[db] Initialized MariaDB/MySQL connection pool:", safeConfig);
-  }
+  // Log safe target configuration on both development and production for clear diagnostic visibility
+  console.log("[db] Initialized MariaDB/MySQL pool target:", safeConfig);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const adapter = new PrismaMariaDb(poolConfig as any);
