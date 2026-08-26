@@ -22,8 +22,10 @@ export async function SiteHeader() {
     session = results[1];
     settings = results[2];
     categoryTree = results[3];
-  } catch (err) {
-    console.error("Error loading header data:", err);
+  } catch (err: any) {
+    if (err?.digest !== "DYNAMIC_SERVER_USAGE" && !err?.message?.includes("DYNAMIC_SERVER_USAGE")) {
+      console.error("[header] Error loading header data:", err);
+    }
   }
 
 
