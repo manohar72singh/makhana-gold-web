@@ -3,7 +3,11 @@ import bcrypt from "bcryptjs";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 
-const adapter = new PrismaMariaDb(process.env.DATABASE_URL!);
+let dbUrl = process.env.DATABASE_URL || "mysql://root:123456@127.0.0.1:3306/makhana_gold";
+if (!dbUrl.includes("allowPublicKeyRetrieval")) {
+  dbUrl += (dbUrl.includes("?") ? "&" : "?") + "allowPublicKeyRetrieval=true";
+}
+const adapter = new PrismaMariaDb(dbUrl);
 const prisma = new PrismaClient({ adapter });
 
 async function ensureTablesExist() {

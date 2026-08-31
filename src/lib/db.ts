@@ -106,6 +106,10 @@ function getPoolConfig(): PoolConfig {
     const sslParam = (params.get("ssl") || params.get("sslmode") || process.env.DB_SSL || "").toLowerCase();
     const isSsl = sslParam === "true" || sslParam === "require" || sslParam === "prefer" || sslParam === "1";
 
+    // MySQL 8+ caching_sha2_password authentication compatibility
+    const allowPublicKeyRetrievalParam = params.get("allowPublicKeyRetrieval") || params.get("allow_public_key_retrieval") || process.env.DB_ALLOW_PUBLIC_KEY_RETRIEVAL;
+    const allowPublicKeyRetrieval = allowPublicKeyRetrievalParam !== undefined ? allowPublicKeyRetrievalParam === "true" || allowPublicKeyRetrievalParam === "1" : true;
+
     const baseConfig: PoolConfig = {
       user,
       password,
@@ -114,6 +118,7 @@ function getPoolConfig(): PoolConfig {
       connectTimeout,
       acquireTimeout,
       idleTimeout,
+      allowPublicKeyRetrieval,
       ssl: isSsl ? { rejectUnauthorized: false } : false,
     };
 
@@ -141,6 +146,7 @@ function getPoolConfig(): PoolConfig {
       connectTimeout: 15000,
       acquireTimeout: 15000,
       idleTimeout: 60000,
+      allowPublicKeyRetrieval: true,
       ssl: false,
     };
   }
