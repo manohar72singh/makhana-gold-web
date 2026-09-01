@@ -6,6 +6,7 @@ import TableHead from "@mui/material/TableHead";
 import TableBody from "@mui/material/TableBody";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
 import Chip from "@mui/material/Chip";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
@@ -73,7 +74,7 @@ export default async function AdminInquiriesPage() {
       <Typography variant="h6" gutterBottom>
         Contact &amp; Corporate Inquiries
       </Typography>
-      <Paper variant="outlined" sx={{ borderRadius: 3, overflow: "hidden", mb: 5 }}>
+      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3, mb: 5 }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -153,13 +154,13 @@ export default async function AdminInquiriesPage() {
             )}
           </TableBody>
         </Table>
-      </Paper>
+      </TableContainer>
 
       {/* Newsletter Subscribers Table */}
       <Typography variant="h6" gutterBottom>
         Newsletter Subscribers
       </Typography>
-      <Paper variant="outlined" sx={{ borderRadius: 3, overflow: "hidden" }}>
+      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3 }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -199,7 +200,7 @@ export default async function AdminInquiriesPage() {
             )}
           </TableBody>
         </Table>
-      </Paper>
+      </TableContainer>
     </>
   );
 }

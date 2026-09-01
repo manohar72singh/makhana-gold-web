@@ -97,7 +97,7 @@ export default async function AdminOrderDetailPage({
                 px: 2.5,
               }}
             >
-              📦 Print 4x6 Shipping Label ↗
+              Print 4x6 Shipping Label ↗
             </Button>
           </Link>
 
@@ -117,7 +117,7 @@ export default async function AdminOrderDetailPage({
                 px: 2.5,
               }}
             >
-              🖨️ Print GST Tax Invoice ↗
+              Print GST Tax Invoice ↗
             </Button>
           </Link>
         </Stack>
@@ -208,7 +208,7 @@ export default async function AdminOrderDetailPage({
 
         {/* Right Column: Logistics Dispatch & Status History */}
         <Grid size={{ xs: 12, md: 5 }}>
-          {/* 🚚 1-Click Courier Fulfillment Card */}
+          {/* Courier Fulfillment Card */}
           <Paper
             variant="outlined"
             sx={{
@@ -221,7 +221,7 @@ export default async function AdminOrderDetailPage({
           >
             <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: 1.5 }}>
               <Typography variant="h6" sx={{ fontWeight: 800, color: "#1C150C" }}>
-                🚚 Courier Fulfillment &amp; AWB
+                Courier Fulfillment &amp; AWB
               </Typography>
             </Stack>
 
@@ -248,7 +248,7 @@ export default async function AdminOrderDetailPage({
                     size="small"
                     sx={{ bgcolor: "#25D366", "&:hover": { bgcolor: "#1EBE5D" }, textTransform: "none", fontWeight: 700 }}
                   >
-                    📍 Live Public Tracking View ↗
+                    Live Public Tracking View ↗
                   </Button>
                 </Link>
               </Stack>
@@ -284,7 +284,7 @@ export default async function AdminOrderDetailPage({
                     py: 1.2,
                   }}
                 >
-                  ⚡ Generate AWB &amp; Mark Dispatched
+                  Generate AWB &amp; Mark Dispatched
                 </Button>
               </Stack>
             )}

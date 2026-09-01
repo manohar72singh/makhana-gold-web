@@ -1,9 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
+import AppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import IconButton from "@mui/material/IconButton";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -11,6 +15,7 @@ import ListItemText from "@mui/material/ListItemText";
 import ListSubheader from "@mui/material/ListSubheader";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
+import MenuIcon from "@mui/icons-material/Menu";
 
 // Icons
 import DashboardIcon from "@mui/icons-material/DashboardOutlined";
@@ -78,16 +83,13 @@ const NAV_GROUPS = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width: DRAWER_WIDTH,
-        flexShrink: 0,
-        [`& .MuiDrawer-paper`]: { width: DRAWER_WIDTH, boxSizing: "border-box" },
-      }}
-    >
+  const handleDrawerToggle = () => setMobileOpen((prev) => !prev);
+  const handleNavClick = () => setMobileOpen(false);
+
+  const drawerContent = (
+    <>
       <Box sx={{ p: 2.5, pb: 1.5 }}>
         <Typography variant="h6" color="primary.main" sx={{ fontWeight: 800, letterSpacing: -0.5 }}>
           Makhana Gold
@@ -125,6 +127,7 @@ export function AdminSidebar() {
                   component={Link}
                   href={href}
                   selected={active}
+                  onClick={handleNavClick}
                   sx={{
                     borderRadius: 2,
                     mb: 0.3,
@@ -176,6 +179,67 @@ export function AdminSidebar() {
           />
         </ListItemButton>
       </Box>
-    </Drawer>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile top bar with hamburger menu — only shown below the md breakpoint,
+          where the permanent sidebar is hidden to avoid eating the whole viewport. */}
+      <AppBar
+        position="fixed"
+        elevation={0}
+        color="inherit"
+        sx={{
+          display: { xs: "flex", md: "none" },
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          borderBottom: "1px solid",
+          borderColor: "divider",
+        }}
+      >
+        <Toolbar sx={{ gap: 1.5 }}>
+          <IconButton
+            edge="start"
+            onClick={handleDrawerToggle}
+            aria-label="Open navigation menu"
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="subtitle1" color="primary.main" sx={{ fontWeight: 800 }}>
+            Makhana Gold Admin
+          </Typography>
+        </Toolbar>
+      </AppBar>
+
+      <Box component="nav" sx={{ width: { md: DRAWER_WIDTH }, flexShrink: { md: 0 } }}>
+        {/* Temporary (overlay) drawer for mobile / small tablets */}
+        <Drawer
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{ keepMounted: true }}
+          sx={{
+            display: { xs: "block", md: "none" },
+            [`& .MuiDrawer-paper`]: { width: DRAWER_WIDTH, boxSizing: "border-box" },
+          }}
+        >
+          {drawerContent}
+        </Drawer>
+
+        {/* Permanent sidebar for desktop */}
+        <Drawer
+          variant="permanent"
+          open
+          sx={{
+            display: { xs: "none", md: "block" },
+            width: DRAWER_WIDTH,
+            flexShrink: 0,
+            [`& .MuiDrawer-paper`]: { width: DRAWER_WIDTH, boxSizing: "border-box" },
+          }}
+        >
+          {drawerContent}
+        </Drawer>
+      </Box>
+    </>
   );
 }

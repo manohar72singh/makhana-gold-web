@@ -121,7 +121,7 @@ export function PackagingLabelStudio({
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper variant="outlined" sx={{ p: 3, borderRadius: 3, height: "100%", bgcolor: "#FAF6EE", borderColor: "#EFE8DA" }}>
             <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 2, color: "#1C150C" }}>
-              🏷️ Barcode &amp; Smart QR Code Generator
+              Barcode &amp; Smart QR Code Generator
             </Typography>
 
             <Stack spacing={2.5}>
@@ -219,7 +219,7 @@ export function PackagingLabelStudio({
               {/* QR Destination Preview */}
               <Box sx={{ p: 1.5, bgcolor: "white", borderRadius: 2, border: "1px solid #EFE8DA" }}>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: "#8B5A2B", display: "block" }}>
-                  📱 Customer Mobile Scan Destination:
+                  Customer Mobile Scan Destination:
                 </Typography>
                 <Typography variant="caption" sx={{ color: "text.secondary", wordBreak: "break-all" }}>
                   {qrDestination}
@@ -240,7 +240,7 @@ export function PackagingLabelStudio({
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper variant="outlined" sx={{ p: 3, borderRadius: 3, height: "100%", bgcolor: "white" }}>
             <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1 }}>
-              📄 Packaging Pouch Design &amp; Pamphlet Artwork
+              Packaging Pouch Design &amp; Pamphlet Artwork
             </Typography>
             <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 2 }}>
               Upload your pouch front/back design, marketing pamphlet, or printing layout for this product.
@@ -328,7 +328,7 @@ export function PackagingLabelStudio({
             )}
 
             <Alert severity="info" sx={{ mt: 2.5, borderRadius: 2, fontSize: "12px" }}>
-              💡 <strong>Printer Tip:</strong> Both Barcode and QR code are generated at 300 DPI high resolution, ready to insert directly into Adobe Illustrator / CorelDraw packaging print plates.
+              <strong>Printer Tip:</strong> Both Barcode and QR code are generated at 300 DPI high resolution, ready to insert directly into Adobe Illustrator / CorelDraw packaging print plates.
             </Alert>
           </Paper>
         </Grid>

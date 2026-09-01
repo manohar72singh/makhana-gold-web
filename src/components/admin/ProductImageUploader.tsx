@@ -119,10 +119,10 @@ export function ProductImageUploader({
       <input type="hidden" name="imagesJson" value={JSON.stringify(images)} />
 
       <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 0.5 }}>
-        📸 Product Gallery &amp; Photos ({images.length} Images)
+        Product Gallery &amp; Photos ({images.length} Images)
       </Typography>
       <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 2 }}>
-        Upload multiple photos from your device. Click the star (⭐) on any photo to set it as the main cover photo.
+        Upload multiple photos from your device. Click the star on any photo to set it as the main cover photo.
       </Typography>
 
       {error && (
@@ -202,7 +202,7 @@ export function ProductImageUploader({
                 {/* Primary Cover Badge */}
                 {img.isPrimary && (
                   <Chip
-                    label="⭐ Main Cover"
+                    label="Main Cover"
                     size="small"
                     sx={{
                       position: "absolute",

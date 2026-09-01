@@ -29,7 +29,7 @@ export default async function AdminBlogsPage() {
 
   return (
     <Box sx={{ maxWidth: "100%", pb: 8 }}>
-      {/* 👑 Top Header Banner */}
+      {/* Top Header Banner */}
       <Stack
         direction={{ xs: "column", md: "row" }}
         spacing={2}
@@ -43,7 +43,7 @@ export default async function AdminBlogsPage() {
       >
         <Box>
           <Typography variant="h5" sx={{ fontWeight: 800, color: "#1C150C", letterSpacing: "-0.02em" }}>
-            ✍️ Blog CMS &amp; Google SEO Suite
+            Blog CMS &amp; Google SEO Suite
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 0.3 }}>
             Publish organic health guides, rank on Google keywords, and drive superfood sales.
@@ -67,7 +67,7 @@ export default async function AdminBlogsPage() {
                 py: 1,
               }}
             >
-              💬 Manage Comments
+              Manage Comments
             </Button>
           </Link>
 
@@ -87,7 +87,7 @@ export default async function AdminBlogsPage() {
                 py: 1,
               }}
             >
-              👁️ View Live Hub ↗
+              View Live Hub ↗
             </Button>
           </Link>
 
@@ -112,7 +112,7 @@ export default async function AdminBlogsPage() {
         </Stack>
       </Stack>
 
-      {/* 📊 Top Metric KPI Cards */}
+      {/* Top Metric KPI Cards */}
       <Box
         sx={{
           display: "grid",
@@ -139,7 +139,7 @@ export default async function AdminBlogsPage() {
 
         <Paper variant="outlined" sx={{ p: 2, borderRadius: 2.5, bgcolor: "#F4FBEF", borderColor: "#C8E6C9" }}>
           <Typography variant="caption" sx={{ fontWeight: 700, textTransform: "uppercase", color: "#2E7D32", fontSize: "10px" }}>
-            🟢 Live &amp; Indexed
+            Live &amp; Indexed
           </Typography>
           <Typography variant="h5" sx={{ fontWeight: 800, color: "#2E7D32", mt: 0.3 }}>
             {publishedCount}
@@ -151,7 +151,7 @@ export default async function AdminBlogsPage() {
 
         <Paper variant="outlined" sx={{ p: 2, borderRadius: 2.5, bgcolor: "#FFFDF6", borderColor: "#FFE082" }}>
           <Typography variant="caption" sx={{ fontWeight: 700, textTransform: "uppercase", color: "#F57F17", fontSize: "10px" }}>
-            🟡 Draft Articles
+            Draft Articles
           </Typography>
           <Typography variant="h5" sx={{ fontWeight: 800, color: "#F57F17", mt: 0.3 }}>
             {draftCount}
@@ -163,7 +163,7 @@ export default async function AdminBlogsPage() {
 
         <Paper variant="outlined" sx={{ p: 2, borderRadius: 2.5, bgcolor: "#F7F5FC", borderColor: "#D1C4E9" }}>
           <Typography variant="caption" sx={{ fontWeight: 700, textTransform: "uppercase", color: "#512DA8", fontSize: "10px" }}>
-            ⭐ Spotlight Featured
+            Spotlight Featured
           </Typography>
           <Typography variant="h5" sx={{ fontWeight: 800, color: "#512DA8", mt: 0.3 }}>
             {featuredCount}
@@ -174,7 +174,7 @@ export default async function AdminBlogsPage() {
         </Paper>
       </Box>
 
-      {/* 📋 Responsive Table Container */}
+      {/* Responsive Table Container */}
       <TableContainer
         component={Paper}
         variant="outlined"
@@ -253,7 +253,7 @@ export default async function AdminBlogsPage() {
                             /blog/{b.slug}
                           </Typography>
                           {b.featured && (
-                            <Chip label="⭐ Spotlight" size="small" sx={{ height: 16, fontSize: "8.5px", bgcolor: "#512DA8", color: "white", fontWeight: 800 }} />
+                            <Chip label="Spotlight" size="small" sx={{ height: 16, fontSize: "8.5px", bgcolor: "#F7F5FC", color: "#512DA8", fontWeight: 800 }} />
                           )}
                         </Stack>
                       </Box>
@@ -282,7 +282,7 @@ export default async function AdminBlogsPage() {
                   {/* Read Time */}
                   <TableCell>
                     <Typography variant="caption" sx={{ fontWeight: 700, bgcolor: "#FAF6EE", px: 1, py: 0.4, borderRadius: 1, fontSize: "11px", whiteSpace: "nowrap" }}>
-                      ⏱️ {b.readingTimeMinutes} min
+                      {b.readingTimeMinutes} min
                     </Typography>
                   </TableCell>
 

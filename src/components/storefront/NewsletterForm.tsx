@@ -32,7 +32,7 @@ export function NewsletterForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col xs:flex-row gap-2 mt-2">
+    <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 mt-2">
       <input
         type="email"
         required
@@ -45,7 +45,7 @@ export function NewsletterForm() {
       <button
         type="submit"
         disabled={pending}
-        className="bg-gradient-to-r from-[#E64A19] to-[#D84315] hover:brightness-110 text-white px-4 py-2.5 rounded-xl font-label-md text-xs uppercase tracking-wider transition-all shrink-0 cursor-pointer shadow-xs font-bold disabled:opacity-50 w-full xs:w-auto"
+        className="bg-gradient-to-r from-[#E64A19] to-[#D84315] hover:brightness-110 text-white px-4 py-2.5 rounded-xl font-label-md text-xs uppercase tracking-wider transition-all shrink-0 cursor-pointer shadow-xs font-bold disabled:opacity-50 w-full sm:w-auto"
       >
         {pending ? "Joining..." : "Join"}
       </button>

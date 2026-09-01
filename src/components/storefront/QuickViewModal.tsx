@@ -62,7 +62,7 @@ function QuickViewModal({
       onClick={onClose}
     >
       <div
-        className="bg-surface-container-lowest rounded-2xl w-full max-w-2xl shadow-warm-2 overflow-hidden grid grid-cols-1 md:grid-cols-2"
+        className="bg-surface-container-lowest rounded-2xl w-full max-w-2xl max-h-[90vh] shadow-warm-2 overflow-y-auto grid grid-cols-1 md:grid-cols-2"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="relative aspect-square bg-surface-variant">
@@ -74,7 +74,7 @@ function QuickViewModal({
           <button
             onClick={onClose}
             aria-label="Close"
-            className="self-end text-on-surface-variant hover:text-on-surface transition-colors"
+            className="self-end p-2 -m-2 text-on-surface-variant hover:text-on-surface transition-colors"
           >
             <span className="material-symbols-outlined">close</span>
           </button>

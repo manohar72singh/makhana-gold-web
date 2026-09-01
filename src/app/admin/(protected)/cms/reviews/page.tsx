@@ -1,5 +1,6 @@
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
+import TableContainer from "@mui/material/TableContainer";
 import Table from "@mui/material/Table";
 import TableHead from "@mui/material/TableHead";
 import TableBody from "@mui/material/TableBody";
@@ -36,7 +37,7 @@ export default async function AdminReviewsPage() {
         </Typography>
       </Box>
 
-      <Paper variant="outlined" sx={{ borderRadius: 3, overflow: "hidden" }}>
+      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3 }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -130,7 +131,7 @@ export default async function AdminReviewsPage() {
             )}
           </TableBody>
         </Table>
-      </Paper>
+      </TableContainer>
     </>
   );
 }

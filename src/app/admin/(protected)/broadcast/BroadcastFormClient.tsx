@@ -30,7 +30,7 @@ interface BroadcastCounts {
 const PRESET_TEMPLATES = [
   {
     key: "festive_discount",
-    label: "🎁 20% Privilege Discount",
+    label: "20% Privilege Discount",
     subject: "Exclusive Privilege: Enjoy 20% Off Your Artisanal Harvest ✨",
     badge: "🎁 LIMITED PRIVILEGE • 20% OFF",
     headline: "A Special Harvest Privilege Just For You",
@@ -43,7 +43,7 @@ const PRESET_TEMPLATES = [
   },
   {
     key: "new_launch",
-    label: "🔥 New Flavour Launch",
+    label: "New Flavour Launch",
     subject: "Introducing Limited Reserve: Black Truffle & Aged Herb Makhana 🌿",
     badge: "🔥 NEW LAUNCH • LIMITED RESERVE",
     headline: "Gourmet Elegance: Black Truffle & Aged Herb",
@@ -56,7 +56,7 @@ const PRESET_TEMPLATES = [
   },
   {
     key: "harvest_announcement",
-    label: "✨ Fresh Harvest 2026",
+    label: "Fresh Harvest 2026",
     subject: "Fresh 2026 Origin Harvest Is Here — Makhana Gold Announcement 🌾",
     badge: "✨ ARTISANAL HARVEST 2026",
     headline: "Pure Origin Fox Nuts • Freshly Roasted",
@@ -151,7 +151,7 @@ export function BroadcastFormClient({ counts }: { counts: BroadcastCounts }) {
       const res = await sendBroadcastAction(formData);
       setResultMessage({
         type: "success",
-        text: `🎉 Broadcast sent successfully to ${res.recipientCount} recipient(s)!`,
+        text: `Broadcast sent successfully to ${res.recipientCount} recipient(s).`,
       });
     } catch (err: any) {
       setResultMessage({
@@ -212,7 +212,7 @@ export function BroadcastFormClient({ counts }: { counts: BroadcastCounts }) {
         <Grid size={{ xs: 12, md: 7 }}>
           <Paper variant="outlined" sx={{ p: 3, borderRadius: 3, mb: 3 }}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-              📢 Broadcast Message Details
+              Broadcast Message Details
             </Typography>
 
             <Stack spacing={2.5}>

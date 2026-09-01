@@ -89,7 +89,7 @@ export default async function CheckoutPage({
             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-xs shadow-xs">
               1
             </div>
-            <span className="font-label-sm text-xs text-primary font-bold hidden xs:block">Address</span>
+            <span className="font-label-sm text-xs text-primary font-bold hidden sm:block">Address</span>
           </div>
 
           <div className="flex-1 h-0.5 bg-outline-variant/50 mx-2" />
@@ -99,7 +99,7 @@ export default async function CheckoutPage({
             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-semibold text-xs">
               2
             </div>
-            <span className="font-label-sm text-xs text-on-surface-variant hidden xs:block">Delivery</span>
+            <span className="font-label-sm text-xs text-on-surface-variant hidden sm:block">Delivery</span>
           </div>
 
           <div className="flex-1 h-0.5 bg-outline-variant/50 mx-2" />
@@ -109,7 +109,7 @@ export default async function CheckoutPage({
             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-semibold text-xs">
               3
             </div>
-            <span className="font-label-sm text-xs text-on-surface-variant hidden xs:block">Payment</span>
+            <span className="font-label-sm text-xs text-on-surface-variant hidden sm:block">Payment</span>
           </div>
 
           <div className="flex-1 h-0.5 bg-outline-variant/50 mx-2" />
@@ -119,7 +119,7 @@ export default async function CheckoutPage({
             <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-semibold text-xs">
               4
             </div>
-            <span className="font-label-sm text-xs text-on-surface-variant hidden xs:block">Review</span>
+            <span className="font-label-sm text-xs text-on-surface-variant hidden sm:block">Review</span>
           </div>
         </div>
       </div>

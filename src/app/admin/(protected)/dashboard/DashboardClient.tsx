@@ -15,6 +15,7 @@ import TableHead from "@mui/material/TableHead";
 import TableBody from "@mui/material/TableBody";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
 import LinearProgress from "@mui/material/LinearProgress";
 import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
@@ -28,10 +29,6 @@ import CreditCardIcon from "@mui/icons-material/CreditCardOutlined";
 import LocalShippingIcon from "@mui/icons-material/LocalShippingOutlined";
 import WarningAmberIcon from "@mui/icons-material/WarningAmberOutlined";
 import AddBoxIcon from "@mui/icons-material/AddBoxOutlined";
-import ForwardToInboxIcon from "@mui/icons-material/ForwardToInboxOutlined";
-import LocalOfferIcon from "@mui/icons-material/LocalOfferOutlined";
-import ViewCarouselIcon from "@mui/icons-material/ViewCarouselOutlined";
-import SupportAgentIcon from "@mui/icons-material/SupportAgentOutlined";
 import TrendingUpIcon from "@mui/icons-material/TrendingUpOutlined";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForwardOutlined";
 
@@ -112,19 +109,19 @@ export function DashboardClient({ initialData }: { initialData: DashboardData })
 
   return (
     <Box sx={{ pb: 6 }}>
-      {/* 🟢 TOP REAL-TIME COMMAND HEADER */}
+      {/* TOP HEADER */}
       <Stack
         direction={{ xs: "column", sm: "row" }}
         spacing={2}
-        sx={{ justifyContent: "space-between", alignItems: { sm: "center" }, mb: 3 }}
+        sx={{ justifyContent: "space-between", alignItems: { sm: "center" }, mb: 4 }}
       >
         <Box>
           <Stack direction="row" spacing={1.5} sx={{ alignItems: "center", mb: 0.5 }}>
             <Typography variant="h4" sx={{ fontWeight: 800, color: "#1C150C" }}>
-              Makhana Gold Master Command
+              Dashboard
             </Typography>
             <Chip
-              label="🟢 Live Store Online"
+              label="Live"
               size="small"
               sx={{
                 bgcolor: "success.50",
@@ -137,21 +134,16 @@ export function DashboardClient({ initialData }: { initialData: DashboardData })
             />
           </Stack>
           <Typography variant="body2" color="text.secondary">
-            Real-time financial pulse, live order pipeline, and master store controls.
+            {lastUpdated ? `Last updated ${lastUpdated}` : "Store overview and today's activity"}
           </Typography>
         </Box>
 
         <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
-          {lastUpdated && (
-            <Typography variant="caption" color="text.secondary" sx={{ display: { xs: "none", md: "inline" } }}>
-              Live Sync: {lastUpdated}
-            </Typography>
-          )}
-          <Tooltip title="Refresh Realtime Data">
+          <Tooltip title="Refresh">
             <IconButton
               onClick={handleRefresh}
               disabled={isRefreshing}
-              sx={{ bgcolor: "white", border: "1px solid #EFE8DA", boxShadow: "0 2px 6px rgba(0,0,0,0.04)" }}
+              sx={{ bgcolor: "white", border: "1px solid #EFE8DA" }}
             >
               <RefreshIcon
                 fontSize="small"
@@ -173,7 +165,6 @@ export function DashboardClient({ initialData }: { initialData: DashboardData })
               borderRadius: 2,
               textTransform: "none",
               fontWeight: 700,
-              boxShadow: "0 4px 12px rgba(216,67,21,0.25)",
             }}
           >
             New Product
@@ -181,73 +172,13 @@ export function DashboardClient({ initialData }: { initialData: DashboardData })
         </Stack>
       </Stack>
 
-      {/* ⚡ 1-CLICK QUICK ACTION LAUNCHPAD */}
-      <Paper
-        variant="outlined"
-        sx={{
-          p: 2,
-          borderRadius: 3,
-          mb: 4,
-          bgcolor: "#FAF6EE",
-          borderColor: "#EFE8DA",
-        }}
-      >
-        <Stack direction={{ xs: "column", md: "row" }} spacing={2} sx={{ justifyContent: "space-between", alignItems: "center" }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#8B5A2B", textTransform: "uppercase", fontSize: "11px", letterSpacing: 1 }}>
-            ⚡ Master Quick Launchpad:
-          </Typography>
-          <Stack direction="row" spacing={1.5} sx={{ flexWrap: "wrap", gap: 1 }}>
-            <Button
-              component={Link}
-              href="/admin/broadcast"
-              size="small"
-              variant="outlined"
-              startIcon={<ForwardToInboxIcon />}
-              sx={{ borderRadius: 2, textTransform: "none", fontWeight: 700, bgcolor: "white", borderColor: "#E0D7C6" }}
-            >
-              Send Broadcast Email
-            </Button>
-            <Button
-              component={Link}
-              href="/admin/orders"
-              size="small"
-              variant="outlined"
-              startIcon={<LocalShippingIcon />}
-              sx={{ borderRadius: 2, textTransform: "none", fontWeight: 700, bgcolor: "white", borderColor: "#E0D7C6" }}
-            >
-              Manage Orders ({stats.pendingFulfillment} Pending)
-            </Button>
-            <Button
-              component={Link}
-              href="/admin/coupons"
-              size="small"
-              variant="outlined"
-              startIcon={<LocalOfferIcon />}
-              sx={{ borderRadius: 2, textTransform: "none", fontWeight: 700, bgcolor: "white", borderColor: "#E0D7C6" }}
-            >
-              Coupons &amp; Offers
-            </Button>
-            <Button
-              component={Link}
-              href="/admin/cms/banners"
-              size="small"
-              variant="outlined"
-              startIcon={<ViewCarouselIcon />}
-              sx={{ borderRadius: 2, textTransform: "none", fontWeight: 700, bgcolor: "white", borderColor: "#E0D7C6" }}
-            >
-              Storefront Hero Banners
-            </Button>
-          </Stack>
-        </Stack>
-      </Paper>
-
-      {/* 📊 6-METRIC EXECUTIVE KPI GRID */}
-      <Grid container spacing={2.5} sx={{ mb: 4 }}>
+      {/* KPI GRID */}
+      <Grid container spacing={2} sx={{ mb: 4 }}>
         {/* Gross Revenue */}
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }}>
           <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 3, height: "100%" }}>
             <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: 1 }}>
-              <Box sx={{ p: 0.8, bgcolor: "#D84315", color: "white", borderRadius: 1.5, display: "flex" }}>
+              <Box sx={{ p: 0.8, bgcolor: "#FBEAE3", color: "#D84315", borderRadius: 1.5, display: "flex" }}>
                 <CurrencyRupeeIcon fontSize="small" />
               </Box>
               <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", textTransform: "uppercase" }}>
@@ -267,7 +198,7 @@ export function DashboardClient({ initialData }: { initialData: DashboardData })
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }}>
           <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 3, height: "100%" }}>
             <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: 1 }}>
-              <Box sx={{ p: 0.8, bgcolor: "primary.main", color: "white", borderRadius: 1.5, display: "flex" }}>
+              <Box sx={{ p: 0.8, bgcolor: "primary.50", color: "primary.main", borderRadius: 1.5, display: "flex" }}>
                 <CreditCardIcon fontSize="small" />
               </Box>
               <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", textTransform: "uppercase" }}>
@@ -287,7 +218,7 @@ export function DashboardClient({ initialData }: { initialData: DashboardData })
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }}>
           <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 3, height: "100%" }}>
             <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: 1 }}>
-              <Box sx={{ p: 0.8, bgcolor: "info.main", color: "white", borderRadius: 1.5, display: "flex" }}>
+              <Box sx={{ p: 0.8, bgcolor: "info.50", color: "info.main", borderRadius: 1.5, display: "flex" }}>
                 <ShoppingBagIcon fontSize="small" />
               </Box>
               <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", textTransform: "uppercase" }}>
@@ -316,7 +247,7 @@ export function DashboardClient({ initialData }: { initialData: DashboardData })
             }}
           >
             <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: 1 }}>
-              <Box sx={{ p: 0.8, bgcolor: "warning.main", color: "white", borderRadius: 1.5, display: "flex" }}>
+              <Box sx={{ p: 0.8, bgcolor: "warning.100", color: "warning.dark", borderRadius: 1.5, display: "flex" }}>
                 <LocalShippingIcon fontSize="small" />
               </Box>
               <Typography variant="caption" sx={{ fontWeight: 700, color: "warning.dark", textTransform: "uppercase" }}>
@@ -336,7 +267,7 @@ export function DashboardClient({ initialData }: { initialData: DashboardData })
         <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }}>
           <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 3, height: "100%" }}>
             <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: 1 }}>
-              <Box sx={{ p: 0.8, bgcolor: "success.main", color: "white", borderRadius: 1.5, display: "flex" }}>
+              <Box sx={{ p: 0.8, bgcolor: "success.50", color: "success.main", borderRadius: 1.5, display: "flex" }}>
                 <PeopleIcon fontSize="small" />
               </Box>
               <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", textTransform: "uppercase" }}>
@@ -364,7 +295,7 @@ export function DashboardClient({ initialData }: { initialData: DashboardData })
             }}
           >
             <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: 1 }}>
-              <Box sx={{ p: 0.8, bgcolor: stats.lowStockCount > 0 ? "error.main" : "grey.500", color: "white", borderRadius: 1.5, display: "flex" }}>
+              <Box sx={{ p: 0.8, bgcolor: stats.lowStockCount > 0 ? "error.50" : "grey.100", color: stats.lowStockCount > 0 ? "error.main" : "grey.600", borderRadius: 1.5, display: "flex" }}>
                 <WarningAmberIcon fontSize="small" />
               </Box>
               <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", textTransform: "uppercase" }}>
@@ -390,10 +321,10 @@ export function DashboardClient({ initialData }: { initialData: DashboardData })
             <Box sx={{ p: 2.5, display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid", borderColor: "divider" }}>
               <Box>
                 <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
-                  🛍️ Live Order Processing Feed
+                  Recent Orders
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  Recent customer purchases across online &amp; COD channels
+                  Latest purchases across online &amp; COD
                 </Typography>
               </Box>
               <Button
@@ -407,6 +338,7 @@ export function DashboardClient({ initialData }: { initialData: DashboardData })
               </Button>
             </Box>
 
+            <TableContainer sx={{ overflowX: "auto" }}>
             <Table size="small">
               <TableHead>
                 <TableRow>
@@ -500,12 +432,13 @@ export function DashboardClient({ initialData }: { initialData: DashboardData })
                 )}
               </TableBody>
             </Table>
+            </TableContainer>
           </Paper>
 
           {/* Payment Split Breakdown Bar */}
           <Paper variant="outlined" sx={{ p: 3, borderRadius: 3 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 2 }}>
-              💳 Revenue Distribution by Payment Gateway
+              Revenue by Payment Method
             </Typography>
             <Grid container spacing={2}>
               <Grid size={{ xs: 12, sm: 6 }}>
@@ -543,14 +476,14 @@ export function DashboardClient({ initialData }: { initialData: DashboardData })
           {/* Urgent Action Radar */}
           <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 3, mb: 3 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 1.5, display: "flex", alignItems: "center", gap: 1 }}>
-              <WarningAmberIcon color="warning" fontSize="small" /> Store Action Radar
+              <WarningAmberIcon color="warning" fontSize="small" /> Needs Attention
             </Typography>
 
             <Stack spacing={1.5}>
               {stats.pendingFulfillment > 0 ? (
                 <Box sx={{ p: 1.5, bgcolor: "warning.50", borderRadius: 2, border: "1px solid", borderColor: "warning.light" }}>
                   <Typography variant="body2" sx={{ fontWeight: 700, color: "warning.dark" }}>
-                    🚨 {stats.pendingFulfillment} order(s) awaiting shipment
+                    {stats.pendingFulfillment} order(s) awaiting shipment
                   </Typography>
                   <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
                     Pack and assign AWB tracking numbers to dispatch.
@@ -569,7 +502,7 @@ export function DashboardClient({ initialData }: { initialData: DashboardData })
               ) : (
                 <Box sx={{ p: 1.5, bgcolor: "success.50", borderRadius: 2, border: "1px solid", borderColor: "success.light" }}>
                   <Typography variant="body2" sx={{ fontWeight: 700, color: "success.dark" }}>
-                    ✓ All orders fulfilled! Zero dispatch backlog.
+                    All orders fulfilled — nothing pending dispatch.
                   </Typography>
                 </Box>
               )}
@@ -577,7 +510,7 @@ export function DashboardClient({ initialData }: { initialData: DashboardData })
               {stats.newInquiriesCount > 0 && (
                 <Box sx={{ p: 1.5, bgcolor: "info.50", borderRadius: 2, border: "1px solid", borderColor: "info.light" }}>
                   <Typography variant="body2" sx={{ fontWeight: 700, color: "info.dark" }}>
-                    💬 {stats.newInquiriesCount} new customer inquiry lead(s)
+                    {stats.newInquiriesCount} new customer inquiry lead(s)
                   </Typography>
                   <Button
                     component={Link}
@@ -595,7 +528,7 @@ export function DashboardClient({ initialData }: { initialData: DashboardData })
               {lowStockItems.length > 0 && (
                 <Box sx={{ p: 1.5, bgcolor: "error.50", borderRadius: 2, border: "1px solid", borderColor: "error.light" }}>
                   <Typography variant="body2" sx={{ fontWeight: 700, color: "error.dark", mb: 0.5 }}>
-                    ⚠️ Low Stock Warning (&lt;10 units)
+                    Low stock (&lt;10 units)
                   </Typography>
                   {lowStockItems.slice(0, 3).map((item, idx) => (
                     <Typography key={idx} variant="caption" sx={{ display: "block", color: "error.dark" }}>
@@ -620,7 +553,7 @@ export function DashboardClient({ initialData }: { initialData: DashboardData })
           {/* Top Selling Products Leaderboard */}
           <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 3, mb: 3 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 1.5 }}>
-              🏆 Top Selling Harvest Picks
+              Top Selling Products
             </Typography>
             <Stack spacing={1.5}>
               {topProducts.map((p, idx) => (
@@ -650,7 +583,7 @@ export function DashboardClient({ initialData }: { initialData: DashboardData })
           <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 3 }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
-                📢 Recent Broadcasts
+                Recent Broadcasts
               </Typography>
               <Button component={Link} href="/admin/broadcast" size="small" sx={{ textTransform: "none", fontSize: "12px", fontWeight: 700 }}>
                 New Campaign

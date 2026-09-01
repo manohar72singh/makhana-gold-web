@@ -8,6 +8,7 @@ import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
 import Chip from "@mui/material/Chip";
 import Paper from "@mui/material/Paper";
+import TableContainer from "@mui/material/TableContainer";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Avatar from "@mui/material/Avatar";
@@ -54,7 +55,7 @@ export default async function AdminProductsPage({
       >
         <div>
           <Typography variant="h4" sx={{ fontWeight: 800 }}>
-            📦 Products &amp; Catalog Management
+            Products &amp; Catalog Management
           </Typography>
           <Typography variant="body2" color="text.secondary">
             Total {totalCount} active items across Makhana, Sattu, and Poha collections.
@@ -77,7 +78,7 @@ export default async function AdminProductsPage({
         </Link>
       </Stack>
 
-      <Paper variant="outlined" sx={{ borderRadius: 3, overflow: "hidden", mb: 3 }}>
+      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3, mb: 3 }}>
         <Table>
           <TableHead sx={{ bgcolor: "#FAF6EE" }}>
             <TableRow>
@@ -172,11 +173,11 @@ export default async function AdminProductsPage({
             })}
           </TableBody>
         </Table>
-      </Paper>
+      </TableContainer>
 
       {/* Admin Pagination Controls */}
       {totalPages > 1 && (
-        <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center", mt: 2 }}>
+        <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center", mt: 2, flexWrap: "wrap", gap: 1 }}>
           <Typography variant="caption" color="text.secondary">
             Page {page} of {totalPages} ({totalCount} items)
           </Typography>

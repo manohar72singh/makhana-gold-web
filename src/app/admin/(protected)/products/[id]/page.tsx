@@ -9,6 +9,7 @@ import TableHead from "@mui/material/TableHead";
 import TableBody from "@mui/material/TableBody";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import { prisma } from "@/lib/db";
@@ -55,7 +56,7 @@ export default async function EditProductPage({ params }: PageProps<"/admin/prod
     <Box sx={{ pb: 6 }}>
       <Box sx={{ mb: 3 }}>
         <Typography variant="h4" gutterBottom>
-          ✏️ Edit Product: {product.name}
+          Edit Product: {product.name}
         </Typography>
         <Typography variant="body2" color="text.secondary">
           Update product details, manage image gallery photos, generate packaging barcodes &amp; QR codes, and view variants.
@@ -67,7 +68,7 @@ export default async function EditProductPage({ params }: PageProps<"/admin/prod
           <input type="hidden" name="productId" value={product.id} />
 
           <Typography variant="h6" sx={{ fontWeight: 800 }}>
-            📦 Basic Information
+            Basic Information
           </Typography>
 
           <TextField
@@ -109,10 +110,10 @@ export default async function EditProductPage({ params }: PageProps<"/admin/prod
             fullWidth
           />
 
-          {/* 📸 MULTI-IMAGE UPLOADER & PREVIEW */}
+          {/* MULTI-IMAGE UPLOADER & PREVIEW */}
           <ProductImageUploader initialImages={initialImages} />
 
-          {/* 🏷️ PACKAGING ARTWORK, BARCODE & SMART QR STUDIO */}
+          {/* PACKAGING ARTWORK, BARCODE & SMART QR STUDIO */}
           <PackagingLabelStudio
             productSlug={product.slug}
             initialBarcode={barcodeAttr?.value || "8901911366891"}
@@ -141,9 +142,9 @@ export default async function EditProductPage({ params }: PageProps<"/admin/prod
       </Paper>
 
       <Typography variant="h6" gutterBottom sx={{ fontWeight: 800 }}>
-        🏷️ Variants &amp; Stock Summary
+        Variants &amp; Stock Summary
       </Typography>
-      <Paper variant="outlined" sx={{ borderRadius: 3, overflow: "hidden", mb: 4, maxWidth: 900 }}>
+      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3, mb: 4, maxWidth: 900 }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -166,7 +167,7 @@ export default async function EditProductPage({ params }: PageProps<"/admin/prod
             ))}
           </TableBody>
         </Table>
-      </Paper>
+      </TableContainer>
 
       <form action={deleteProductAction}>
         <input type="hidden" name="productId" value={product.id} />

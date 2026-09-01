@@ -327,7 +327,7 @@ export function SiteHeaderClient({
 
       {/* 📱 Mobile Navigation Drawer */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 md:hidden flex flex-col bg-white animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 lg:hidden flex flex-col bg-white animate-in fade-in duration-200">
           <div className="flex justify-between items-center h-20 px-5 border-b border-amber-900/10">
             <div className="relative w-36 h-12">
               <Image

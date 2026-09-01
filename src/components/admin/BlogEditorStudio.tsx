@@ -212,7 +212,7 @@ export function BlogEditorStudio({
             </Typography>
           </Stack>
           <Typography variant="h4" sx={{ fontWeight: 800 }}>
-            {initialData?.id ? "✏️ Edit Blog Article" : "✍️ Create New Google SEO Blog Article"}
+            {initialData?.id ? "Edit Blog Article" : "Create New Blog Article"}
           </Typography>
         </div>
 
@@ -228,7 +228,7 @@ export function BlogEditorStudio({
               }
               label={
                 <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                  {isPublished ? "🟢 Published" : "🟡 Draft"}
+                  {isPublished ? "Published" : "Draft"}
                 </Typography>
               }
             />
@@ -237,7 +237,7 @@ export function BlogEditorStudio({
           {scheduleMode && (
             <Box sx={{ bgcolor: "#FFF8E1", px: 2, py: 0.8, borderRadius: 2, border: "1px solid #FFD54F" }}>
               <Typography variant="caption" sx={{ fontWeight: 800, color: "#F57F17" }}>
-                🕐 Scheduled: {scheduledAt ? new Date(scheduledAt).toLocaleString("en-IN") : "Set date below"}
+                Scheduled: {scheduledAt ? new Date(scheduledAt).toLocaleString("en-IN") : "Set date below"}
               </Typography>
             </Box>
           )}
@@ -259,8 +259,8 @@ export function BlogEditorStudio({
             }}
           >
             {initialData?.id
-              ? scheduleMode ? "📅 Schedule Update" : "Update & Sync SEO"
-              : scheduleMode ? "📅 Schedule Post" : "🚀 Publish & Sync Google Sitemap"}
+              ? scheduleMode ? "Schedule Update" : "Update & Sync SEO"
+              : scheduleMode ? "Schedule Post" : "Publish & Sync Google Sitemap"}
           </Button>
         </Stack>
       </Stack>
@@ -314,8 +314,8 @@ export function BlogEditorStudio({
             <Box sx={{ bgcolor: "#FAF6EE", borderBottom: "1px solid rgba(120, 53, 15, 0.1)", px: 2, pt: 1 }}>
               <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center" }}>
                 <Tabs value={activeTab} onChange={(_, val) => setActiveTab(val)}>
-                  <Tab label="✍️ Write Markdown" sx={{ fontWeight: 800, textTransform: "none" }} />
-                  <Tab label="👁️ Live Article Preview" sx={{ fontWeight: 800, textTransform: "none" }} />
+                  <Tab label="Write Markdown" sx={{ fontWeight: 800, textTransform: "none" }} />
+                  <Tab label="Live Article Preview" sx={{ fontWeight: 800, textTransform: "none" }} />
                 </Tabs>
 
                 {activeTab === 0 && (
@@ -377,19 +377,19 @@ export function BlogEditorStudio({
 
                 <Tooltip title="Callout Tip Box">
                   <Button size="small" variant="outlined" onClick={() => insertText("\n> [!TIP]\n> ", "\n", "Pro Tip: Always choose slow dry-roasted makhana...")} sx={{ textTransform: "none", fontWeight: 700 }}>
-                    💡 Tip
+                    Tip
                   </Button>
                 </Tooltip>
 
                 <Tooltip title="Nutrition Table Template">
                   <Button size="small" variant="outlined" onClick={() => insertText("\n| Nutrient | Quantity | Daily Value |\n| :--- | :--- | :--- |\n| Protein | 9.7 g | 19% |\n| Dietary Fiber | 14.5 g | 52% |\n| Calcium | 60 mg | 6% |\n")} sx={{ textTransform: "none", fontWeight: 700 }}>
-                    📊 Table
+                    Table
                   </Button>
                 </Tooltip>
 
                 <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
 
-                {/* 📷 1-Click Computer Image Inserter */}
+                {/* 1-Click Computer Image Inserter */}
                 <input
                   type="file"
                   accept="image/*"
@@ -410,7 +410,7 @@ export function BlogEditorStudio({
                     borderRadius: 2,
                   }}
                 >
-                  {uploadingImage ? <CircularProgress size={16} sx={{ color: "white", mr: 1 }} /> : "📷 Insert Image from PC"}
+                  {uploadingImage ? <CircularProgress size={16} sx={{ color: "white", mr: 1 }} /> : "Insert Image from PC"}
                 </Button>
               </Box>
             )}
@@ -460,12 +460,11 @@ export function BlogEditorStudio({
             )}
           </Paper>
 
-          {/* 🌟 360° LIVE GOOGLE SERP SEARCH PREVIEW BOX */}
+          {/* LIVE GOOGLE SERP SEARCH PREVIEW BOX */}
           <Paper variant="outlined" sx={{ p: 3, borderRadius: 3, bgcolor: "#F8F9FA", borderColor: "#DADCE0" }}>
             <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#202124", display: "flex", alignItems: "center", gap: 1 }}>
-                <span>🔍</span>
-                <span>Live Google Search Snippet Preview</span>
+              <Typography variant="subtitle1" sx={{ fontWeight: 800, color: "#202124" }}>
+                Live Google Search Snippet Preview
               </Typography>
               <Chip label="Google Rank Preview" size="small" sx={{ bgcolor: "#E8F0FE", color: "#1967D2", fontWeight: 700 }} />
             </Stack>
@@ -542,7 +541,7 @@ export function BlogEditorStudio({
           {/* Publishing & Category Settings */}
           <Paper variant="outlined" sx={{ p: 3, borderRadius: 3 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 2 }}>
-              ⚙️ Article Settings
+              Article Settings
             </Typography>
 
             <Stack spacing={2.5}>
@@ -586,7 +585,7 @@ export function BlogEditorStudio({
                   }
                   label={
                     <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                      📅 Schedule for Later
+                      Schedule for Later
                     </Typography>
                   }
                 />
@@ -629,7 +628,7 @@ export function BlogEditorStudio({
                 }
                 label={
                   <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                    ⭐ Spotlight Featured Article
+                    Spotlight Featured Article
                   </Typography>
                 }
               />
@@ -639,7 +638,7 @@ export function BlogEditorStudio({
           {/* Cover Photo Selector */}
           <Paper variant="outlined" sx={{ p: 3, borderRadius: 3 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 2 }}>
-              🖼️ Featured Cover Photo
+              Featured Cover Photo
             </Typography>
 
             {/* Current Cover Preview */}
@@ -682,7 +681,7 @@ export function BlogEditorStudio({
           {/* Author Details */}
           <Paper variant="outlined" sx={{ p: 3, borderRadius: 3 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 2 }}>
-              👤 Author Attribution
+              Author Attribution
             </Typography>
 
             <Stack spacing={2}>
@@ -708,8 +707,8 @@ export function BlogEditorStudio({
 
           {/* ── Per-Blog FAQ Section for FAQPage Schema ── */}
           <Paper variant="outlined" sx={{ p: 3, borderRadius: 3, border: "1px solid #FFD54F", bgcolor: "#FFFDE7" }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 0.5, display: "flex", alignItems: "center", gap: 1 }}>
-              <span>❓</span> Page FAQs (Google Rich Results)
+            <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 0.5 }}>
+              Page FAQs (Google Rich Results)
             </Typography>
             <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 2 }}>
               Add 3 FAQs visible on this article page. These generate FAQPage JSON-LD schema for Google rich results (expandable answers in search).

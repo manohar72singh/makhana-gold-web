@@ -5,6 +5,7 @@ import TableHead from "@mui/material/TableHead";
 import TableBody from "@mui/material/TableBody";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
 import { prisma } from "@/lib/db";
 
 export default async function AdminAbandonedCartsPage() {
@@ -36,7 +37,7 @@ export default async function AdminAbandonedCartsPage() {
         Carts idle for over an hour with items still in them — {carts.length} found.
       </Typography>
 
-      <Paper variant="outlined" sx={{ borderRadius: 3, overflow: "hidden" }}>
+      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3 }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -78,7 +79,7 @@ export default async function AdminAbandonedCartsPage() {
             )}
           </TableBody>
         </Table>
-      </Paper>
+      </TableContainer>
     </>
   );
 }

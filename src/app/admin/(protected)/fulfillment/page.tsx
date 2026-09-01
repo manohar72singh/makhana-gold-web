@@ -6,6 +6,7 @@ import TableHead from "@mui/material/TableHead";
 import TableBody from "@mui/material/TableBody";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
 import Chip from "@mui/material/Chip";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
@@ -38,7 +39,7 @@ export default async function AdminFulfillmentPage() {
         </div>
       </Box>
 
-      <Paper variant="outlined" sx={{ borderRadius: 3, overflow: "hidden" }}>
+      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3 }}>
         <Table>
           <TableHead sx={{ bgcolor: "action.hover" }}>
             <TableRow>
@@ -203,7 +204,7 @@ export default async function AdminFulfillmentPage() {
             )}
           </TableBody>
         </Table>
-      </Paper>
+      </TableContainer>
     </>
   );
 }

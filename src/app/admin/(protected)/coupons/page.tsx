@@ -9,6 +9,7 @@ import TableHead from "@mui/material/TableHead";
 import TableBody from "@mui/material/TableBody";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
 import Chip from "@mui/material/Chip";
 import { prisma } from "@/lib/db";
 import { createCouponAction, toggleCouponAction } from "./actions";
@@ -33,7 +34,7 @@ export default async function AdminCouponsPage() {
 
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 7 }}>
-          <Paper variant="outlined" sx={{ borderRadius: 3, overflow: "hidden" }}>
+          <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3 }}>
             <Table>
               <TableHead>
                 <TableRow>
@@ -72,7 +73,7 @@ export default async function AdminCouponsPage() {
                 ))}
               </TableBody>
             </Table>
-          </Paper>
+          </TableContainer>
         </Grid>
 
         <Grid size={{ xs: 12, md: 5 }}>

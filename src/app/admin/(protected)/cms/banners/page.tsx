@@ -1,5 +1,6 @@
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
+import TableContainer from "@mui/material/TableContainer";
 import Table from "@mui/material/Table";
 import TableHead from "@mui/material/TableHead";
 import TableBody from "@mui/material/TableBody";
@@ -22,7 +23,11 @@ export default async function AdminBannersPage() {
 
   return (
     <>
-      <Stack direction="row" spacing={2} sx={{ justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={2}
+        sx={{ justifyContent: "space-between", alignItems: { sm: "center" }, mb: 3 }}
+      >
         <Box>
           <Typography variant="h4" gutterBottom>
             Hero Slider Banners
@@ -34,7 +39,7 @@ export default async function AdminBannersPage() {
         <BannerDialog />
       </Stack>
 
-      <Paper variant="outlined" sx={{ borderRadius: 3, overflow: "hidden" }}>
+      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3 }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -161,7 +166,7 @@ export default async function AdminBannersPage() {
             )}
           </TableBody>
         </Table>
-      </Paper>
+      </TableContainer>
     </>
   );
 }

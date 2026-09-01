@@ -18,8 +18,12 @@ export default function AdminProtectedLayout({
         sx={{
           flexGrow: 1,
           minWidth: 0,
-          width: { sm: `calc(100% - 260px)` },
+          width: { md: `calc(100% - 260px)` },
           p: { xs: 2, sm: 3, md: 4 },
+          // The sidebar collapses into a temporary drawer below `md` and is
+          // replaced by a fixed top app bar (see AdminSidebar) — reserve
+          // space for it so page content doesn't render underneath.
+          pt: { xs: 9, sm: 9, md: 4 },
           bgcolor: "#FBF9F5",
         }}
       >

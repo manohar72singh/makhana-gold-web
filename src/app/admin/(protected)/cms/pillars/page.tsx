@@ -1,5 +1,6 @@
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
+import TableContainer from "@mui/material/TableContainer";
 import Table from "@mui/material/Table";
 import TableHead from "@mui/material/TableHead";
 import TableBody from "@mui/material/TableBody";
@@ -25,7 +26,11 @@ export default async function AdminPillarsPage() {
 
   return (
     <>
-      <Stack direction="row" spacing={2} sx={{ justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={2}
+        sx={{ justifyContent: "space-between", alignItems: { sm: "center" }, mb: 3 }}
+      >
         <Box>
           <Typography variant="h4" gutterBottom>
             Trust Badges &amp; Feature Pillars
@@ -34,7 +39,7 @@ export default async function AdminPillarsPage() {
             Manage the top Trust Badges ribbon and the Health Benefits superfood bento box on the homepage.
           </Typography>
         </Box>
-        <Stack direction="row" spacing={1.5}>
+        <Stack direction="row" spacing={1.5} sx={{ flexWrap: "wrap", gap: 1 }}>
           <PillarDialog defaultSection="trust_badge" />
           <PillarDialog defaultSection="health_benefit" />
         </Stack>
@@ -42,9 +47,9 @@ export default async function AdminPillarsPage() {
 
       {/* 1. Trust Badges Table */}
       <Typography variant="h6" sx={{ mt: 2, mb: 1.5, fontWeight: 700 }}>
-        🛡️ Trust Badges Ribbon (Homepage Top Strip)
+        Trust Badges Ribbon (Homepage Top Strip)
       </Typography>
-      <Paper variant="outlined" sx={{ borderRadius: 3, overflow: "hidden", mb: 5 }}>
+      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3, mb: 5 }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -132,13 +137,13 @@ export default async function AdminPillarsPage() {
             )}
           </TableBody>
         </Table>
-      </Paper>
+      </TableContainer>
 
       {/* 2. Health Benefits Bento Table */}
       <Typography variant="h6" sx={{ mt: 2, mb: 1.5, fontWeight: 700 }}>
-        🌿 Functional Health Benefits (Superfood Bento Grid)
+        Functional Health Benefits (Superfood Bento Grid)
       </Typography>
-      <Paper variant="outlined" sx={{ borderRadius: 3, overflow: "hidden" }}>
+      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3 }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -232,7 +237,7 @@ export default async function AdminPillarsPage() {
             )}
           </TableBody>
         </Table>
-      </Paper>
+      </TableContainer>
     </>
   );
 }

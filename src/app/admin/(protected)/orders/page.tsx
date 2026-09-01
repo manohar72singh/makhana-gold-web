@@ -7,6 +7,7 @@ import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
 import Chip from "@mui/material/Chip";
 import Paper from "@mui/material/Paper";
+import TableContainer from "@mui/material/TableContainer";
 import { prisma } from "@/lib/db";
 
 const STATUS_COLOR: Record<string, "success" | "default" | "warning" | "error" | "info"> = {
@@ -35,7 +36,7 @@ export default async function AdminOrdersPage() {
         {orders.length} orders
       </Typography>
 
-      <Paper variant="outlined" sx={{ borderRadius: 3, overflow: "hidden" }}>
+      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3 }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -76,7 +77,7 @@ export default async function AdminOrdersPage() {
             ))}
           </TableBody>
         </Table>
-      </Paper>
+      </TableContainer>
     </>
   );
 }

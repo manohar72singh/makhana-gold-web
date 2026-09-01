@@ -6,6 +6,7 @@ import TableBody from "@mui/material/TableBody";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
 import Paper from "@mui/material/Paper";
+import TableContainer from "@mui/material/TableContainer";
 import { prisma } from "@/lib/db";
 
 export default async function AdminCustomersPage() {
@@ -24,7 +25,7 @@ export default async function AdminCustomersPage() {
         {customers.length} customers
       </Typography>
 
-      <Paper variant="outlined" sx={{ borderRadius: 3, overflow: "hidden" }}>
+      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3 }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -56,7 +57,7 @@ export default async function AdminCustomersPage() {
             })}
           </TableBody>
         </Table>
-      </Paper>
+      </TableContainer>
     </>
   );
 }

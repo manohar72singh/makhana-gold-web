@@ -24,7 +24,7 @@ export default async function NewProductPage() {
     <Box sx={{ pb: 6 }}>
       <Box sx={{ mb: 3 }}>
         <Typography variant="h4" gutterBottom>
-          ➕ Add New Artisan Product
+          Add New Artisan Product
         </Typography>
         <Typography variant="body2" color="text.secondary">
           Create a new fox nut product, upload high-resolution photos, configure pricing, and assign inventory.
@@ -34,7 +34,7 @@ export default async function NewProductPage() {
       <Paper variant="outlined" sx={{ p: 4, borderRadius: 3, maxWidth: 900 }}>
         <Stack component="form" action={createProductAction} spacing={3.5}>
           <Typography variant="h6" sx={{ fontWeight: 800 }}>
-            📦 Basic Information
+            Basic Information
           </Typography>
 
           <TextField
@@ -77,14 +77,14 @@ export default async function NewProductPage() {
             fullWidth
           />
 
-          {/* 📸 MULTI-IMAGE UPLOADER & PREVIEW COMPONENT */}
+          {/* MULTI-IMAGE UPLOADER & PREVIEW COMPONENT */}
           <ProductImageUploader />
 
-          {/* 🏷️ PACKAGING ARTWORK, BARCODE & SMART QR STUDIO */}
+          {/* PACKAGING ARTWORK, BARCODE & SMART QR STUDIO */}
           <PackagingLabelStudio productSlug="new-makhana-harvest" initialBarcode="8901911366891" />
 
           <Typography variant="h6" sx={{ fontWeight: 800, pt: 1 }}>
-            🏷️ Initial Pack Variant &amp; Pricing
+            Initial Pack Variant &amp; Pricing
           </Typography>
 
           <Grid container spacing={2}>

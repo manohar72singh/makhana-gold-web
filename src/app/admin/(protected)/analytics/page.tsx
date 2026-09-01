@@ -6,6 +6,7 @@ import TableHead from "@mui/material/TableHead";
 import TableBody from "@mui/material/TableBody";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
 import Chip from "@mui/material/Chip";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
@@ -66,7 +67,7 @@ export default async function AdminAnalyticsPage() {
     <>
       <Box sx={{ mb: 3 }}>
         <Typography variant="h4" gutterBottom>
-          📊 Store &amp; Payment Analytics
+          Store &amp; Payment Analytics
         </Typography>
         <Typography variant="body2" color="text.secondary">
           Real-time financial breakdown, Razorpay online payments, and sales metrics (Last 30 Days).
@@ -78,7 +79,7 @@ export default async function AdminAnalyticsPage() {
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 3, bgcolor: "#FAF6EE", borderColor: "#EFE8DA" }}>
             <Stack direction="row" spacing={1.5} sx={{ alignItems: "center", mb: 1 }}>
-              <Box sx={{ p: 1, bgcolor: "#D84315", color: "white", borderRadius: 2, display: "flex" }}>
+              <Box sx={{ p: 1, bgcolor: "#FBEAE3", color: "#D84315", borderRadius: 2, display: "flex" }}>
                 <CurrencyRupeeIcon fontSize="small" />
               </Box>
               <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", textTransform: "uppercase" }}>
@@ -97,7 +98,7 @@ export default async function AdminAnalyticsPage() {
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 3 }}>
             <Stack direction="row" spacing={1.5} sx={{ alignItems: "center", mb: 1 }}>
-              <Box sx={{ p: 1, bgcolor: "success.main", color: "white", borderRadius: 2, display: "flex" }}>
+              <Box sx={{ p: 1, bgcolor: "success.50", color: "success.main", borderRadius: 2, display: "flex" }}>
                 <CheckCircleIcon fontSize="small" />
               </Box>
               <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", textTransform: "uppercase" }}>
@@ -116,7 +117,7 @@ export default async function AdminAnalyticsPage() {
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 3 }}>
             <Stack direction="row" spacing={1.5} sx={{ alignItems: "center", mb: 1 }}>
-              <Box sx={{ p: 1, bgcolor: "primary.main", color: "white", borderRadius: 2, display: "flex" }}>
+              <Box sx={{ p: 1, bgcolor: "primary.50", color: "primary.main", borderRadius: 2, display: "flex" }}>
                 <HourglassEmptyIcon fontSize="small" />
               </Box>
               <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", textTransform: "uppercase" }}>
@@ -135,7 +136,7 @@ export default async function AdminAnalyticsPage() {
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 3 }}>
             <Stack direction="row" spacing={1.5} sx={{ alignItems: "center", mb: 1 }}>
-              <Box sx={{ p: 1, bgcolor: "info.main", color: "white", borderRadius: 2, display: "flex" }}>
+              <Box sx={{ p: 1, bgcolor: "info.50", color: "info.main", borderRadius: 2, display: "flex" }}>
                 <CurrencyRupeeIcon fontSize="small" />
               </Box>
               <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", textTransform: "uppercase" }}>
@@ -154,7 +155,7 @@ export default async function AdminAnalyticsPage() {
 
       {/* PAYMENT METHODS SPLIT & VOLUME */}
       <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
-        💳 Payment Channel Split (Online Razorpay vs COD)
+        Payment Channel Split (Online Razorpay vs COD)
       </Typography>
 
       <Grid container spacing={3} sx={{ mb: 4 }}>
@@ -221,9 +222,9 @@ export default async function AdminAnalyticsPage() {
         {/* Recent Transactions Table */}
         <Grid size={{ xs: 12, md: 7 }}>
           <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5 }}>
-            📜 Recent Payment Transactions
+            Recent Payment Transactions
           </Typography>
-          <Paper variant="outlined" sx={{ borderRadius: 3, overflow: "hidden" }}>
+          <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3 }}>
             <Table size="small">
               <TableHead>
                 <TableRow>
@@ -289,15 +290,15 @@ export default async function AdminAnalyticsPage() {
                 )}
               </TableBody>
             </Table>
-          </Paper>
+          </TableContainer>
         </Grid>
 
         {/* Top Products & Order Status Breakdown */}
         <Grid size={{ xs: 12, md: 5 }}>
           <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5 }}>
-            🏆 Top Selling Flavours
+            Top Selling Flavours
           </Typography>
-          <Paper variant="outlined" sx={{ borderRadius: 3, overflow: "hidden", mb: 3 }}>
+          <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3, mb: 3 }}>
             <Table size="small">
               <TableHead>
                 <TableRow>
@@ -325,10 +326,10 @@ export default async function AdminAnalyticsPage() {
                 )}
               </TableBody>
             </Table>
-          </Paper>
+          </TableContainer>
 
           <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5 }}>
-            📦 Orders by Status
+            Orders by Status
           </Typography>
           <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 3, display: "flex", flexWrap: "wrap", gap: 1.5 }}>
             {statusGroups.map((g) => (

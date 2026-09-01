@@ -29,13 +29,13 @@ export default async function AdminBlogCommentsPage() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div>
           <Link href="/admin/blogs" className="text-sm text-blue-600 hover:underline mb-1 block">
             ← Back to Blogs
           </Link>
           <h1 className="text-2xl font-bold text-gray-900">
-            💬 Blog Comment Moderation
+            Blog Comment Moderation
           </h1>
           <p className="text-sm text-gray-500 mt-0.5">
             Review and approve reader comments before they appear publicly.
@@ -60,7 +60,6 @@ export default async function AdminBlogCommentsPage() {
 
         {pendingComments.length === 0 ? (
           <div className="bg-green-50 border border-green-200 rounded-2xl p-8 text-center">
-            <span className="text-3xl block mb-2">✅</span>
             <p className="text-green-800 font-semibold text-sm">All caught up! No pending comments.</p>
           </div>
         ) : (
@@ -93,7 +92,7 @@ export default async function AdminBlogCommentsPage() {
                       type="submit"
                       className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5"
                     >
-                      ✓ Approve
+                      Approve
                     </button>
                   </form>
                   <form action={deleteCommentAction.bind(null, comment.id)}>
@@ -101,7 +100,7 @@ export default async function AdminBlogCommentsPage() {
                       type="submit"
                       className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5"
                     >
-                      🗑 Delete
+                      Delete
                     </button>
                   </form>
                 </div>
@@ -142,7 +141,7 @@ export default async function AdminBlogCommentsPage() {
                     title="Delete this comment"
                     className="px-3 py-1.5 bg-white border border-red-200 text-red-600 text-[11px] font-bold rounded-lg hover:bg-red-50 transition-colors shrink-0"
                   >
-                    🗑 Delete
+                    Delete
                   </button>
                 </form>
               </div>

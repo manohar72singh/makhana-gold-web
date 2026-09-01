@@ -23,7 +23,9 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircleOutlined";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import Chip from "@mui/material/Chip";
 import SaveIcon from "@mui/icons-material/SaveOutlined";
+import LockResetIcon from "@mui/icons-material/LockResetOutlined";
 import { updateSiteSettingsAction } from "./actions";
+import { changeAdminPasswordAction } from "./password-actions";
 
 interface SettingsFormProps {
   initialSettings: Record<string, string>;
@@ -38,6 +40,16 @@ export function SettingsFormClient({ initialSettings, adminUser }: SettingsFormP
   const [tabIndex, setTabIndex] = useState(0);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [copiedWebhook, setCopiedWebhook] = useState(false);
+  const [passwordFields, setPasswordFields] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [passwordState, setPasswordState] = useState<{
+    submitting: boolean;
+    success: boolean;
+    error: string | null;
+  }>({ submitting: false, success: false, error: null });
   const [settings, setSettings] = useState<Record<string, string>>({
     // Announcement Bar
     announcement_enabled: initialSettings.announcement_enabled ?? "true",
@@ -92,11 +104,23 @@ export function SettingsFormClient({ initialSettings, adminUser }: SettingsFormP
     setTimeout(() => setSavedSuccess(false), 5000);
   };
 
+  const handlePasswordChange = async () => {
+    setPasswordState({ submitting: true, success: false, error: null });
+    const result = await changeAdminPasswordAction(passwordFields);
+    if (result.success) {
+      setPasswordState({ submitting: false, success: true, error: null });
+      setPasswordFields({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      setTimeout(() => setPasswordState((prev) => ({ ...prev, success: false })), 5000);
+    } else {
+      setPasswordState({ submitting: false, success: false, error: result.error || "Something went wrong." });
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit}>
       {savedSuccess && (
         <Alert severity="success" sx={{ mb: 3, borderRadius: 2 }}>
-          ✨ Store settings successfully saved! All storefront pages have been updated in real time.
+          Store settings successfully saved! All storefront pages have been updated in real time.
         </Alert>
       )}
 
@@ -385,7 +409,7 @@ export function SettingsFormClient({ initialSettings, adminUser }: SettingsFormP
                 <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
                   <Box>
                     <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#92400e" }}>
-                      💳 Gateway Status: Ready for Production Keys
+                      Gateway Status: Ready for Production Keys
                     </Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontSize: "13px" }}>
                       To enable real live payments, put your Razorpay API keys in your project root <code>.env</code> file.
@@ -428,7 +452,7 @@ export function SettingsFormClient({ initialSettings, adminUser }: SettingsFormP
               {/* Webhook URL Box */}
               <Paper variant="outlined" sx={{ p: 3, borderRadius: 2.5 }}>
                 <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1 }}>
-                  ⚡ Webhook Notification Endpoint (For Razorpay Dashboard)
+                  Webhook Notification Endpoint (For Razorpay Dashboard)
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontSize: "13px" }}>
                   Add this webhook URL in your <a href="https://dashboard.razorpay.com/app/webhooks" target="_blank" rel="noopener noreferrer" style={{ color: "#d97706", fontWeight: 600 }}>Razorpay Dashboard → Webhooks</a> to automatically capture payments and confirm orders:
@@ -450,6 +474,7 @@ export function SettingsFormClient({ initialSettings, adminUser }: SettingsFormP
                     /api/webhooks/razorpay
                   </Typography>
                   <Button
+                    type="button"
                     size="small"
                     startIcon={<ContentCopyIcon />}
                     onClick={() => {
@@ -571,7 +596,7 @@ export function SettingsFormClient({ initialSettings, adminUser }: SettingsFormP
               Current authenticated administrator session details.
             </Typography>
 
-            <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, maxWidth: 500 }}>
+            <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, maxWidth: 500, mb: 3 }}>
               <Stack spacing={1.5}>
                 <Typography variant="body2">
                   <strong>Name:</strong> {adminUser?.name || "Store Administrator"}
@@ -582,6 +607,64 @@ export function SettingsFormClient({ initialSettings, adminUser }: SettingsFormP
                 <Typography variant="body2">
                   <strong>Access Role:</strong> {adminUser?.role || "super_admin"}
                 </Typography>
+              </Stack>
+            </Paper>
+
+            <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, maxWidth: 500 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 0.5 }}>
+                Change Password
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                Update the password for this admin login.
+              </Typography>
+
+              {passwordState.success && (
+                <Alert severity="success" sx={{ mb: 2, borderRadius: 2 }}>
+                  Password updated successfully.
+                </Alert>
+              )}
+              {passwordState.error && (
+                <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
+                  {passwordState.error}
+                </Alert>
+              )}
+
+              <Stack spacing={2}>
+                <TextField
+                  label="Current Password"
+                  type="password"
+                  value={passwordFields.currentPassword}
+                  onChange={(e) => setPasswordFields((prev) => ({ ...prev, currentPassword: e.target.value }))}
+                  fullWidth
+                  autoComplete="current-password"
+                />
+                <TextField
+                  label="New Password"
+                  type="password"
+                  value={passwordFields.newPassword}
+                  onChange={(e) => setPasswordFields((prev) => ({ ...prev, newPassword: e.target.value }))}
+                  fullWidth
+                  autoComplete="new-password"
+                  helperText="Minimum 8 characters"
+                />
+                <TextField
+                  label="Confirm New Password"
+                  type="password"
+                  value={passwordFields.confirmPassword}
+                  onChange={(e) => setPasswordFields((prev) => ({ ...prev, confirmPassword: e.target.value }))}
+                  fullWidth
+                  autoComplete="new-password"
+                />
+                <Button
+                  type="button"
+                  variant="contained"
+                  startIcon={<LockResetIcon />}
+                  onClick={handlePasswordChange}
+                  disabled={passwordState.submitting}
+                  sx={{ alignSelf: "flex-start", textTransform: "none", fontWeight: 700, borderRadius: 2 }}
+                >
+                  {passwordState.submitting ? "Updating…" : "Update Password"}
+                </Button>
               </Stack>
             </Paper>
           </Box>

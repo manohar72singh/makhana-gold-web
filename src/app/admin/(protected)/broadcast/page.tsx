@@ -5,6 +5,7 @@ import TableHead from "@mui/material/TableHead";
 import TableBody from "@mui/material/TableBody";
 import TableRow from "@mui/material/TableRow";
 import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
 import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
@@ -48,7 +49,7 @@ export default async function AdminBroadcastPage() {
     <>
       <Box sx={{ mb: 3 }}>
         <Typography variant="h4" gutterBottom>
-          📢 Email Broadcast &amp; Notification Engine
+          Email Broadcast &amp; Notification Engine
         </Typography>
         <Typography variant="body2" color="text.secondary">
           Dispatch luxury marketing announcements, festival offers, and store notices in 1-click to all customers, newsletter subscribers, or individual recipients.
@@ -65,7 +66,7 @@ export default async function AdminBroadcastPage() {
         </Typography>
       </Box>
 
-      <Paper variant="outlined" sx={{ borderRadius: 3, overflow: "hidden" }}>
+      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3 }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -166,7 +167,7 @@ export default async function AdminBroadcastPage() {
             )}
           </TableBody>
         </Table>
-      </Paper>
+      </TableContainer>
     </>
   );
 }

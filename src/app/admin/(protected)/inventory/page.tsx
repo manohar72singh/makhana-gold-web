@@ -1,6 +1,8 @@
+import Link from "next/link";
 import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
+import TableContainer from "@mui/material/TableContainer";
 import Table from "@mui/material/Table";
 import TableHead from "@mui/material/TableHead";
 import TableBody from "@mui/material/TableBody";
@@ -9,20 +11,38 @@ import TableCell from "@mui/material/TableCell";
 import Chip from "@mui/material/Chip";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { prisma } from "@/lib/db";
 import { adjustStockAction } from "./actions";
 
-export default async function AdminInventoryPage() {
-  const stock = await prisma.inventoryStock.findMany({
-    include: { variant: { include: { product: true } }, warehouse: true },
-    orderBy: { quantityOnHand: "asc" },
-  });
+const PAGE_SIZE = 20;
 
-  const totalOnHand = stock.reduce((sum, s) => sum + s.quantityOnHand, 0);
-  const lowStock = stock.filter((s) => s.quantityOnHand > 0 && s.quantityOnHand <= s.reorderThreshold).length;
-  const outOfStock = stock.filter((s) => s.quantityOnHand === 0).length;
+export default async function AdminInventoryPage({
+  searchParams,
+}: PageProps<"/admin/inventory">) {
+  const params = await searchParams;
+  const page = Math.max(1, Number(params.page) || 1);
+
+  const [totalCount, stock, totalOnHandAgg, outOfStock, lowStockRows] = await Promise.all([
+    prisma.inventoryStock.count(),
+    prisma.inventoryStock.findMany({
+      include: { variant: { include: { product: true } }, warehouse: true },
+      orderBy: { quantityOnHand: "asc" },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
+    }),
+    prisma.inventoryStock.aggregate({ _sum: { quantityOnHand: true } }),
+    prisma.inventoryStock.count({ where: { quantityOnHand: 0 } }),
+    prisma.$queryRaw<
+      { c: bigint }[]
+    >`SELECT COUNT(*) as c FROM inventory_stock WHERE quantity_on_hand > 0 AND quantity_on_hand <= reorder_threshold`,
+  ]);
+
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+  const totalOnHand = totalOnHandAgg._sum.quantityOnHand ?? 0;
+  const lowStock = Number(lowStockRows[0]?.c ?? 0);
 
   return (
     <>
@@ -60,7 +80,7 @@ export default async function AdminInventoryPage() {
         </Grid>
       </Grid>
 
-      <Paper variant="outlined" sx={{ borderRadius: 3, overflow: "hidden" }}>
+      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3 }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -119,7 +139,31 @@ export default async function AdminInventoryPage() {
             })}
           </TableBody>
         </Table>
-      </Paper>
+      </TableContainer>
+
+      {totalPages > 1 && (
+        <Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "center", mt: 2, flexWrap: "wrap", gap: 1 }}>
+          <Typography variant="caption" color="text.secondary">
+            Page {page} of {totalPages} ({totalCount} items)
+          </Typography>
+          <Stack direction="row" spacing={1}>
+            {page > 1 && (
+              <Link href={`/admin/inventory?page=${page - 1}`} style={{ textDecoration: "none" }}>
+                <Button variant="outlined" size="small" sx={{ textTransform: "none", borderRadius: 2 }}>
+                  ← Previous
+                </Button>
+              </Link>
+            )}
+            {page < totalPages && (
+              <Link href={`/admin/inventory?page=${page + 1}`} style={{ textDecoration: "none" }}>
+                <Button variant="outlined" size="small" sx={{ textTransform: "none", borderRadius: 2 }}>
+                  Next →
+                </Button>
+              </Link>
+            )}
+          </Stack>
+        </Stack>
+      )}
     </>
   );
 }
