@@ -6,8 +6,8 @@ import { prisma } from "@/lib/db";
 import { mergeGuestCartIntoCustomer } from "@/lib/cart";
 
 export function isGoogleConfigured(): boolean {
-  const id = process.env.AUTH_GOOGLE_ID || process.env.GOOGLE_CLIENT_ID;
-  const secret = process.env.AUTH_GOOGLE_SECRET || process.env.GOOGLE_CLIENT_SECRET;
+  const id = process.env.AUTH_GOOGLE_ID;
+  const secret = process.env.AUTH_GOOGLE_SECRET;
   return Boolean(
     id &&
     secret &&
@@ -34,8 +34,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     ...(isGoogleConfigured()
       ? [
           Google({
-            clientId: (process.env.AUTH_GOOGLE_ID || process.env.GOOGLE_CLIENT_ID)!,
-            clientSecret: (process.env.AUTH_GOOGLE_SECRET || process.env.GOOGLE_CLIENT_SECRET)!,
+            clientId: process.env.AUTH_GOOGLE_ID!,
+            clientSecret: process.env.AUTH_GOOGLE_SECRET!,
           }),
         ]
       : []),

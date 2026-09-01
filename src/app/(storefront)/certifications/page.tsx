@@ -3,8 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/db";
 import { PageFAQ } from "@/components/storefront/PageFAQ";
+import { getFaqCategories } from "@/lib/content";
 import { generateWebPageSchema, generateBreadcrumbSchema } from "@/lib/seo";
-import type { FAQItem } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Quality Certifications & Lab Reports | Makhana Gold",
@@ -25,24 +25,6 @@ export const metadata: Metadata = {
     type: "website",
   },
 };
-
-const CERT_FAQS: FAQItem[] = [
-  {
-    question: "Is Makhana Gold FSSAI certified?",
-    answer:
-      "Yes. Makhana Gold holds a valid FSSAI (Food Safety and Standards Authority of India) Central License. This means all our manufacturing, packaging, and distribution operations meet the highest Indian food safety standards. Our FSSAI license number is available for verification on this page.",
-  },
-  {
-    question: "Are Makhana Gold products organically certified?",
-    answer:
-      "Our makhana is sourced from certified wetlands that follow sustainable, chemical-free cultivation practices. We are in the process of obtaining full NPOP (National Programme for Organic Production) organic certification. Our products are free from synthetic pesticides, chemical fertilisers, and GMOs.",
-  },
-  {
-    question: "Can I download Makhana Gold lab test reports?",
-    answer:
-      "Yes. We publish all third-party lab test reports for heavy metals, microbial safety, pesticide residue, and nutritional composition on this page. These reports are conducted by NABL-accredited laboratories and updated annually for complete transparency.",
-  },
-];
 
 export default async function CertificationsPage() {
   let certifications: {
@@ -65,6 +47,9 @@ export default async function CertificationsPage() {
     // Table may not be migrated yet in development
   }
 
+  const faqCategories = await getFaqCategories();
+  const certFaqs = faqCategories.flatMap((cat) => cat.items.map((item) => ({ question: item.q, answer: item.a })));
+
   const pageSchema = generateWebPageSchema({
     name: "Quality Certifications & Lab Reports — Makhana Gold",
     description:
@@ -76,45 +61,7 @@ export default async function CertificationsPage() {
     { name: "Certifications & Quality", url: "/certifications" },
   ]);
 
-  // Placeholder certs when DB is empty
-  const displayCerts =
-    certifications.length > 0
-      ? certifications
-      : [
-          {
-            id: 1,
-            name: "FSSAI Central License",
-            issuingBody: "Food Safety and Standards Authority of India",
-            certificateNumber: "10012345678901",
-            validUntil: new Date("2026-12-31"),
-            documentUrl: null,
-            badgeImage: null,
-            description:
-              "Our FSSAI Central License confirms compliance with all Indian food safety, hygiene, and quality regulations for our manufacturing and packaging operations.",
-          },
-          {
-            id: 2,
-            name: "Third-Party Lab Test Report — Makhana",
-            issuingBody: "NABL Accredited Laboratory",
-            certificateNumber: "LAB-2024-MG-001",
-            validUntil: new Date("2025-12-31"),
-            documentUrl: null,
-            badgeImage: null,
-            description:
-              "Independent nutritional analysis, heavy metals screening, microbial safety, and pesticide residue testing for all Makhana Gold fox nut products.",
-          },
-          {
-            id: 3,
-            name: "Natural & Clean Label Certification",
-            issuingBody: "Makhana Gold Quality Team",
-            certificateNumber: null,
-            validUntil: null,
-            documentUrl: null,
-            badgeImage: null,
-            description:
-              "Self-certified commitment to zero palm oil, zero MSG, zero artificial flavours, zero artificial preservatives, and zero trans-fats across all product lines.",
-          },
-        ];
+  const displayCerts = certifications;
 
   return (
     <main className="max-w-container-max mx-auto px-5 sm:px-gutter py-10 sm:py-16">
@@ -181,6 +128,21 @@ export default async function CertificationsPage() {
           <span className="material-symbols-outlined text-[#D84315] text-[24px]">workspace_premium</span>
           Quality Certificates
         </h2>
+
+        {displayCerts.length === 0 && (
+          <div className="bg-[#FAF6EE] rounded-3xl border border-amber-900/10 p-8 text-center mb-12">
+            <span className="material-symbols-outlined text-amber-400 text-[36px] block mb-2" aria-hidden="true">
+              hourglass_top
+            </span>
+            <p className="text-sm text-on-surface-variant">
+              Our certificates are being finalized for publication. Contact us via{" "}
+              <Link href="/support" className="text-primary font-semibold underline">
+                support
+              </Link>{" "}
+              for verified copies in the meantime.
+            </p>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {displayCerts.map((cert) => (
@@ -352,7 +314,7 @@ export default async function CertificationsPage() {
       {/* FAQ Section */}
       <div className="border-t border-amber-900/10">
         <PageFAQ
-          faqs={CERT_FAQS}
+          faqs={certFaqs}
           title="Certification FAQs"
           subtitle="Everything you need to know about our quality standards and compliance"
         />

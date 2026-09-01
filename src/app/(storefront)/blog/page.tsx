@@ -4,7 +4,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { Pagination } from "@/components/storefront/Pagination";
 import { PageFAQ } from "@/components/storefront/PageFAQ";
-import { generateBreadcrumbSchema, generateCollectionPageSchema, DEFAULT_BLOG_FAQS } from "@/lib/seo";
+import { getFaqCategories } from "@/lib/content";
+import { generateBreadcrumbSchema, generateCollectionPageSchema } from "@/lib/seo";
 
 const PAGE_SIZE = 6;
 
@@ -45,7 +46,7 @@ export default async function BlogHubPage({
     ...(activeCategory && activeCategory !== "All Articles" ? { category: activeCategory } : {}),
   };
 
-  const [totalCount, featuredPost, allBlogs] = await Promise.all([
+  const [totalCount, featuredPost, allBlogs, faqCategories] = await Promise.all([
     prisma.blogPost.count({ where }),
     prisma.blogPost.findFirst({
       where: { isPublished: true, featured: true },
@@ -57,7 +58,9 @@ export default async function BlogHubPage({
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
     }),
+    getFaqCategories(),
   ]);
+  const blogFaqs = faqCategories.flatMap((cat) => cat.items.map((item) => ({ question: item.q, answer: item.a })));
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
@@ -286,7 +289,7 @@ export default async function BlogHubPage({
       {/* FAQ Section — Blog hub FAQs */}
       <div className="mt-16 border-t border-amber-900/10">
         <PageFAQ
-          faqs={DEFAULT_BLOG_FAQS}
+          faqs={blogFaqs}
           title="Makhana Health FAQs"
           subtitle="Answers to the most common questions about makhana nutrition, benefits, and usage"
         />

@@ -12,8 +12,9 @@ import {
   getHealthBenefits,
   getMarketplaceLinks,
   getStorefrontReviews,
+  getFaqCategories,
 } from "@/lib/content";
-import { generateBreadcrumbSchema, DEFAULT_HOME_FAQS } from "@/lib/seo";
+import { generateBreadcrumbSchema } from "@/lib/seo";
 
 async function getBestSellers() {
   try {
@@ -48,6 +49,7 @@ export default async function HomePage() {
     storefrontReviews,
     bestSellers,
     session,
+    faqCategories,
   ] = await Promise.all([
     getHeroBanners(),
     getTrustBadges(),
@@ -56,7 +58,9 @@ export default async function HomePage() {
     getStorefrontReviews(),
     getBestSellers(),
     auth(),
+    getFaqCategories(),
   ]);
+  const homeFaqs = faqCategories.flatMap((cat) => cat.items.map((item) => ({ question: item.q, answer: item.a })));
 
   const customerId = session?.user?.id ? Number(session.user.id) : null;
   let wishlist: { variantId: number }[] = [];
@@ -317,7 +321,7 @@ export default async function HomePage() {
       {/* 8. FAQ Section — Homepage FAQs with FAQPage JSON-LD Schema */}
       <div className="bg-white border-t border-amber-900/10">
         <PageFAQ
-          faqs={DEFAULT_HOME_FAQS}
+          faqs={homeFaqs}
           title="Frequently Asked Questions"
           subtitle="Everything you need to know about Makhana Gold — sourcing, nutrition, and delivery"
         />

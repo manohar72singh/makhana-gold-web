@@ -174,7 +174,7 @@ export async function initiateOnlineOrderAction(formData: FormData) {
     razorpayOrderId: rzpOrder.id,
     amountPaise,
     currency: "INR",
-    keyId: process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_placeholder",
+    keyId: process.env.RAZORPAY_KEY_ID || "rzp_test_placeholder",
     isConfigured: isRazorpayConfigured(),
     customer: {
       name: order.customer.name || contactName || "Valued Customer",

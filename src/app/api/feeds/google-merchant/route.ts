@@ -22,7 +22,7 @@ function escapeXml(unsafe: string): string {
 }
 
 export async function GET() {
-  const siteUrl = process.env.NEXTAUTH_URL || process.env.SITE_URL || "https://makhanagold.com";
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://makhanagold.com";
   const [products, settings] = await Promise.all([
     prisma.product.findMany({
       where: { status: "active" },

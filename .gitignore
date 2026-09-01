@@ -21,7 +21,6 @@
 # Environment files & Secret Keys
 .env
 .env.*
-!.env.example
 *.pem
 *.key
 *.cert

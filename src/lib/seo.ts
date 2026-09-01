@@ -246,26 +246,9 @@ export function getCanonicalUrl(path: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// Default Page FAQs — used as fallback when no page-specific FAQs exist
+// Default Blog FAQs — fallback for individual blog posts that don't have
+// their own custom FAQ set filled in via the admin blog editor.
 // ---------------------------------------------------------------------------
-
-export const DEFAULT_HOME_FAQS: FAQItem[] = [
-  {
-    question: "What makes Makhana Gold different from regular makhana?",
-    answer:
-      "Makhana Gold sources fox nuts exclusively from certified wetlands of Bihar (Mithila & Darbhanga districts). Our makhana is slow dry-roasted in small batches with zero palm oil, zero MSG, and no artificial flavours — preserving the natural crunch, full nutritional profile, and earthy flavour of premium-grade lotus seeds.",
-  },
-  {
-    question: "Is Makhana Gold makhana gluten-free and vegan?",
-    answer:
-      "Yes! All Makhana Gold products are 100% gluten-free, vegan, and free from common allergens. Our makhana is a single-ingredient superfood — just pure lotus seeds and natural seasonings — making it suitable for people with celiac disease, dairy intolerance, and plant-based diets.",
-  },
-  {
-    question: "How long does it take for Makhana Gold orders to be delivered?",
-    answer:
-      "Orders are dispatched within 24–48 hours of confirmation. Standard delivery takes 3–5 business days across India. Express delivery (1–2 business days) is available in metro cities including Delhi, Mumbai, Bangalore, Hyderabad, and Pune.",
-  },
-];
 
 export const DEFAULT_BLOG_FAQS: FAQItem[] = [
   {

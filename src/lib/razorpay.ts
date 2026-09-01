@@ -28,7 +28,7 @@ export async function createRazorpayOrder({
   receipt: string;
   notes?: Record<string, string>;
 }): Promise<RazorpayOrderResponse> {
-  const keyId = process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+  const keyId = process.env.RAZORPAY_KEY_ID;
   const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
   // If real keys are provided, call Razorpay REST API
