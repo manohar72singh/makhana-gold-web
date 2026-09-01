@@ -1,26 +1,22 @@
 import { PrismaClient } from "@/generated/prisma/client";
-import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+import { PrismaMariaDb as PrismaMySQLAdapter } from "@prisma/adapter-mariadb";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
 /**
- * Clean & Standard MySQL Connection for Prisma
+ * Clean & Standard MySQL Client for Prisma
  */
-function getDatabaseUrl(): string {
+function createPrismaClient(): PrismaClient {
   let url = (process.env.DATABASE_URL || "mysql://root:123456@127.0.0.1:3306/makhana_gold").trim();
-  
-  // Ensure MySQL 8+ caching_sha2_password authentication compatibility
+
+  // MySQL 8+ caching_sha2_password compatibility
   if (!url.includes("allowPublicKeyRetrieval")) {
     url += (url.includes("?") ? "&" : "?") + "allowPublicKeyRetrieval=true";
   }
-  return url;
-}
 
-function createPrismaClient(): PrismaClient {
-  const url = getDatabaseUrl();
-  const adapter = new PrismaMariaDb(url);
+  const adapter = new PrismaMySQLAdapter(url);
   return new PrismaClient({ adapter });
 }
 
