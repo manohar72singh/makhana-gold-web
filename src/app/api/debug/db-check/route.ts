@@ -10,11 +10,22 @@ export async function GET() {
   const raw = process.env.DATABASE_URL || "";
   let host = "unknown";
   let port = "unknown";
+  let parseError: string | undefined;
   try {
     const u = new URL(raw.replace("mysql://", "http://"));
     host = u.hostname;
     port = u.port || "3306";
-  } catch {}
+  } catch (e) {
+    parseError = e instanceof Error ? e.message : String(e);
+  }
+
+  const debug = {
+    hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
+    urlLength: raw.length,
+    startsWithMysql: raw.startsWith("mysql://"),
+    first15: raw.slice(0, 15),
+    parseError,
+  };
 
   const start = Date.now();
   try {
@@ -29,7 +40,7 @@ export async function GET() {
     });
     await conn.query("SELECT 1 as ok");
     await conn.end();
-    return NextResponse.json({ ok: true, host, port, ms: Date.now() - start });
+    return NextResponse.json({ ok: true, host, port, ms: Date.now() - start, debug });
   } catch (err: unknown) {
     const e = err as { message?: string; code?: string; errno?: number; sqlState?: string };
     return NextResponse.json(
@@ -42,6 +53,7 @@ export async function GET() {
         code: e?.code,
         errno: e?.errno,
         sqlState: e?.sqlState,
+        debug,
       },
       { status: 500 }
     );
