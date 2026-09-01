@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 // of Prisma's generic "pool timeout" wrapper, while debugging production
 // DB connectivity on Hostinger. Delete this route once the issue is fixed.
 export async function GET() {
-  const raw = process.env.DATABASE_URL || "";
+  const raw = (process.env.DATABASE_URL || "").trim();
   let host = "unknown";
   let port = "unknown";
   let parseError: string | undefined;
@@ -22,8 +22,11 @@ export async function GET() {
   const debug = {
     hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
     urlLength: raw.length,
+    trimmedLength: raw.trim().length,
     startsWithMysql: raw.startsWith("mysql://"),
     first15: raw.slice(0, 15),
+    last15: JSON.stringify(raw.slice(-15)),
+    charCodesLast5: raw.slice(-5).split("").map((c) => c.charCodeAt(0)),
     parseError,
   };
 
