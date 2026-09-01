@@ -19,14 +19,29 @@ export async function GET() {
     parseError = e instanceof Error ? e.message : String(e);
   }
 
+  const expected =
+    "mysql://u440110284_makhanagold:Mg2026%23K7pQzX9vLwR3t@srv1953.hstgr.io:3306/u440110284_makhanagold";
+  let firstDiffIndex = -1;
+  for (let i = 0; i < Math.max(raw.length, expected.length); i++) {
+    if (raw[i] !== expected[i]) {
+      firstDiffIndex = i;
+      break;
+    }
+  }
+
   const debug = {
     hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
     urlLength: raw.length,
-    trimmedLength: raw.trim().length,
-    startsWithMysql: raw.startsWith("mysql://"),
-    first15: raw.slice(0, 15),
-    last15: JSON.stringify(raw.slice(-15)),
-    charCodesLast5: raw.slice(-5).split("").map((c) => c.charCodeAt(0)),
+    expectedLength: expected.length,
+    matchesExpected: raw === expected,
+    firstDiffIndex,
+    contextAroundDiff:
+      firstDiffIndex >= 0
+        ? {
+            actual: JSON.stringify(raw.slice(Math.max(0, firstDiffIndex - 5), firstDiffIndex + 6)),
+            expected: JSON.stringify(expected.slice(Math.max(0, firstDiffIndex - 5), firstDiffIndex + 6)),
+          }
+        : undefined,
     parseError,
   };
 
