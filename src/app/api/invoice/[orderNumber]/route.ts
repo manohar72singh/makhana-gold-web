@@ -212,7 +212,7 @@ export async function GET(
           <div class="brand-title">${settings["store_name"] || "Makhana Gold"}</div>
           <div class="brand-sub">${settings["store_tagline"] || "Pure • Healthy • Premium"}</div>
           <div style="font-size: 11px; color: #555; margin-top: 6px;">
-            ${settings["studio_address"] || "Makhana Gold India Pvt. Ltd., Mithila Agro Processing Park, Bihar - 846004"}<br>
+            ${settings["studio_address"] || "Mithilanchal Makhana Audyogikaran Pvt. Ltd., Mithila Agro Processing Park, Bihar - 846004"}<br>
             <strong>GSTIN:</strong> ${settings["gstin_number"] || "10AAACM1234F1Z5"} | <strong>FSSAI:</strong> ${settings["fssai_license"] || "10021022000123"}<br>
             <strong>Support:</strong> ${settings["support_email"] || "mmakhanaltd@gmail.com"} | ${settings["support_phone"] || "+91 60016 84216"}
           </div>

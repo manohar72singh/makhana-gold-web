@@ -70,6 +70,11 @@ export function CheckoutPaymentClient({
         // Step 1: Initiate Order & Razorpay Order on server
         const initRes = await initiateOnlineOrderAction(formData);
 
+        if ("requiresAuth" in initRes && initRes.requiresAuth) {
+          router.push("/login?callbackUrl=/checkout");
+          return;
+        }
+
         if (!initRes.success) {
           throw new Error("Failed to initiate online checkout.");
         }

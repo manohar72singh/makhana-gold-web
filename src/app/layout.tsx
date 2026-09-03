@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     "Artisanal Superfood",
   ],
   authors: [{ name: "Makhana Gold", url: siteUrl }],
-  creator: "Makhana Gold India Pvt. Ltd.",
+  creator: "Mithilanchal Makhana Audyogikaran Pvt. Ltd.",
   publisher: "Makhana Gold",
   formatDetection: {
     email: false,

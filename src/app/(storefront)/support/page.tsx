@@ -31,7 +31,7 @@ export default async function SupportPage() {
   const supportHours = settings["support_hours"] || "Mon — Sat from 9:30 AM to 6:30 PM IST";
   const studioAddress =
     settings["studio_address"] ||
-    "Makhana Gold Pvt. Ltd.\nConnaught Place, New Delhi, 110001, India";
+    "Mithilanchal Makhana Audyogikaran Pvt. Ltd.\nConnaught Place, New Delhi, 110001, India";
 
   // Generate dynamic FAQPage JSON-LD Structured Data
   const allFaqItems = faqCategories.flatMap((cat) => cat.items);

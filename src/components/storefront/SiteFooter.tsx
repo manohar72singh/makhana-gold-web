@@ -22,7 +22,7 @@ export async function SiteFooter() {
     "Join for 15% off your first order, private festive pre-sales, and curated culinary recipes.";
   const fssaiNumber = settings["fssai_license"] || "10021022000123";
   const gstinNumber = settings["gstin_number"] || "10AAACM1234F1Z5";
-  const storeName = settings["store_name"] || "Makhana Gold India Pvt. Ltd.";
+  const storeName = settings["store_name"] || "Mithilanchal Makhana Audyogikaran Pvt. Ltd.";
 
   return (
     <footer className="bg-[#140E06] text-[#F9F5ED] w-full pt-12 sm:pt-16 pb-10 sm:pb-12 mt-huge border-t-2 border-amber-500/30 relative overflow-hidden">

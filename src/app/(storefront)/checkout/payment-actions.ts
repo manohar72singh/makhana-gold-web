@@ -19,7 +19,7 @@ export async function initiateOnlineOrderAction(formData: FormData) {
   const session = await auth();
   const customerId = session?.user?.id ? Number(session.user.id) : null;
   if (!customerId) {
-    throw new Error("Authentication required to proceed to payment.");
+    return { success: false as const, requiresAuth: true as const };
   }
 
   const cart = await getCartWithItems();

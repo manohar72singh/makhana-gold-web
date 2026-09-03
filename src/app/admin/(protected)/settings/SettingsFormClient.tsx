@@ -71,7 +71,7 @@ export function SettingsFormClient({ initialSettings, adminUser }: SettingsFormP
     support_hours: initialSettings.support_hours ?? "Mon — Sat from 9:30 AM to 6:30 PM IST",
     studio_address:
       initialSettings.studio_address ??
-      "Makhana Gold Pvt. Ltd., Connaught Place, New Delhi, 110001, India",
+      "Mithilanchal Makhana Audyogikaran Pvt. Ltd., Connaught Place, New Delhi, 110001, India",
 
     // Commerce & Shipping
     free_shipping_threshold: initialSettings.free_shipping_threshold ?? "500",

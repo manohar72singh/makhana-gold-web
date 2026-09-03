@@ -190,7 +190,7 @@ export function generateOrderConfirmationEmailHtml(props: OrderEmailProps): stri
           <!-- Footer -->
           <tr>
             <td style="background-color: #FAF6EE; padding: 24px; text-align: center; border-top: 1px solid #EFE8DA; font-size: 11px; color: #8A7B6B;">
-              <p style="margin: 0 0 6px 0;">Makhana Gold India Pvt. Ltd. • 100% Certified Bihar Wetland Foxnuts</p>
+              <p style="margin: 0 0 6px 0;">Mithilanchal Makhana Audyogikaran Pvt. Ltd. • 100% Certified Bihar Wetland Foxnuts</p>
               <p style="margin: 0;">Need assistance? Reply directly to this email or reach us on WhatsApp at +91 60016 84216.</p>
             </td>
           </tr>
@@ -267,7 +267,7 @@ export function generateNewsletterWelcomeEmailHtml(email: string, promoCode = "G
           <!-- Footer -->
           <tr>
             <td style="background-color: #FAF6EE; padding: 24px; text-align: center; border-top: 1px solid #EFE8DA; font-size: 11px; color: #8A7B6B;">
-              <p style="margin: 0 0 6px 0;">Makhana Gold Pvt. Ltd. • Artisanal Heritage • Modern Wellness</p>
+              <p style="margin: 0 0 6px 0;">Mithilanchal Makhana Audyogikaran Pvt. Ltd. • Artisanal Heritage • Modern Wellness</p>
               <p style="margin: 0;">Sent to ${email}. You can unsubscribe anytime by updating your email preferences.</p>
             </td>
           </tr>
@@ -353,7 +353,7 @@ export function generateInquiryAcknowledgementEmailHtml({
           <!-- Footer -->
           <tr>
             <td style="background-color: #FAF6EE; padding: 20px; text-align: center; border-top: 1px solid #EFE8DA; font-size: 11px; color: #8A7B6B;">
-              <p style="margin: 0;">Makhana Gold Pvt. Ltd. • Connaught Place, New Delhi, India</p>
+              <p style="margin: 0;">Mithilanchal Makhana Audyogikaran Pvt. Ltd. • Connaught Place, New Delhi, India</p>
             </td>
           </tr>
 
@@ -498,7 +498,7 @@ export function generateBroadcastEmailHtml(props: BroadcastEmailProps): string {
           <!-- Footer -->
           <tr>
             <td style="background-color: #FAF6EE; padding: 24px; text-align: center; border-top: 1px solid #EFE8DA; font-size: 11px; color: #8A7B6B;">
-              <p style="margin: 0 0 6px 0; font-weight: 600;">Makhana Gold India Pvt. Ltd. • Artisanal Wetland Harvest</p>
+              <p style="margin: 0 0 6px 0; font-weight: 600;">Mithilanchal Makhana Audyogikaran Pvt. Ltd. • Artisanal Wetland Harvest</p>
               <p style="margin: 0 0 8px 0;">You received this notification because you are a valued customer or subscribed to the Gold Standard Society.</p>
               <p style="margin: 0;">
                 <a href="${APP_URL}" style="color: #8B5A2B; text-decoration: none;">Visit Store</a> • 

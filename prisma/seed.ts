@@ -755,7 +755,7 @@ async function main() {
     },
     {
       key: "studio_address",
-      value: "Makhana Gold Pvt. Ltd., Connaught Place, New Delhi, 110001, India",
+      value: "Mithilanchal Makhana Audyogikaran Pvt. Ltd., Connaught Place, New Delhi, 110001, India",
       description: "Experience Studio & Corporate Headquarters",
     },
     {

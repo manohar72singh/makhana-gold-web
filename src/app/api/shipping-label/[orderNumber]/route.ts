@@ -41,7 +41,7 @@ export async function GET(
 
   const awbNumber = order.trackingNumber || `DEL-${order.id.toString().padStart(9, "0")}`;
   const courier = order.courierPartner || "Delhivery Express Surface";
-  const storeName = settings["store_name"] || "Makhana Gold India Pvt. Ltd.";
+  const storeName = settings["store_name"] || "Mithilanchal Makhana Audyogikaran Pvt. Ltd.";
   const studioAddress =
     settings["studio_address"] ||
     "Makhana Gold Processing Hub, Industrial Area, Mithila, Bihar - 846004";
