@@ -11,9 +11,19 @@ import { ADMIN_SESSION_COOKIE } from "@/lib/auth-admin";
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const secret = process.env.AUTH_SECRET;
+  // getToken()'s protocol-sniffing to pick between "authjs.session-token"
+  // and "__Secure-authjs.session-token" is unreliable behind Hostinger's
+  // proxy (the origin sees internal http:// traffic), so pin it explicitly
+  // to match the cookie name NextAuth actually sets in production.
+  const secureCookie = process.env.NODE_ENV === "production";
 
   if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
-    const token = await getToken({ req: request, secret, cookieName: ADMIN_SESSION_COOKIE });
+    const token = await getToken({
+      req: request,
+      secret,
+      cookieName: ADMIN_SESSION_COOKIE,
+      secureCookie,
+    });
     if (!token) {
       const loginUrl = new URL("/admin/login", request.url);
       loginUrl.searchParams.set("callbackUrl", pathname);
@@ -26,7 +36,7 @@ export async function proxy(request: NextRequest) {
     (pathname.startsWith("/account") || pathname.startsWith("/checkout")) &&
     pathname !== "/login"
   ) {
-    const token = await getToken({ req: request, secret });
+    const token = await getToken({ req: request, secret, secureCookie });
     if (!token) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("callbackUrl", pathname);
