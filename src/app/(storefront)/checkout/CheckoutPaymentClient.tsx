@@ -143,7 +143,10 @@ export function CheckoutPaymentClient({
         }
       } else {
         // Cash On Delivery
-        form.submit();
+        // Note: form.submit() bypasses the "submit" event entirely, so it never
+        // triggers Next.js's server-action handler. requestSubmit() fires the
+        // event properly and lets the form's action={placeOrderAction} run.
+        form.requestSubmit();
       }
     } catch (err: unknown) {
       setErrorMessage(err instanceof Error ? err.message : "Something went wrong while placing your order.");
