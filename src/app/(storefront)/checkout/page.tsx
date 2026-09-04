@@ -145,7 +145,7 @@ export default async function CheckoutPage({
               <CheckoutAddressSelector
                 savedAddresses={savedAddresses}
                 defaultName={customer?.name || session?.user?.name || ""}
-                defaultPhone={customer?.phone || ""}
+                defaultPhone={(customer?.phone || "").replace(/\D/g, "").slice(-10)}
               />
 
               {/* Billing Toggle */}

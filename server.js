@@ -7,6 +7,14 @@ const { createServer } = require("http");
 const next = require("next");
 
 const port = parseInt(process.env.PORT || "3000", 10);
+
+// Next.js sometimes needs to fetch its own server internally (e.g. to
+// forward a Server Action redirect). Without this, it derives its own
+// public HTTPS domain and calls back out to itself over the internet,
+// which is unreliable on shared hosting. Pointing it at loopback instead
+// keeps that internal call local and reliable.
+process.env.__NEXT_PRIVATE_ORIGIN = `http://127.0.0.1:${port}`;
+
 const app = next({ dev: false });
 const handle = app.getRequestHandler();
 
