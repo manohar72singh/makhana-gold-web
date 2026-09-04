@@ -268,7 +268,12 @@ export default async function TrackOrderPage({
               {/* Delivery Address & Helpline footer */}
               <div className="mt-6 pt-6 border-t border-amber-900/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs text-neutral-600">
                 <div>
-                  <strong>Delivering to:</strong> {order.customer.name}, {order.shippingAddress?.city} ({order.shippingAddress?.pincode})
+                  {/* Order numbers are sequential and guessable, and this
+                      page needs no login — so full name/pincode (which
+                      would let anyone scrape customer PII by walking
+                      through order numbers) are intentionally not shown
+                      here, only enough to sanity-check it's your order. */}
+                  <strong>Delivering to:</strong> {order.shippingAddress?.city}, {order.shippingAddress?.state}
                 </div>
                 <div className="flex items-center gap-2">
                   <a

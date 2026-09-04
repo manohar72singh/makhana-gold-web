@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { adminAuth } from "@/lib/auth-admin";
 import { getSiteSettings } from "@/lib/content";
 
 function generateSvgBarcode(code: string): string {
@@ -22,6 +23,14 @@ export async function GET(
   { params }: { params: Promise<{ orderNumber: string }> }
 ) {
   const { orderNumber } = await params;
+
+  // Admin-only: this label carries the customer's full name, address, and
+  // phone, and order numbers are sequential (MG-8001, MG-8002, ...) and
+  // easily guessable.
+  const adminSession = await adminAuth();
+  if (!adminSession?.user) {
+    return new NextResponse("Unauthorized", { status: 403 });
+  }
 
   const [order, settings] = await Promise.all([
     prisma.order.findFirst({

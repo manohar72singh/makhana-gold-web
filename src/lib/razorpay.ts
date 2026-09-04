@@ -95,7 +95,10 @@ export function verifyRazorpayWebhookSignature(
 ): boolean {
   const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
   if (!webhookSecret || webhookSecret.includes("placeholder")) {
-    return true;
+    // No webhook secret configured yet — reject rather than trust every
+    // caller, since this endpoint would otherwise let anyone mark any
+    // order as paid by posting a fake payload with a matching orderNumber.
+    return false;
   }
 
   const expectedSignature = crypto

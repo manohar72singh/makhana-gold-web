@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { adminAuth } from "@/lib/auth-admin";
 import { getSiteSettings } from "@/lib/content";
 
 export async function GET(
@@ -29,13 +30,14 @@ export async function GET(
     return new NextResponse("Order not found", { status: 404 });
   }
 
-  // Security check: if customer is logged in, verify ownership (or admin)
-  if (customerId && order.customerId !== customerId) {
-    // Check if admin user
-    const admin = await prisma.adminUser.findFirst({
-      where: { email: session?.user?.email || "" },
-    });
-    if (!admin) {
+  // Security check: must be logged in as the order's owner, or an admin
+  // (admin runs on a separate session/cookie from customer auth — check it
+  // directly rather than relying on the customer session's email). Order
+  // numbers are sequential (MG-8001, MG-8002, ...) and easily guessable,
+  // so an anonymous request must never be allowed through.
+  if (!customerId || order.customerId !== customerId) {
+    const adminSession = await adminAuth();
+    if (!adminSession?.user) {
       return new NextResponse("Unauthorized access to invoice", { status: 403 });
     }
   }

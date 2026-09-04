@@ -189,6 +189,14 @@ export async function initiateOnlineOrderAction(formData: FormData) {
     },
   });
 
+  // Bind this Razorpay order to our order so verifyAndCompletePaymentAction
+  // can confirm the payment being verified was actually created for this
+  // order, not replayed from a different (e.g. cheaper) order.
+  await prisma.order.update({
+    where: { id: order.id },
+    data: { paymentReference: rzpOrder.id },
+  });
+
   return {
     success: true,
     orderId: order.id,
@@ -217,6 +225,26 @@ export async function verifyAndCompletePaymentAction({
   razorpayOrderId: string;
   razorpaySignature: string;
 }) {
+  const session = await auth();
+  const customerId = session?.user?.id ? Number(session.user.id) : null;
+  if (!customerId) {
+    throw new Error("You must be logged in to complete this payment.");
+  }
+
+  const existingOrder = await prisma.order.findUnique({ where: { id: orderId } });
+  if (!existingOrder || existingOrder.customerId !== customerId) {
+    throw new Error("Order not found.");
+  }
+  if (existingOrder.paymentStatus === "paid") {
+    return { success: true, orderNumber: existingOrder.orderNumber };
+  }
+  // The Razorpay order id we stored when this order's checkout was initiated
+  // must match the one being verified, otherwise a payment made for a
+  // different (e.g. cheaper) order could be replayed to mark this one paid.
+  if (existingOrder.paymentReference !== razorpayOrderId) {
+    throw new Error("Payment does not match this order. Please contact support.");
+  }
+
   const isValid = verifyRazorpaySignature({
     razorpayOrderId,
     razorpayPaymentId,

@@ -11,7 +11,9 @@ export async function POST(req: NextRequest) {
     }
 
     const formData = await req.formData();
-    const folder = (formData.get("folder") as string) || "products";
+    const requestedFolder = (formData.get("folder") as string) || "products";
+    // Strip any path separators/traversal so this can't escape public/uploads.
+    const folder = requestedFolder.replace(/[^a-zA-Z0-9_-]/g, "") || "products";
     const files = formData.getAll("files") as File[];
     const singleFile = formData.get("file") as File | null;
 
