@@ -26,6 +26,10 @@ export function WebsiteQrStudioClient({
 
   const artworkRef = useRef<HTMLDivElement>(null);
 
+  // Lifetime lock: once a QR has been generated and saved, it can never be
+  // regenerated or edited again — packaging is printed against it permanently.
+  const isLocked = Boolean(initialSettings.pngDataUrl && initialSettings.svgData);
+
   // Form submission: Generate & Save to Database
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -137,6 +141,16 @@ export function WebsiteQrStudioClient({
             </p>
           </div>
 
+          {isLocked && (
+            <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs font-bold flex items-start gap-2">
+              <span className="material-symbols-outlined text-base shrink-0">lock</span>
+              <span>
+                This QR is permanently locked — it was generated once and can never be regenerated or
+                edited again, so packaging already printed with it keeps working forever.
+              </span>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Target URL */}
             <div>
@@ -147,10 +161,12 @@ export function WebsiteQrStudioClient({
                 type="text"
                 name="targetUrl"
                 required
+                readOnly={isLocked}
+                disabled={isLocked}
                 value={targetUrl}
                 onChange={(e) => setTargetUrl(e.target.value)}
                 placeholder="https://makhanagold.com"
-                className="w-full px-4 py-2.5 rounded-xl border border-amber-900/20 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-600 bg-[#FAF6EE]"
+                className="w-full px-4 py-2.5 rounded-xl border border-amber-900/20 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-600 bg-[#FAF6EE] disabled:opacity-60 disabled:cursor-not-allowed"
               />
               <span className="text-[11px] text-neutral-500 mt-1 block">
                 Any customer scanning the pouch QR will instantly land on this URL.
@@ -165,10 +181,11 @@ export function WebsiteQrStudioClient({
               <input
                 type="text"
                 name="headline"
+                disabled={isLocked}
                 value={headline}
                 onChange={(e) => setHeadline(e.target.value)}
                 placeholder="Scan to Discover Pure Makhana Heritage"
-                className="w-full px-4 py-2.5 rounded-xl border border-amber-900/20 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-600 bg-[#FAF6EE]"
+                className="w-full px-4 py-2.5 rounded-xl border border-amber-900/20 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-600 bg-[#FAF6EE] disabled:opacity-60 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -180,10 +197,11 @@ export function WebsiteQrStudioClient({
               <input
                 type="text"
                 name="tagline"
+                disabled={isLocked}
                 value={tagline}
                 onChange={(e) => setTagline(e.target.value)}
                 placeholder="Lab Tested • FSSAI & ISO Certified • 100% Traceable"
-                className="w-full px-4 py-2.5 rounded-xl border border-amber-900/20 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-600 bg-[#FAF6EE]"
+                className="w-full px-4 py-2.5 rounded-xl border border-amber-900/20 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-600 bg-[#FAF6EE] disabled:opacity-60 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -201,8 +219,9 @@ export function WebsiteQrStudioClient({
                   <button
                     key={c.value}
                     type="button"
+                    disabled={isLocked}
                     onClick={() => setColorDark(c.value)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed ${
                       colorDark === c.value
                         ? "bg-amber-100 border-amber-700 text-amber-950 ring-1 ring-amber-600"
                         : "bg-white border-neutral-200 text-neutral-700 hover:bg-neutral-50"
@@ -217,18 +236,20 @@ export function WebsiteQrStudioClient({
             </div>
 
             {/* Save & Generate Button */}
-            <div className="pt-2">
-              <button
-                type="submit"
-                disabled={isSaving}
-                className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#D84315] to-amber-700 hover:brightness-110 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer disabled:opacity-50"
-              >
-                <span className="material-symbols-outlined text-lg">
-                  {isSaving ? "hourglass_empty" : "save"}
-                </span>
-                <span>{isSaving ? "Generating & Saving to DB..." : "Generate & Save to Database"}</span>
-              </button>
-            </div>
+            {!isLocked && (
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#D84315] to-amber-700 hover:brightness-110 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer disabled:opacity-50"
+                >
+                  <span className="material-symbols-outlined text-lg">
+                    {isSaving ? "hourglass_empty" : "save"}
+                  </span>
+                  <span>{isSaving ? "Generating & Saving to DB..." : "Generate & Save to Database (One-Time)"}</span>
+                </button>
+              </div>
+            )}
           </form>
 
           {/* Direct Redirection Shortcode */}

@@ -18,6 +18,19 @@ export interface WebsiteQrSettings {
 
 export async function generateAndSaveWebsiteQrAction(formData: FormData) {
   try {
+    // Lifetime lock: once the packaging QR has been generated and saved, it must
+    // never change again — packaging is already printed against it. Refuse any
+    // further save even if someone bypasses the disabled UI and posts the form.
+    const existing = await prisma.siteSetting.findUnique({
+      where: { key: "website_qr_png" },
+    });
+    if (existing?.value) {
+      return {
+        success: false as const,
+        error: "This lifetime QR code is already generated and locked. It cannot be changed again.",
+      };
+    }
+
     const rawTargetUrl = String(formData.get("targetUrl") || "").trim() || "https://makhanagold.com";
     const headline = String(formData.get("headline") || "").trim() || "Scan to Discover Pure Makhana Heritage";
     const tagline = String(formData.get("tagline") || "").trim() || "Lab Tested • FSSAI & ISO Certified • 100% Traceable";
