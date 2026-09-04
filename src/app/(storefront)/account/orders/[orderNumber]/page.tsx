@@ -94,14 +94,6 @@ export default async function OrderDetailPage({
                 </div>
                 <div className="flex items-center gap-md">
                   <span className="font-body-md text-body-md text-on-surface">₹{item.lineTotal.toString()}</span>
-                  {order.status === "delivered" && (
-                    <Link
-                      href={`/account/orders/${order.orderNumber}/return?item=${item.id}`}
-                      className="font-label-sm text-label-sm text-secondary hover:underline"
-                    >
-                      Return
-                    </Link>
-                  )}
                 </div>
               </div>
             );

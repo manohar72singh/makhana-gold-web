@@ -94,10 +94,16 @@ export function StickyMobileBuyBar({
               <button
                 onClick={onAddToCart}
                 disabled={isPending}
-                className="py-2.5 px-3.5 rounded-xl bg-[#D84315] hover:bg-secondary text-white font-bold text-xs uppercase tracking-wider transition-all shadow-xs active:scale-95 disabled:opacity-60 flex items-center gap-1.5 cursor-pointer"
+                className={`py-2.5 px-3.5 rounded-xl text-white font-bold text-xs uppercase tracking-wider transition-all duration-300 shadow-xs active:scale-95 disabled:opacity-60 flex items-center gap-1.5 cursor-pointer ${
+                  added ? "bg-emerald-600 scale-105" : "bg-[#D84315] hover:bg-secondary"
+                }`}
               >
-                <span className="material-symbols-outlined text-[16px]">
-                  {added ? "done" : "shopping_bag"}
+                <span
+                  className={`material-symbols-outlined text-[16px] ${
+                    isPending ? "animate-spin" : added ? "animate-badge-pop" : ""
+                  }`}
+                >
+                  {isPending ? "progress_activity" : added ? "done" : "shopping_bag"}
                 </span>
                 <span>{added ? "Added!" : "Add"}</span>
               </button>

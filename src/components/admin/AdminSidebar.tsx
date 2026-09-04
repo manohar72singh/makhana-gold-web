@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ElementType } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Box from "@mui/material/Box";
@@ -9,6 +9,7 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import List from "@mui/material/List";
+import Chip from "@mui/material/Chip";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
@@ -27,7 +28,6 @@ import LogoutIcon from "@mui/icons-material/LogoutOutlined";
 import AnalyticsIcon from "@mui/icons-material/BarChartOutlined";
 import LocalOfferIcon from "@mui/icons-material/LocalOfferOutlined";
 import CampaignIcon from "@mui/icons-material/CampaignOutlined";
-import AssignmentReturnIcon from "@mui/icons-material/AssignmentReturnOutlined";
 import RemoveShoppingCartIcon from "@mui/icons-material/RemoveShoppingCartOutlined";
 import SupportAgentIcon from "@mui/icons-material/SupportAgentOutlined";
 import SettingsIcon from "@mui/icons-material/SettingsOutlined";
@@ -38,23 +38,40 @@ import QuizIcon from "@mui/icons-material/QuizOutlined";
 import StarHalfIcon from "@mui/icons-material/StarHalfOutlined";
 import TuneIcon from "@mui/icons-material/TuneOutlined";
 import ForwardToInboxIcon from "@mui/icons-material/ForwardToInboxOutlined";
+import WorkspacePremiumIcon from "@mui/icons-material/WorkspacePremiumOutlined";
+import QrCode2Icon from "@mui/icons-material/QrCode2Outlined";
 import { adminLogoutAction } from "@/app/admin/actions";
+import { NotificationBell } from "./NotificationBell";
+import { useAdminNotifications } from "./AdminNotificationsProvider";
 
 const DRAWER_WIDTH = 260;
 
-const NAV_GROUPS = [
+type BadgeKey = "orders" | "inventory" | "inquiries" | "reviews";
+
+interface NavItem {
+  href: string;
+  label: string;
+  icon: ElementType;
+  badgeKey?: BadgeKey;
+}
+
+interface NavGroup {
+  title: string;
+  items: NavItem[];
+}
+
+const NAV_GROUPS: NavGroup[] = [
   {
     title: "Store Management",
     items: [
       { href: "/admin/dashboard", label: "Dashboard", icon: DashboardIcon },
       { href: "/admin/analytics", label: "Analytics", icon: AnalyticsIcon },
       { href: "/admin/products", label: "Products", icon: Inventory2Icon },
-      { href: "/admin/inventory", label: "Inventory", icon: Inventory2Icon },
-      { href: "/admin/orders", label: "Orders", icon: ShoppingCartIcon },
+      { href: "/admin/inventory", label: "Inventory", icon: Inventory2Icon, badgeKey: "inventory" },
+      { href: "/admin/orders", label: "Orders", icon: ShoppingCartIcon, badgeKey: "orders" },
       { href: "/admin/fulfillment", label: "Fulfillment", icon: LocalShippingIcon },
       { href: "/admin/customers", label: "Customers", icon: GroupIcon },
       { href: "/admin/shipping-config", label: "Shipping Config", icon: TuneIcon },
-      { href: "/admin/returns", label: "Returns", icon: AssignmentReturnIcon },
       { href: "/admin/abandoned-carts", label: "Abandoned Carts", icon: RemoveShoppingCartIcon },
     ],
   },
@@ -66,8 +83,9 @@ const NAV_GROUPS = [
       { href: "/admin/cms/pillars", label: "Trust & Pillars", icon: VerifiedUserIcon },
       { href: "/admin/cms/marketplaces", label: "Marketplaces", icon: StorefrontIcon },
       { href: "/admin/cms/faqs", label: "FAQ Manager", icon: QuizIcon },
-      { href: "/admin/cms/reviews", label: "Reviews Moderation", icon: StarHalfIcon },
-      { href: "/admin/inquiries", label: "Inquiries & Leads", icon: SupportAgentIcon },
+      { href: "/admin/cms/reviews", label: "Reviews Moderation", icon: StarHalfIcon, badgeKey: "reviews" },
+      { href: "/admin/cms/certifications", label: "Certifications", icon: WorkspacePremiumIcon },
+      { href: "/admin/inquiries", label: "Inquiries & Leads", icon: SupportAgentIcon, badgeKey: "inquiries" },
     ],
   },
   {
@@ -76,6 +94,7 @@ const NAV_GROUPS = [
       { href: "/admin/broadcast", label: "Email Broadcast", icon: ForwardToInboxIcon },
       { href: "/admin/campaigns", label: "Campaigns", icon: CampaignIcon },
       { href: "/admin/coupons", label: "Coupons", icon: LocalOfferIcon },
+      { href: "/admin/website-qr", label: "Packaging QR Studio", icon: QrCode2Icon },
       { href: "/admin/settings", label: "Master Settings", icon: SettingsIcon },
     ],
   },
@@ -84,6 +103,7 @@ const NAV_GROUPS = [
 export function AdminSidebar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { badges } = useAdminNotifications();
 
   const handleDrawerToggle = () => setMobileOpen((prev) => !prev);
   const handleNavClick = () => setMobileOpen(false);
@@ -119,8 +139,9 @@ export function AdminSidebar() {
               {group.title}
             </ListSubheader>
 
-            {group.items.map(({ href, label, icon: Icon }) => {
+            {group.items.map(({ href, label, icon: Icon, badgeKey }) => {
               const active = pathname === href || (href !== "/admin/dashboard" && pathname.startsWith(href));
+              const badgeCount = badgeKey ? badges[badgeKey] : 0;
               return (
                 <ListItemButton
                   key={href}
@@ -150,6 +171,19 @@ export function AdminSidebar() {
                       </Typography>
                     }
                   />
+                  {badgeCount > 0 && (
+                    <Chip
+                      label={badgeCount > 99 ? "99+" : badgeCount}
+                      size="small"
+                      color={active ? "default" : "error"}
+                      sx={{
+                        height: 18,
+                        fontSize: "10px",
+                        fontWeight: 700,
+                        "& .MuiChip-label": { px: 0.8 },
+                      }}
+                    />
+                  )}
                 </ListItemButton>
               );
             })}
@@ -205,9 +239,10 @@ export function AdminSidebar() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="subtitle1" color="primary.main" sx={{ fontWeight: 800 }}>
+          <Typography variant="subtitle1" color="primary.main" sx={{ fontWeight: 800, flexGrow: 1 }}>
             Makhana Gold Admin
           </Typography>
+          <NotificationBell />
         </Toolbar>
       </AppBar>
 

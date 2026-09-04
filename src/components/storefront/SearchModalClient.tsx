@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { searchLiveProductsAction } from "@/app/(storefront)/search/actions";
 import { addToCartAction } from "@/app/(storefront)/cart/actions";
+import { dispatchCartAdded } from "./CartToast";
 
 interface SearchProduct {
   id: number;
@@ -88,7 +89,7 @@ export function SearchModalClient({
     return () => clearTimeout(timer);
   }, [query]);
 
-  function handleQuickAdd(variantId: number, productId: number) {
+  function handleQuickAdd(variantId: number, productId: number, productName: string) {
     const formData = new FormData();
     formData.set("variantId", String(variantId));
     formData.set("quantity", "1");
@@ -96,6 +97,7 @@ export function SearchModalClient({
     startTransition(async () => {
       await addToCartAction(formData);
       setAddedId(productId);
+      dispatchCartAdded({ name: productName });
       router.refresh();
       setTimeout(() => setAddedId(null), 1500);
     });
@@ -223,14 +225,16 @@ export function SearchModalClient({
 
                         <button
                           type="button"
-                          onClick={() => handleQuickAdd(product.variantId, product.id)}
-                          className={`p-2 sm:px-3 sm:py-2 rounded-xl text-xs font-bold font-label-md uppercase tracking-wider transition-all cursor-pointer shrink-0 flex items-center gap-1 ${
+                          onClick={() => handleQuickAdd(product.variantId, product.id, product.name)}
+                          className={`p-2 sm:px-3 sm:py-2 rounded-xl text-xs font-bold font-label-md uppercase tracking-wider transition-all duration-300 cursor-pointer shrink-0 flex items-center gap-1 ${
                             isJustAdded
-                              ? "bg-emerald-600 text-white"
+                              ? "bg-emerald-600 text-white scale-105"
                               : "bg-gradient-to-r from-[#E64A19] to-[#D84315] hover:brightness-110 text-white shadow-xs"
                           }`}
                         >
-                          <span className="material-symbols-outlined text-[16px]">
+                          <span
+                            className={`material-symbols-outlined text-[16px] ${isJustAdded ? "animate-badge-pop" : ""}`}
+                          >
                             {isJustAdded ? "check" : "add_shopping_cart"}
                           </span>
                           <span className="hidden sm:inline">

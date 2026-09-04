@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { toggleWishlistAction } from "@/app/(storefront)/wishlist-actions";
-import { addToCartAction } from "@/app/(storefront)/cart/actions";
 import { QuickViewTrigger } from "@/components/storefront/QuickViewModal";
+import { AddToCartButton } from "@/components/storefront/AddToCartButton";
 
 export function ProductGridCard({
   product,
@@ -182,17 +182,7 @@ export function ProductGridCard({
                 <span>Sold Out</span>
               </button>
             ) : (
-              <form action={addToCartAction}>
-                <input type="hidden" name="variantId" value={variant.id} />
-                <input type="hidden" name="quantity" value={1} />
-                <button
-                  type="submit"
-                  className="bg-gradient-to-r from-[#E64A19] to-[#D84315] hover:brightness-110 text-white font-label-md text-xs uppercase tracking-wider px-4 py-2.5 rounded-xl transition-all duration-200 flex items-center gap-1.5 shadow-vermillion-glow cursor-pointer active:scale-95 font-bold"
-                >
-                  <span className="material-symbols-outlined text-[16px]">add_shopping_cart</span>
-                  <span>Add</span>
-                </button>
-              </form>
+              <AddToCartButton variantId={variant.id} quantity={1} productName={product.name} />
             )
           )}
         </div>

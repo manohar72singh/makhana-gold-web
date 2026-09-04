@@ -4,6 +4,7 @@ import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { mergeGuestCartIntoCustomer } from "@/lib/cart";
+import { makePhoneEmail } from "@/lib/phone-email";
 
 export function isGoogleConfigured(): boolean {
   const id = process.env.AUTH_GOOGLE_ID;
@@ -67,7 +68,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const formattedPhone = `+91${clean10Digit}`;
           const defaultEmail = credentials?.email
             ? String(credentials.email).toLowerCase().trim()
-            : `${clean10Digit}@phone.makhanagold.com`;
+            : makePhoneEmail(clean10Digit);
 
           let customer = await prisma.customer.findFirst({
             where: {

@@ -35,8 +35,19 @@ export function SiteHeaderClient({
   const [mobileShopExpanded, setMobileShopExpanded] = useState(false);
   const [shopDropdownOpen, setShopDropdownOpen] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
+  const [cartBump, setCartBump] = useState(false);
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pathname = usePathname();
+
+  // Bump the cart icon whenever an item is added anywhere on the site
+  useEffect(() => {
+    function handleCartAdded() {
+      setCartBump(true);
+      setTimeout(() => setCartBump(false), 550);
+    }
+    window.addEventListener("cart:added", handleCartAdded);
+    return () => window.removeEventListener("cart:added", handleCartAdded);
+  }, []);
 
   // Close dropdown on route change
   useEffect(() => {
@@ -305,12 +316,21 @@ export function SiteHeaderClient({
             <Link
               href="/cart"
               aria-label="Shopping Bag"
-              className="relative flex items-center gap-2 bg-gradient-to-r from-[#E64A19] to-[#D84315] hover:brightness-110 text-white px-3.5 sm:px-4 py-2 rounded-full transition-all shadow-vermillion-glow hover:scale-105 active:scale-95 cursor-pointer font-bold text-xs uppercase tracking-wider"
+              className={`relative flex items-center gap-2 bg-gradient-to-r from-[#E64A19] to-[#D84315] hover:brightness-110 text-white px-3.5 sm:px-4 py-2 rounded-full transition-all shadow-vermillion-glow hover:scale-105 active:scale-95 cursor-pointer font-bold text-xs uppercase tracking-wider ${
+                cartBump ? "ring-4 ring-amber-400/50" : ""
+              }`}
             >
-              <span className="material-symbols-outlined text-[18px]">shopping_bag</span>
+              <span
+                className={`material-symbols-outlined text-[18px] ${cartBump ? "animate-cart-bump" : ""}`}
+              >
+                shopping_bag
+              </span>
               <span className="hidden sm:inline">Bag</span>
               {cartCount > 0 && (
-                <span className="bg-white text-[#D84315] text-[11px] font-extrabold h-5 min-w-5 px-1 rounded-full flex items-center justify-center shadow-xs">
+                <span
+                  key={cartCount}
+                  className="bg-white text-[#D84315] text-[11px] font-extrabold h-5 min-w-5 px-1 rounded-full flex items-center justify-center shadow-xs animate-badge-pop"
+                >
                   {cartCount}
                 </span>
               )}
@@ -346,6 +366,7 @@ export function SiteHeaderClient({
               <span className="material-symbols-outlined text-[24px]">close</span>
             </button>
           </div>
+
 
           <div className="flex-1 overflow-y-auto p-5 space-y-4">
             {/* Expandable Shop Section */}

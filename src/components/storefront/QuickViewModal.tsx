@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { addToCartAction } from "@/app/(storefront)/cart/actions";
+import { dispatchCartAdded } from "./CartToast";
 
 type QuickViewProduct = {
   id: number;
@@ -53,6 +54,8 @@ function QuickViewModal({
     startTransition(async () => {
       await addToCartAction(formData);
       setAdded(true);
+      dispatchCartAdded({ name: product.name });
+      setTimeout(() => setAdded(false), 1600);
     });
   }
 
@@ -108,9 +111,14 @@ function QuickViewModal({
           <button
             onClick={handleAddToCart}
             disabled={pending}
-            className="w-full py-3 rounded-lg bg-[#D84315] text-white font-label-md text-label-md uppercase tracking-wider hover:opacity-90 transition-opacity disabled:opacity-60 mb-sm"
+            className={`w-full py-3 rounded-lg text-white font-label-md text-label-md uppercase tracking-wider transition-all duration-300 disabled:opacity-60 mb-sm flex items-center justify-center gap-1.5 ${
+              added ? "bg-emerald-600 scale-102" : "bg-[#D84315] hover:opacity-90"
+            }`}
           >
-            {added ? "Added!" : "Add to Cart"}
+            <span className={`material-symbols-outlined text-[18px] ${pending ? "animate-spin" : added ? "animate-badge-pop" : ""}`}>
+              {pending ? "progress_activity" : added ? "check_circle" : "add_shopping_cart"}
+            </span>
+            <span>{pending ? "Adding…" : added ? "Added!" : "Add to Cart"}</span>
           </button>
           <Link
             href={`/product/${product.slug}`}

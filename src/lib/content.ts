@@ -157,6 +157,7 @@ const DEFAULT_SITE_SETTINGS: Record<string, string> = {
   announcement_text: "Get 15% OFF your first harvest",
   announcement_coupon: "GOLDEN15",
   announcement_shipping_text: "🚚 Free Shipping on Orders ₹500+",
+  iso_certified_text: "ISO 22000 & 9001 Certified",
 };
 
 /**

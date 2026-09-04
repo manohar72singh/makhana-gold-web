@@ -212,7 +212,7 @@ export async function GET(
           <div class="brand-title">${settings["store_name"] || "Makhana Gold"}</div>
           <div class="brand-sub">${settings["store_tagline"] || "Pure • Healthy • Premium"}</div>
           <div style="font-size: 11px; color: #555; margin-top: 6px;">
-            ${settings["studio_address"] || "Mithilanchal Makhana Audyogikaran Pvt. Ltd., Mithila Agro Processing Park, Bihar - 846004"}<br>
+            ${settings["studio_address"] || "Mithilanchal Makhana Udyogikaran Pvt. Ltd., Mithila Agro Processing Park, Bihar - 846004"}<br>
             <strong>GSTIN:</strong> ${settings["gstin_number"] || "10AAACM1234F1Z5"} | <strong>FSSAI:</strong> ${settings["fssai_license"] || "10021022000123"}<br>
             <strong>Support:</strong> ${settings["support_email"] || "mmakhanaltd@gmail.com"} | ${settings["support_phone"] || "+91 60016 84216"}
           </div>
@@ -266,8 +266,8 @@ export async function GET(
       </thead>
       <tbody>
         ${order.items
-          .map(
-            (item, index) => `
+      .map(
+        (item, index) => `
           <tr>
             <td>${index + 1}</td>
             <td><strong>${item.productName}</strong> - ${item.variantName}</td>
@@ -277,8 +277,8 @@ export async function GET(
             <td style="text-align: right;">₹${Number(item.lineTotal).toFixed(2)}</td>
           </tr>
         `
-          )
-          .join("")}
+      )
+      .join("")}
       </tbody>
     </table>
 
@@ -287,16 +287,15 @@ export async function GET(
         <td>Subtotal:</td>
         <td>₹${subtotal.toFixed(2)}</td>
       </tr>
-      ${
-        discount > 0
-          ? `
+      ${discount > 0
+      ? `
       <tr style="color: #2E7D32;">
         <td>Coupon Discount (${order.coupon?.code || "PROMO"}):</td>
         <td>-₹${discount.toFixed(2)}</td>
       </tr>
       `
-          : ""
-      }
+      : ""
+    }
       <tr>
         <td>Taxable Value:</td>
         <td>₹${taxableValue.toFixed(2)}</td>

@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
+import { notifyAdmins } from "@/lib/admin-notifications";
 
 export async function submitCorporateInquiryAction(formData: FormData) {
   const name = String(formData.get("name") || "").trim();
@@ -109,6 +110,13 @@ ${message || "No additional notes provided."}
     } catch (mailErr) {
       console.error("Corporate mail error:", mailErr);
     }
+
+    await notifyAdmins({
+      type: "new_inquiry",
+      title: `New corporate RFQ — ${quantityRange}`,
+      message: `${companyName || name} (${email})`,
+      link: "/admin/inquiries",
+    });
 
     return { success: true };
   } catch (error) {

@@ -1,25 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { addAddressAction, deleteAddressAction, setDefaultAddressAction } from "./actions";
-
-const STATES = [
-  "Delhi",
-  "Maharashtra",
-  "Karnataka",
-  "Gujarat",
-  "West Bengal",
-  "Tamil Nadu",
-  "Uttar Pradesh",
-  "Bihar",
-  "Haryana",
-  "Punjab",
-  "Rajasthan",
-  "Telangana",
-  "Madhya Pradesh",
-  "Kerala",
-  "Andhra Pradesh",
-  "Goa",
-];
+import { AddressFormFields } from "@/components/storefront/AddressFormFields";
 
 export default async function AddressesPage() {
   const session = await auth();
@@ -63,7 +45,7 @@ export default async function AddressesPage() {
                 <div className="flex items-center gap-2">
                   <span className="inline-flex items-center gap-1 bg-amber-500/15 text-amber-900 font-label-sm text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-amber-500/30">
                     <span className="material-symbols-outlined text-[14px]">
-                      {addr.label?.toLowerCase() === "office" || addr.label?.toLowerCase() === "work" ? "apartment" : "home"}
+                      {addr.label === "Office" ? "apartment" : addr.label === "Home" ? "home" : "location_on"}
                     </span>
                     {addr.label || "Address"}
                   </span>
@@ -138,86 +120,7 @@ export default async function AddressesPage() {
         </p>
 
         <form action={addAddressAction} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="md:col-span-2">
-            <label className="font-label-sm text-xs font-bold text-on-surface block mb-1.5">
-              Address Label (e.g. Home, Office, Parents, Farmhouse) *
-            </label>
-            <input
-              name="label"
-              defaultValue="Home"
-              required
-              placeholder="e.g. Home, Office, Gifting"
-              className="w-full bg-[#FAF6EE] border border-amber-900/15 rounded-2xl px-4 py-3 text-sm text-[#1C150C] focus:border-amber-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20"
-            />
-          </div>
-
-          <div className="md:col-span-2">
-            <label className="font-label-sm text-xs font-bold text-on-surface block mb-1.5">
-              Street Address / Flat / Building *
-            </label>
-            <input
-              name="line1"
-              required
-              placeholder="Flat / House No., Apartment, Street, Landmark"
-              className="w-full bg-[#FAF6EE] border border-amber-900/15 rounded-2xl px-4 py-3 text-sm text-[#1C150C] focus:border-amber-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20"
-            />
-          </div>
-
-          <div>
-            <label className="font-label-sm text-xs font-bold text-on-surface block mb-1.5">
-              PIN Code *
-            </label>
-            <input
-              name="pincode"
-              required
-              placeholder="e.g. 110001"
-              className="w-full bg-[#FAF6EE] border border-amber-900/15 rounded-2xl px-4 py-3 text-sm text-[#1C150C] focus:border-amber-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20"
-            />
-          </div>
-
-          <div>
-            <label className="font-label-sm text-xs font-bold text-on-surface block mb-1.5">
-              City *
-            </label>
-            <input
-              name="city"
-              required
-              placeholder="e.g. New Delhi"
-              className="w-full bg-[#FAF6EE] border border-amber-900/15 rounded-2xl px-4 py-3 text-sm text-[#1C150C] focus:border-amber-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20"
-            />
-          </div>
-
-          <div>
-            <label className="font-label-sm text-xs font-bold text-on-surface block mb-1.5">
-              State *
-            </label>
-            <select
-              name="state"
-              required
-              defaultValue=""
-              className="w-full bg-[#FAF6EE] border border-amber-900/15 rounded-2xl px-4 py-3 text-sm text-[#1C150C] focus:border-amber-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20"
-            >
-              <option disabled value="">
-                Select Delivery State
-              </option>
-              {STATES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="font-label-sm text-xs font-bold text-on-surface block mb-1.5">
-              Country
-            </label>
-            <input
-              disabled
-              value="India"
-              className="w-full bg-gray-100 border border-gray-200 rounded-2xl px-4 py-3 text-sm text-gray-500 cursor-not-allowed"
-            />
-          </div>
+          <AddressFormFields />
 
           <div className="md:col-span-2 pt-2 flex items-center gap-2.5">
             <input

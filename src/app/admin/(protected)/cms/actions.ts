@@ -14,6 +14,9 @@ function revalidateStorefront() {
   revalidatePath("/admin/cms/marketplaces");
   revalidatePath("/admin/cms/faqs");
   revalidatePath("/admin/cms/reviews");
+  revalidatePath("/certifications");
+  revalidatePath("/corporate-gifting");
+  revalidatePath("/admin/cms/certifications");
 }
 
 // ---------------------------------------------------------------------------
@@ -261,6 +264,65 @@ export async function toggleFaqItemAction(formData: FormData) {
   const isActive = formData.get("isActive") === "true";
   if (id) {
     await prisma.faqItem.update({
+      where: { id },
+      data: { isActive: !isActive },
+    });
+    revalidateStorefront();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Certifications Actions
+// ---------------------------------------------------------------------------
+
+export async function upsertCertificationAction(formData: FormData) {
+  const idStr = formData.get("id") as string | null;
+  const id = idStr ? Number(idStr) : undefined;
+  const name = (formData.get("name") as string)?.trim() || "";
+  const issuingBody = (formData.get("issuingBody") as string)?.trim() || "";
+  const certificateNumber = (formData.get("certificateNumber") as string)?.trim() || null;
+  const validUntilStr = (formData.get("validUntil") as string)?.trim();
+  const validUntil = validUntilStr ? new Date(validUntilStr) : null;
+  const documentUrl = (formData.get("documentUrl") as string)?.trim() || null;
+  const badgeImage = (formData.get("badgeImage") as string)?.trim() || null;
+  const description = (formData.get("description") as string)?.trim() || null;
+  const sortOrder = Number(formData.get("sortOrder")) || 0;
+  const isActive = formData.get("isActive") === "true" || formData.get("isActive") === "on" || !id;
+
+  const data = {
+    name,
+    issuingBody,
+    certificateNumber,
+    validUntil,
+    documentUrl,
+    badgeImage,
+    description,
+    sortOrder,
+    isActive,
+  };
+
+  if (id) {
+    await prisma.certification.update({ where: { id }, data });
+  } else {
+    await prisma.certification.create({ data });
+  }
+
+  revalidateStorefront();
+}
+
+export async function deleteCertificationAction(formData: FormData) {
+  const id = Number(formData.get("id"));
+  if (id) {
+    await prisma.certification.delete({ where: { id } });
+    revalidateStorefront();
+  }
+}
+
+export async function toggleCertificationAction(formData: FormData) {
+  const id = Number(formData.get("id"));
+  const isActive = formData.get("isActive") === "true";
+  if (id) {
+    await prisma.certification.update({
       where: { id },
       data: { isActive: !isActive },
     });

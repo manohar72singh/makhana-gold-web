@@ -71,13 +71,14 @@ export function SettingsFormClient({ initialSettings, adminUser }: SettingsFormP
     support_hours: initialSettings.support_hours ?? "Mon — Sat from 9:30 AM to 6:30 PM IST",
     studio_address:
       initialSettings.studio_address ??
-      "Mithilanchal Makhana Audyogikaran Pvt. Ltd., Connaught Place, New Delhi, 110001, India",
+      "Mithilanchal Makhana Udyogikaran Pvt. Ltd., Connaught Place, New Delhi, 110001, India",
 
     // Commerce & Shipping
     free_shipping_threshold: initialSettings.free_shipping_threshold ?? "500",
     standard_shipping_rate: initialSettings.standard_shipping_rate ?? "60",
     fssai_license: initialSettings.fssai_license ?? "10021022000123",
     gstin_number: initialSettings.gstin_number ?? "10AAACM1234F1Z5",
+    iso_certified_text: initialSettings.iso_certified_text ?? "ISO 22000 & 9001 Certified",
 
     // Social Media & Marketing
     social_instagram: initialSettings.social_instagram ?? "https://instagram.com",
@@ -379,6 +380,16 @@ export function SettingsFormClient({ initialSettings, adminUser }: SettingsFormP
                     onChange={(e) => handleChange("gstin_number", e.target.value)}
                     fullWidth
                     helperText="Official 15-digit GST identification number"
+                  />
+                </Grid>
+                <Grid size={{ xs: 12 }}>
+                  <TextField
+                    label="ISO Certification Text"
+                    name="iso_certified_text"
+                    value={settings.iso_certified_text}
+                    onChange={(e) => handleChange("iso_certified_text", e.target.value)}
+                    fullWidth
+                    helperText="Displayed dynamically in Top Header bar, Announcement Strip and Footer (e.g. ISO 22000 & 9001 Certified)"
                   />
                 </Grid>
               </Grid>

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getCartWithItems } from "@/lib/cart";
+import { isPlaceholderEmail } from "@/lib/phone-email";
 import { placeOrderAction } from "./actions";
 import { CheckoutAddressSelector } from "./CheckoutAddressSelector";
 import { CheckoutPaymentClient } from "./CheckoutPaymentClient";
@@ -34,10 +35,14 @@ export default async function CheckoutPage({
         }),
         prisma.customer.findUnique({
           where: { id: customerId },
-          select: { name: true, phone: true },
+          select: { name: true, phone: true, email: true },
         }),
       ])
     : [[], null];
+
+  if (customer && isPlaceholderEmail(customer.email)) {
+    redirect("/account/profile?verifyEmail=1&callbackUrl=/checkout");
+  }
 
   const subtotal = cart.items.reduce(
     (sum, item) => sum + Number(item.priceAtAdd) * item.quantity,

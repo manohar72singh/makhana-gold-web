@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default async function PrivacyPolicyPage() {
   const settings = await getSiteSettings();
-  const storeName = settings["store_name"] || "Mithilanchal Makhana Audyogikaran Pvt. Ltd.";
+  const storeName = settings["store_name"] || "Mithilanchal Makhana Udyogikaran Pvt. Ltd.";
   const supportEmail = settings["support_email"] || "mmakhanaltd@gmail.com";
   const supportPhone = settings["support_phone"] || "+91 60016 84216";
   const address = settings["studio_address"] || "Connaught Place, New Delhi - 110001, India";

@@ -121,16 +121,15 @@ export function generateOrderConfirmationEmailHtml(props: OrderEmailProps): stri
                   <td style="padding: 4px 0;">Subtotal</td>
                   <td align="right" style="font-weight: 600; color: #1C150C;">₹${Number(props.subtotal).toFixed(2)}</td>
                 </tr>
-                ${
-                  Number(props.discountTotal) > 0
-                    ? `
+                ${Number(props.discountTotal) > 0
+      ? `
                 <tr>
                   <td style="padding: 4px 0; color: #2E7D32;">Privilege Discount</td>
                   <td align="right" style="font-weight: 700; color: #2E7D32;">-₹${Number(props.discountTotal).toFixed(2)}</td>
                 </tr>
                 `
-                    : ""
-                }
+      : ""
+    }
                 <tr>
                   <td style="padding: 4px 0;">Pan-India Express Shipping</td>
                   <td align="right" style="font-weight: 600; color: #1C150C;">
@@ -166,11 +165,10 @@ export function generateOrderConfirmationEmailHtml(props: OrderEmailProps): stri
                   <td width="50%" valign="top" style="padding-left: 10px; font-size: 12px; border-left: 1px solid #E5DFD1;">
                     <strong style="color: #8B5A2B; text-transform: uppercase; font-size: 10px; letter-spacing: 1px; display: block; margin-bottom: 4px;">Payment Status</strong>
                     <div style="color: #1C150C;">
-                      ${
-                        isPaid
-                          ? `<span style="color: #2E7D32; font-weight: bold;">✓ Paid Online (Razorpay)</span><br><span style="font-size: 10px; color: #786C5E;">Ref: ${props.paymentReference || "Captured"}</span>`
-                          : `<span style="color: #E65100; font-weight: bold;">Pay on Delivery (COD)</span><br><span style="font-size: 10px; color: #786C5E;">Cash/UPI on arrival</span>`
-                      }
+                      ${isPaid
+      ? `<span style="color: #2E7D32; font-weight: bold;">✓ Paid Online (Razorpay)</span><br><span style="font-size: 10px; color: #786C5E;">Ref: ${props.paymentReference || "Captured"}</span>`
+      : `<span style="color: #E65100; font-weight: bold;">Pay on Delivery (COD)</span><br><span style="font-size: 10px; color: #786C5E;">Cash/UPI on arrival</span>`
+    }
                     </div>
                   </td>
                 </tr>
@@ -190,7 +188,7 @@ export function generateOrderConfirmationEmailHtml(props: OrderEmailProps): stri
           <!-- Footer -->
           <tr>
             <td style="background-color: #FAF6EE; padding: 24px; text-align: center; border-top: 1px solid #EFE8DA; font-size: 11px; color: #8A7B6B;">
-              <p style="margin: 0 0 6px 0;">Mithilanchal Makhana Audyogikaran Pvt. Ltd. • 100% Certified Bihar Wetland Foxnuts</p>
+              <p style="margin: 0 0 6px 0;">Mithilanchal Makhana Udyogikaran Pvt. Ltd. • 100% Certified Bihar Wetland Foxnuts</p>
               <p style="margin: 0;">Need assistance? Reply directly to this email or reach us on WhatsApp at +91 60016 84216.</p>
             </td>
           </tr>
@@ -267,7 +265,7 @@ export function generateNewsletterWelcomeEmailHtml(email: string, promoCode = "G
           <!-- Footer -->
           <tr>
             <td style="background-color: #FAF6EE; padding: 24px; text-align: center; border-top: 1px solid #EFE8DA; font-size: 11px; color: #8A7B6B;">
-              <p style="margin: 0 0 6px 0;">Mithilanchal Makhana Audyogikaran Pvt. Ltd. • Artisanal Heritage • Modern Wellness</p>
+              <p style="margin: 0 0 6px 0;">Mithilanchal Makhana Udyogikaran Pvt. Ltd. • Artisanal Heritage • Modern Wellness</p>
               <p style="margin: 0;">Sent to ${email}. You can unsubscribe anytime by updating your email preferences.</p>
             </td>
           </tr>
@@ -353,7 +351,7 @@ export function generateInquiryAcknowledgementEmailHtml({
           <!-- Footer -->
           <tr>
             <td style="background-color: #FAF6EE; padding: 20px; text-align: center; border-top: 1px solid #EFE8DA; font-size: 11px; color: #8A7B6B;">
-              <p style="margin: 0;">Mithilanchal Makhana Audyogikaran Pvt. Ltd. • Connaught Place, New Delhi, India</p>
+              <p style="margin: 0;">Mithilanchal Makhana Udyogikaran Pvt. Ltd. • Connaught Place, New Delhi, India</p>
             </td>
           </tr>
 
@@ -410,9 +408,8 @@ export function generateBroadcastEmailHtml(props: BroadcastEmailProps): string {
             </td>
           </tr>
 
-          ${
-            props.bannerImageUrl
-              ? `
+          ${props.bannerImageUrl
+      ? `
           <!-- Optional Banner Visual -->
           <tr>
             <td style="padding: 0;">
@@ -420,21 +417,20 @@ export function generateBroadcastEmailHtml(props: BroadcastEmailProps): string {
             </td>
           </tr>
           `
-              : ""
-          }
+      : ""
+    }
 
           <!-- Announcement Body -->
           <tr>
             <td style="padding: 36px 32px 24px 32px; text-align: center;">
-              ${
-                props.badge
-                  ? `
+              ${props.badge
+      ? `
               <div style="display: inline-block; background-color: #FFF3E0; color: #D84315; font-size: 11px; font-weight: 800; padding: 5px 16px; border-radius: 20px; border: 1px solid #FFE0B2; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;">
                 ${props.badge}
               </div>
               `
-                  : ""
-              }
+      : ""
+    }
 
               <h2 style="margin: 0 0 16px 0; font-size: 24px; color: #1C150C; font-weight: 800; line-height: 1.3;">
                 ${props.headline}
@@ -448,9 +444,8 @@ export function generateBroadcastEmailHtml(props: BroadcastEmailProps): string {
                 ${messageFormatted}
               </div>
 
-              ${
-                props.couponCode
-                  ? `
+              ${props.couponCode
+      ? `
               <!-- Promo Coupon Box -->
               <div style="background: linear-gradient(135deg, #FAF6EE 0%, #F5EEDB 100%); border: 2px dashed #D4AF37; border-radius: 18px; padding: 20px; margin: 0 auto 28px auto; max-width: 440px;">
                 <p style="margin: 0 0 6px 0; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: #8B5A2B; font-weight: 700;">
@@ -464,12 +459,11 @@ export function generateBroadcastEmailHtml(props: BroadcastEmailProps): string {
                 </p>
               </div>
               `
-                  : ""
-              }
+      : ""
+    }
 
-              ${
-                props.ctaText && props.ctaUrl
-                  ? `
+              ${props.ctaText && props.ctaUrl
+      ? `
               <!-- Call to Action -->
               <div style="margin-top: 10px; margin-bottom: 16px;">
                 <a href="${props.ctaUrl}" style="display: inline-block; background: linear-gradient(135deg, #E64A19 0%, #D84315 100%); color: #FFFFFF; text-decoration: none; padding: 15px 36px; border-radius: 14px; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 14px rgba(216,67,21,0.28);">
@@ -477,8 +471,8 @@ export function generateBroadcastEmailHtml(props: BroadcastEmailProps): string {
                 </a>
               </div>
               `
-                  : ""
-              }
+      : ""
+    }
             </td>
           </tr>
 
@@ -498,7 +492,7 @@ export function generateBroadcastEmailHtml(props: BroadcastEmailProps): string {
           <!-- Footer -->
           <tr>
             <td style="background-color: #FAF6EE; padding: 24px; text-align: center; border-top: 1px solid #EFE8DA; font-size: 11px; color: #8A7B6B;">
-              <p style="margin: 0 0 6px 0; font-weight: 600;">Mithilanchal Makhana Audyogikaran Pvt. Ltd. • Artisanal Wetland Harvest</p>
+              <p style="margin: 0 0 6px 0; font-weight: 600;">Mithilanchal Makhana Udyogikaran Pvt. Ltd. • Artisanal Wetland Harvest</p>
               <p style="margin: 0 0 8px 0;">You received this notification because you are a valued customer or subscribed to the Gold Standard Society.</p>
               <p style="margin: 0;">
                 <a href="${APP_URL}" style="color: #8B5A2B; text-decoration: none;">Visit Store</a> • 

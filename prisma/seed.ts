@@ -755,7 +755,7 @@ async function main() {
     },
     {
       key: "studio_address",
-      value: "Mithilanchal Makhana Audyogikaran Pvt. Ltd., Connaught Place, New Delhi, 110001, India",
+      value: "Mithilanchal Makhana Udyogikaran Pvt. Ltd., Connaught Place, New Delhi, 110001, India",
       description: "Experience Studio & Corporate Headquarters",
     },
     {
@@ -772,6 +772,11 @@ async function main() {
       key: "gstin_number",
       value: "10AAACM1234F1Z5",
       description: "Official Registered GSTIN Number",
+    },
+    {
+      key: "iso_certified_text",
+      value: "ISO 22000 & 9001 Certified",
+      description: "ISO Certification badges displayed in Header and Footer",
     },
   ];
 

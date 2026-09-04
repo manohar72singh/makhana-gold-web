@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/db";
 import { sendInquiryAcknowledgementEmail } from "@/lib/email";
+import { notifyAdmins } from "@/lib/admin-notifications";
 
 export async function submitContactInquiryAction(formData: FormData) {
   const name = String(formData.get("name") || "").trim();
@@ -39,6 +40,13 @@ export async function submitContactInquiryAction(formData: FormData) {
     } catch (emailErr) {
       console.error("Email dispatch notice (inquiry saved to DB):", emailErr);
     }
+
+    await notifyAdmins({
+      type: "new_inquiry",
+      title: `New support inquiry — ${subject || "General Inquiry"}`,
+      message: `${name || "Valued Customer"} (${email})`,
+      link: "/admin/inquiries",
+    });
 
     return { success: true };
   } catch (error) {

@@ -30,15 +30,21 @@ export async function initiateOnlineOrderAction(formData: FormData) {
   const contactName = String(formData.get("name") || "").trim();
   const contactPhone = String(formData.get("phone") || "").trim();
 
-  if (contactName || contactPhone) {
-    await prisma.customer.update({
-      where: { id: customerId },
-      data: {
-        name: contactName || undefined,
-        phone: contactPhone || undefined,
-      },
-    });
+  if (!contactName) {
+    throw new Error("Full Name is mandatory for delivery.");
   }
+  const digitsOnlyPhone = contactPhone.replace(/\D/g, "");
+  if (!digitsOnlyPhone || digitsOnlyPhone.length < 10) {
+    throw new Error("A valid 10-digit mobile number is mandatory for delivery.");
+  }
+
+  await prisma.customer.update({
+    where: { id: customerId },
+    data: {
+      name: contactName,
+      phone: contactPhone,
+    },
+  });
 
   const savedAddressId = formData.get("savedAddressId")
     ? Number(formData.get("savedAddressId"))
@@ -54,12 +60,28 @@ export async function initiateOnlineOrderAction(formData: FormData) {
     addressId = existingAddress.id;
   } else {
     const saveToProfile = formData.get("saveToProfile") === "on";
-    const label = String(formData.get("addressLabel") || "Home");
-    const line1 = String(formData.get("line1") || "");
-    const line2 = String(formData.get("landmark") || "") || null;
-    const city = String(formData.get("city") || "");
-    const state = String(formData.get("state") || "");
-    const pincode = String(formData.get("pincode") || "");
+    const label = String(formData.get("label") || formData.get("addressLabel") || "Home").trim();
+    const line1 = String(formData.get("line1") || "").trim();
+    const line2 = String(formData.get("line2") || formData.get("landmark") || "").trim();
+    const city = String(formData.get("city") || "").trim();
+    const state = String(formData.get("state") || "").trim();
+    const pincode = String(formData.get("pincode") || "").trim();
+
+    if (!line1) {
+      throw new Error("Street Address / Flat / Building is mandatory.");
+    }
+    if (!line2) {
+      throw new Error("Landmark / Area / Colony is mandatory.");
+    }
+    if (!city) {
+      throw new Error("City is mandatory.");
+    }
+    if (!state) {
+      throw new Error("State is mandatory.");
+    }
+    if (!pincode || pincode.length !== 6) {
+      throw new Error("A valid 6-digit PIN code is mandatory.");
+    }
 
     const newAddress = await prisma.address.create({
       data: {

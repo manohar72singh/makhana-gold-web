@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { notifyAdmins } from "@/lib/admin-notifications";
 
 export async function submitProductReviewAction(formData: FormData) {
   const session = await auth();
@@ -34,7 +35,7 @@ export async function submitProductReviewAction(formData: FormData) {
     });
   }
 
-  await prisma.review.create({
+  const review = await prisma.review.create({
     data: {
       productId,
       customerId: effectiveCustomerId,
@@ -43,6 +44,14 @@ export async function submitProductReviewAction(formData: FormData) {
       body: body || null,
       isApproved: true, // auto-approve storefront reviews
     },
+    include: { product: { select: { name: true } } },
+  });
+
+  await notifyAdmins({
+    type: "new_review",
+    title: `New ${rating}★ review — ${review.product.name}`,
+    message: title || body || undefined,
+    link: "/admin/cms/reviews",
   });
 
   if (slug) {

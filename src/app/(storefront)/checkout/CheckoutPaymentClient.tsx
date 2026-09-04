@@ -55,10 +55,15 @@ export function CheckoutPaymentClient({
 
   async function handlePaymentSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const form = e.currentTarget;
+
+    if (!form.reportValidity()) {
+      return;
+    }
+
     setIsProcessing(true);
     setErrorMessage(null);
 
-    const form = e.currentTarget;
     const formData = new FormData(form);
     if (appliedCouponCode) {
       formData.set("couponCode", appliedCouponCode);
@@ -242,6 +247,9 @@ export function CheckoutPaymentClient({
         onClick={(e) => {
           const form = (e.target as HTMLElement).closest("form");
           if (form) {
+            if (!form.reportValidity()) {
+              return;
+            }
             const fakeEvent = {
               preventDefault: () => {},
               currentTarget: form,

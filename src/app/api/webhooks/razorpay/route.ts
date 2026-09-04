@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { verifyRazorpayWebhookSignature } from "@/lib/razorpay";
+import { notifyAdmins } from "@/lib/admin-notifications";
 
 export async function POST(req: NextRequest) {
   try {
@@ -39,6 +40,40 @@ export async function POST(req: NextRequest) {
                 },
               },
             },
+          });
+        }
+      }
+    }
+
+    if (event === "payment.failed") {
+      const paymentEntity = payload.payload?.payment?.entity;
+      const paymentId = paymentEntity?.id;
+      const orderNumber = paymentEntity?.notes?.orderNumber || paymentEntity?.description;
+      const errorDescription = paymentEntity?.error_description || "Payment failed";
+
+      if (orderNumber) {
+        const order = await prisma.order.findUnique({ where: { orderNumber } });
+
+        if (order && order.paymentStatus !== "paid") {
+          await prisma.order.update({
+            where: { id: order.id },
+            data: {
+              paymentStatus: "failed",
+              paymentReference: paymentId || order.paymentReference,
+              statusHistory: {
+                create: {
+                  status: order.status,
+                  note: `Webhook reported payment failure. Event: ${event} (Txn: ${paymentId}) — ${errorDescription}`,
+                },
+              },
+            },
+          });
+
+          await notifyAdmins({
+            type: "payment_failed",
+            title: `Payment failed — order #${orderNumber}`,
+            message: errorDescription,
+            link: `/admin/orders/${orderNumber}`,
           });
         }
       }

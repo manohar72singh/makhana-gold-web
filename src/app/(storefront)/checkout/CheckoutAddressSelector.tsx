@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AddressFormFields } from "@/components/storefront/AddressFormFields";
 
 export interface SavedAddress {
   id: number;
@@ -13,25 +14,6 @@ export interface SavedAddress {
   country: string;
   isDefaultShipping: boolean;
 }
-
-const STATES = [
-  "Delhi",
-  "Maharashtra",
-  "Karnataka",
-  "Gujarat",
-  "West Bengal",
-  "Tamil Nadu",
-  "Uttar Pradesh",
-  "Bihar",
-  "Haryana",
-  "Punjab",
-  "Rajasthan",
-  "Telangana",
-  "Madhya Pradesh",
-  "Kerala",
-  "Andhra Pradesh",
-  "Goa",
-];
 
 export function CheckoutAddressSelector({
   savedAddresses,
@@ -62,6 +44,7 @@ export function CheckoutAddressSelector({
             <input
               name="name"
               required
+              minLength={2}
               defaultValue={defaultName}
               placeholder="e.g. Rahul Sharma"
               className="w-full bg-[#FAF6EE] border border-amber-900/15 rounded-2xl px-4 py-3 text-sm text-[#1C150C] focus:border-amber-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20"
@@ -69,34 +52,60 @@ export function CheckoutAddressSelector({
           </div>
           <div>
             <label className="font-label-sm text-xs text-on-surface font-bold block mb-1">
-              Mobile Number (+91) *
+              Mobile Number (10 Digits) *
             </label>
             <input
               name="phone"
               type="tel"
               required
+              inputMode="tel"
+              pattern="^[6-9][0-9]{9}$"
+              maxLength={10}
+              title="Please enter a valid 10-digit mobile number starting with 6, 7, 8, or 9"
               defaultValue={defaultPhone}
-              placeholder="10-digit mobile number"
-              className="w-full bg-[#FAF6EE] border border-amber-900/15 rounded-2xl px-4 py-3 text-sm text-[#1C150C] focus:border-amber-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+              placeholder="e.g. 9876543210"
+              className="w-full bg-[#FAF6EE] border border-amber-900/15 rounded-2xl px-4 py-3 text-sm text-[#1C150C] focus:border-amber-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 font-mono"
             />
+            <span className="text-[10px] text-amber-900/60 mt-1 block">
+              Required for courier delivery coordination &amp; dispatch updates
+            </span>
           </div>
         </div>
       </div>
 
       {/* Delivery Address Section */}
       <div className="pt-4 border-t border-amber-900/10">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="font-label-md text-xs font-bold text-amber-800 uppercase tracking-wider">
-            Delivery Location
-          </h3>
+        <div className="flex flex-wrap justify-between items-center gap-2 mb-4">
+          <div>
+            <h3 className="font-label-md text-xs font-bold text-amber-800 uppercase tracking-wider">
+              Delivery Address *
+            </h3>
+            <p className="text-[11px] text-amber-900/60">
+              {savedAddresses.length > 0
+                ? selectedAddressId === "new"
+                  ? "Enter your new address below (all fields mandatory)"
+                  : "Select your preferred delivery destination (Default pre-selected)"
+                : "Enter your complete shipping address (all fields mandatory)"}
+            </p>
+          </div>
           {savedAddresses.length > 0 && selectedAddressId !== "new" && (
             <button
               type="button"
               onClick={() => setSelectedAddressId("new")}
-              className="text-xs font-bold text-amber-700 hover:text-[#E64A19] transition-colors cursor-pointer inline-flex items-center gap-1"
+              className="text-xs font-bold text-amber-900 hover:text-white bg-amber-100 hover:bg-[#D84315] border border-amber-300 px-3.5 py-1.5 rounded-xl transition-all cursor-pointer inline-flex items-center gap-1.5 shadow-2xs"
             >
-              <span className="material-symbols-outlined text-[15px]">add</span>
-              <span>Add New Address</span>
+              <span className="material-symbols-outlined text-[16px]">add_location_alt</span>
+              <span>+ Add New Address</span>
+            </button>
+          )}
+          {savedAddresses.length > 0 && selectedAddressId === "new" && (
+            <button
+              type="button"
+              onClick={() => setSelectedAddressId(defaultAddr ? defaultAddr.id : savedAddresses[0].id)}
+              className="text-xs font-bold text-amber-800 hover:underline cursor-pointer inline-flex items-center gap-1"
+            >
+              <span className="material-symbols-outlined text-[15px]">arrow_back</span>
+              <span>Use Default / Saved Address</span>
             </button>
           )}
         </div>
@@ -113,18 +122,22 @@ export function CheckoutAddressSelector({
                   onClick={() => setSelectedAddressId(addr.id)}
                   className={`p-4 rounded-2xl border transition-all cursor-pointer relative flex flex-col justify-between ${
                     isSelected
-                      ? "bg-amber-500/10 border-amber-600 ring-2 ring-amber-500/30"
+                      ? "bg-amber-500/10 border-amber-600 ring-2 ring-amber-500/30 shadow-xs"
                       : "bg-[#FAF6EE] border-amber-900/10 hover:border-amber-500/40 hover:bg-white"
                   }`}
                 >
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white border border-amber-900/10 text-amber-900">
+                        <span className="material-symbols-outlined text-[13px]">
+                          {addr.label === "Office" ? "apartment" : addr.label === "Home" ? "home" : "location_on"}
+                        </span>
                         {addr.label || "Address"}
                       </span>
                       {addr.isDefaultShipping && (
-                        <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full">
-                          Default
+                        <span className="text-[10px] text-emerald-800 font-extrabold bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[12px] text-emerald-600">verified</span>
+                          Default Address
                         </span>
                       )}
                     </div>
@@ -141,7 +154,7 @@ export function CheckoutAddressSelector({
                     <span className="material-symbols-outlined text-[16px]">
                       {isSelected ? "radio_button_checked" : "radio_button_unchecked"}
                     </span>
-                    <span>{isSelected ? "Delivering Here" : "Deliver to this address"}</span>
+                    <span>{isSelected ? "Delivering Here (Selected)" : "Deliver to this address"}</span>
                   </div>
                 </div>
               );
@@ -156,102 +169,21 @@ export function CheckoutAddressSelector({
 
         {/* New Address Form (if selected "new" or no saved addresses) */}
         {selectedAddressId === "new" && (
-          <div className="bg-[#FAF6EE] p-5 rounded-2xl border border-amber-900/15 space-y-4">
-            <div className="flex justify-between items-center">
-              <h4 className="text-xs font-bold text-on-surface uppercase tracking-wider">
-                Enter New Address
-              </h4>
-              {savedAddresses.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setSelectedAddressId(defaultAddr ? defaultAddr.id : savedAddresses[0].id)}
-                  className="text-xs text-amber-800 font-bold hover:underline cursor-pointer"
-                >
-                  Choose from saved addresses
-                </button>
-              )}
+          <div className="bg-[#FAF6EE] p-5 sm:p-6 rounded-2xl border-2 border-amber-500/30 space-y-4 shadow-xs">
+            <div className="flex justify-between items-center pb-2 border-b border-amber-900/10">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-amber-700 text-lg">add_location</span>
+                <h4 className="text-xs font-bold text-on-surface uppercase tracking-wider">
+                  Enter New Delivery Address
+                </h4>
+              </div>
+              <span className="text-[10px] text-amber-800 bg-amber-200/60 px-2 py-0.5 rounded-md font-bold uppercase">
+                All Fields Mandatory *
+              </span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="md:col-span-2">
-                <label className="font-label-sm text-xs font-bold text-on-surface block mb-1">
-                  Address Label (e.g. Home, Office, Gifting)
-                </label>
-                <input
-                  name="addressLabel"
-                  defaultValue="Home"
-                  placeholder="e.g. Home"
-                  className="w-full bg-white border border-amber-900/15 rounded-2xl px-4 py-2.5 text-sm text-[#1C150C] focus:border-amber-700 focus:outline-none"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="font-label-sm text-xs font-bold text-on-surface block mb-1">
-                  Street Address / Flat / Building *
-                </label>
-                <input
-                  name="line1"
-                  required
-                  placeholder="House no, Building, Street, Area"
-                  className="w-full bg-white border border-amber-900/15 rounded-2xl px-4 py-2.5 text-sm text-[#1C150C] focus:border-amber-700 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="font-label-sm text-xs font-bold text-on-surface block mb-1">
-                  PIN Code *
-                </label>
-                <input
-                  name="pincode"
-                  required
-                  placeholder="e.g. 110001"
-                  className="w-full bg-white border border-amber-900/15 rounded-2xl px-4 py-2.5 text-sm text-[#1C150C] focus:border-amber-700 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="font-label-sm text-xs font-bold text-on-surface block mb-1">
-                  City *
-                </label>
-                <input
-                  name="city"
-                  required
-                  placeholder="City / Town"
-                  className="w-full bg-white border border-amber-900/15 rounded-2xl px-4 py-2.5 text-sm text-[#1C150C] focus:border-amber-700 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="font-label-sm text-xs font-bold text-on-surface block mb-1">
-                  State *
-                </label>
-                <select
-                  name="state"
-                  required
-                  defaultValue=""
-                  className="w-full bg-white border border-amber-900/15 rounded-2xl px-4 py-2.5 text-sm text-[#1C150C] focus:border-amber-700 focus:outline-none"
-                >
-                  <option disabled value="">
-                    Select State
-                  </option>
-                  {STATES.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="font-label-sm text-xs font-bold text-on-surface block mb-1">
-                  Landmark (Optional)
-                </label>
-                <input
-                  name="landmark"
-                  placeholder="Near temple, hospital, etc."
-                  className="w-full bg-white border border-amber-900/15 rounded-2xl px-4 py-2.5 text-sm text-[#1C150C] focus:border-amber-700 focus:outline-none"
-                />
-              </div>
+              <AddressFormFields compact />
 
               <div className="md:col-span-2 flex items-center gap-2 pt-1">
                 <input

@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { addToCartAction } from "@/app/(storefront)/cart/actions";
+import { dispatchCartAdded } from "./CartToast";
 import {
   AmazonIcon,
   FlipkartIcon,
@@ -80,6 +81,7 @@ export function ProductPurchasePanel({
     startTransition(async () => {
       await addToCartAction(formData);
       setAdded(true);
+      dispatchCartAdded({ name: productName });
       router.refresh();
       setTimeout(() => setAdded(false), 2000);
     });
@@ -327,12 +329,18 @@ export function ProductPurchasePanel({
               <button
                 onClick={handleAddToCart}
                 disabled={pending}
-                className="w-full py-4 rounded-xl bg-[#D84315] hover:bg-secondary text-white font-label-md text-sm uppercase tracking-wider transition-all shadow-warm-1 hover:shadow-warm-2 flex items-center justify-center gap-2 cursor-pointer active:scale-98 disabled:opacity-60 font-bold"
+                className={`w-full py-4 rounded-xl text-white font-label-md text-sm uppercase tracking-wider transition-all duration-300 shadow-warm-1 hover:shadow-warm-2 flex items-center justify-center gap-2 cursor-pointer active:scale-98 disabled:opacity-60 font-bold ${
+                  added ? "bg-emerald-600 scale-101" : "bg-[#D84315] hover:bg-secondary"
+                }`}
               >
-                <span className="material-symbols-outlined text-[18px]">
-                  shopping_cart_checkout
+                <span
+                  className={`material-symbols-outlined text-[18px] ${
+                    pending ? "animate-spin" : added ? "animate-badge-pop" : ""
+                  }`}
+                >
+                  {pending ? "progress_activity" : added ? "check_circle" : "shopping_cart_checkout"}
                 </span>
-                <span>{added ? "Item Added To Bag!" : "Add to Cart"}</span>
+                <span>{pending ? "Adding…" : added ? "Item Added To Bag!" : "Add to Cart"}</span>
               </button>
 
               <button

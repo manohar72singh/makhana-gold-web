@@ -22,7 +22,8 @@ export async function SiteFooter() {
     "Join for 15% off your first order, private festive pre-sales, and curated culinary recipes.";
   const fssaiNumber = settings["fssai_license"] || "10021022000123";
   const gstinNumber = settings["gstin_number"] || "10AAACM1234F1Z5";
-  const storeName = settings["store_name"] || "Mithilanchal Makhana Audyogikaran Pvt. Ltd.";
+  const isoCertifiedText = settings["iso_certified_text"] || "ISO 22000 & 9001 Certified";
+  const storeName = settings["store_name"] || "Mithilanchal Makhana Udyogikaran Pvt. Ltd.";
 
   return (
     <footer className="bg-[#140E06] text-[#F9F5ED] w-full pt-12 sm:pt-16 pb-10 sm:pb-12 mt-huge border-t-2 border-amber-500/30 relative overflow-hidden">
@@ -235,10 +236,27 @@ export async function SiteFooter() {
             {fssaiNumber && (
               <>
                 <span className="hidden sm:inline text-white/20">•</span>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-white/10 text-amber-300 font-mono text-[11px] font-bold border border-white/15">
+                <Link
+                  href="/certifications"
+                  title="View Official FSSAI License"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-white/10 text-amber-300 font-mono text-[11px] font-bold border border-white/15 hover:bg-white/15 transition-colors"
+                >
                   <span className="text-[10px] text-amber-400 font-sans font-black tracking-wider uppercase">fssai</span>
                   <span>Lic. #{fssaiNumber}</span>
-                </span>
+                </Link>
+              </>
+            )}
+            {isoCertifiedText && (
+              <>
+                <span className="hidden sm:inline text-white/20">•</span>
+                <Link
+                  href="/certifications"
+                  title="View ISO Certifications"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-white/10 text-amber-300 font-mono text-[11px] font-bold border border-white/15 hover:bg-white/15 transition-colors"
+                >
+                  <span className="text-[10px] text-amber-400 font-sans font-black tracking-wider uppercase">iso</span>
+                  <span>{isoCertifiedText}</span>
+                </Link>
               </>
             )}
             {gstinNumber && (

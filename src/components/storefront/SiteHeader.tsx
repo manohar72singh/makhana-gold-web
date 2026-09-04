@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getCartItemCount } from "@/lib/cart";
 import { auth } from "@/lib/auth";
 import { getSiteSettings, getCategoryTree } from "@/lib/content";
@@ -34,6 +35,7 @@ export async function SiteHeader() {
   const announcementText = settings["announcement_text"] || "Get 15% OFF your first harvest";
   const couponCode = settings["announcement_coupon"] || "GOLDEN15";
   const shippingNotice = settings["announcement_shipping_text"] || "🚚 Free Shipping on Orders ₹500+";
+  const isoCertifiedText = settings["iso_certified_text"] || "ISO 22000 & 9001 Certified";
 
   return (
     <>
@@ -60,6 +62,19 @@ export async function SiteHeader() {
               <>
                 <span className="hidden md:inline text-white/30">•</span>
                 <span className="hidden md:inline text-amber-200/80">{shippingNotice}</span>
+              </>
+            )}
+            {isoCertifiedText && (
+              <>
+                <span className="hidden sm:inline text-white/30">•</span>
+                <Link
+                  href="/certifications"
+                  title="View ISO & Food Safety Certifications"
+                  className="inline-flex items-center gap-1 text-[11px] text-amber-300 hover:text-amber-200 transition-colors font-semibold bg-white/10 px-2.5 py-0.5 rounded-full border border-amber-400/30"
+                >
+                  <span className="material-symbols-outlined text-[13px] text-amber-400">verified</span>
+                  <span>{isoCertifiedText}</span>
+                </Link>
               </>
             )}
           </div>

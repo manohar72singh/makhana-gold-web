@@ -26,7 +26,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/jpg", "image/avif"];
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+      "image/jpg",
+      "image/avif",
+      "application/pdf",
+    ];
     const targetDir = path.join(process.cwd(), "public", "uploads", folder);
     await mkdir(targetDir, { recursive: true });
 
@@ -59,7 +67,7 @@ export async function POST(req: NextRequest) {
 
     if (uploadedUrls.length === 0) {
       return NextResponse.json(
-        { error: "No valid image files could be processed. Please upload JPG, PNG, WEBP, or GIF under 15MB." },
+        { error: "No valid files could be processed. Please upload JPG, PNG, WEBP, GIF, or PDF under 15MB." },
         { status: 400 }
       );
     }

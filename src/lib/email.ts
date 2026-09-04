@@ -246,6 +246,42 @@ export async function sendBroadcastEmailBatch({
   return { successCount, failCount, total: recipients.length };
 }
 
+export async function sendOtpEmail({
+  to,
+  code,
+  customerName,
+}: {
+  to: string;
+  code: string;
+  customerName?: string | null;
+}) {
+  const html = `
+    <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; background: #FFFFFF; border-radius: 20px; border: 1px solid #EFE8DA; overflow: hidden;">
+      <div style="background: linear-gradient(135deg, #241607 0%, #150D04 100%); padding: 28px 24px; text-align: center;">
+        <h1 style="margin: 0; font-size: 20px; color: #F5E6CC; letter-spacing: 2px; font-weight: 800; text-transform: uppercase;">Makhana Gold</h1>
+      </div>
+      <div style="padding: 32px 28px; text-align: center;">
+        <p style="margin: 0 0 4px 0; font-size: 14px; color: #1C150C;">Namaste${customerName ? ` ${customerName}` : ""},</p>
+        <p style="margin: 0 0 20px 0; font-size: 13px; color: #6D5F4D; line-height: 1.6;">
+          Use the code below to verify this email address for your Makhana Gold account. It expires in 10 minutes.
+        </p>
+        <div style="display: inline-block; background: #FAF6EE; border: 2px dashed #D4AF37; border-radius: 14px; padding: 16px 32px; font-family: monospace; font-size: 32px; font-weight: 800; color: #D84315; letter-spacing: 8px;">
+          ${code}
+        </div>
+        <p style="margin: 24px 0 0 0; font-size: 11px; color: #8A7B6B;">
+          Didn't request this? You can safely ignore this email.
+        </p>
+      </div>
+    </div>
+  `;
+
+  return sendEmail({
+    to,
+    subject: `${code} is your Makhana Gold verification code`,
+    html,
+  });
+}
+
 export async function sendShippingDispatchEmail({
   to,
   customerName,
