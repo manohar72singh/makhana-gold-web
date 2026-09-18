@@ -25,26 +25,61 @@ export interface TrackingStep {
   timestamp?: string;
 }
 
+export const POPULAR_INDIAN_COURIERS = [
+  { value: "Delhivery Express Surface", label: "Delhivery (Express Surface / Air)" },
+  { value: "Shiprocket Express", label: "Shiprocket (Multi-Carrier Auto)" },
+  { value: "Blue Dart Air Priority", label: "Blue Dart (Express Air)" },
+  { value: "DTDC Premium", label: "DTDC (Domestic Priority)" },
+  { value: "India Post Speed Post", label: "India Post (Speed Post)" },
+  { value: "Shadowfax Express", label: "Shadowfax (E-commerce Express)" },
+  { value: "Xpressbees Logistics", label: "Xpressbees (Fast Delivery)" },
+] as const;
+
+export function getCarrierTrackingUrl(courier: string, trackingNumber: string): string {
+  const c = courier.toLowerCase();
+  if (c.includes("delhivery")) {
+    return `https://www.delhivery.com/track/package/${trackingNumber}`;
+  }
+  if (c.includes("shiprocket")) {
+    return `https://shiprocket.co/tracking/${trackingNumber}`;
+  }
+  if (c.includes("blue")) {
+    return `https://www.bluedart.com/tracking`;
+  }
+  if (c.includes("dtdc")) {
+    return `https://www.dtdc.in/tracking/shipment-tracking.asp`;
+  }
+  if (c.includes("india post") || c.includes("speed post")) {
+    return `https://www.indiapost.gov.in/_layouts/15/dop.portal.tracking/trackconsignment.aspx`;
+  }
+  return `https://trackcourier.in/track/${trackingNumber}`;
+}
+
 export function generateAwbTrackingDetails(
   orderNumber: string,
-  courier: string = "Delhivery Express"
+  courier: string = "Delhivery Express Surface",
+  customAwb?: string
 ) {
-  const prefix = courier.toLowerCase().includes("delhivery")
-    ? "DEL"
-    : courier.toLowerCase().includes("shiprocket")
+  let trackingNumber = (customAwb || "").trim();
+
+  if (!trackingNumber) {
+    const prefix = courier.toLowerCase().includes("delhivery")
+      ? "DEL"
+      : courier.toLowerCase().includes("shiprocket")
       ? "SR"
       : courier.toLowerCase().includes("blue")
-        ? "BD"
-        : "EXP";
+      ? "BD"
+      : courier.toLowerCase().includes("dtdc")
+      ? "DTDC"
+      : courier.toLowerCase().includes("india post") || courier.toLowerCase().includes("speed post")
+      ? "SP"
+      : "MG";
 
-  const randomDigits = Math.floor(100000000 + Math.random() * 900000000);
-  const trackingNumber = `${prefix}-${randomDigits}`;
+    const randomDigits = Math.floor(100000000 + Math.random() * 900000000);
+    trackingNumber = `${prefix}-${randomDigits}`;
+  }
 
-  const trackingUrl = courier.toLowerCase().includes("delhivery")
-    ? `https://www.delhivery.com/track/package/${trackingNumber}`
-    : courier.toLowerCase().includes("shiprocket")
-      ? `https://shiprocket.co/tracking/${trackingNumber}`
-      : `https://trackcourier.in/track/${trackingNumber}`;
+  const trackingUrl = getCarrierTrackingUrl(courier, trackingNumber);
 
   return {
     trackingNumber,

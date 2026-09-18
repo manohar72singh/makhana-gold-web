@@ -1,83 +1,128 @@
-import Link from "next/link";
-import Typography from "@mui/material/Typography";
-import Table from "@mui/material/Table";
-import TableHead from "@mui/material/TableHead";
-import TableBody from "@mui/material/TableBody";
-import TableRow from "@mui/material/TableRow";
-import TableCell from "@mui/material/TableCell";
-import Chip from "@mui/material/Chip";
-import Paper from "@mui/material/Paper";
-import TableContainer from "@mui/material/TableContainer";
 import { prisma } from "@/lib/db";
+import { OrdersAccordionClient, SerializedOrder } from "./OrdersAccordionClient";
 
-const STATUS_COLOR: Record<string, "success" | "default" | "warning" | "error" | "info"> = {
-  pending: "default",
-  confirmed: "info",
-  processing: "warning",
-  shipped: "info",
-  delivered: "success",
-  cancelled: "error",
-  returned: "error",
-};
+const VALID_STATUSES = [
+  "pending",
+  "confirmed",
+  "processing",
+  "shipped",
+  "delivered",
+  "cancelled",
+  "returned",
+] as const;
+type OrderStatusType = (typeof VALID_STATUSES)[number];
 
-export default async function AdminOrdersPage() {
-  const orders = await prisma.order.findMany({
-    include: { customer: true, items: true },
+interface OrdersPageProps {
+  searchParams?: Promise<{ status?: string }>;
+}
+
+export default async function AdminOrdersPage({ searchParams }: OrdersPageProps) {
+  const resolvedParams = await searchParams;
+  const currentFilter = resolvedParams?.status?.toLowerCase() || "all";
+
+  // Aggregate counts for each status
+  const countsGroup = await prisma.order.groupBy({
+    by: ["status"],
+    _count: { id: true },
+  });
+
+  const countMap: Record<string, number> = {};
+  let totalCount = 0;
+  for (const item of countsGroup) {
+    countMap[item.status] = item._count.id;
+    totalCount += item._count.id;
+  }
+
+  // Active fulfillment queue count (pending, confirmed, processing)
+  const activeFulfillmentCount =
+    (countMap["pending"] || 0) +
+    (countMap["confirmed"] || 0) +
+    (countMap["processing"] || 0);
+
+  const isValidStatus = VALID_STATUSES.includes(currentFilter as OrderStatusType);
+  const whereClause = isValidStatus ? { status: currentFilter as OrderStatusType } : {};
+
+  const rawOrders = await prisma.order.findMany({
+    where: whereClause,
+    include: {
+      customer: true,
+      shippingAddress: true,
+      items: {
+        include: {
+          variant: {
+            include: {
+              product: {
+                include: {
+                  images: { take: 1 },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     orderBy: { createdAt: "desc" },
     take: 100,
   });
 
-  return (
-    <>
-      <Typography variant="h4" gutterBottom>
-        Orders
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        {orders.length} orders
-      </Typography>
+  const filterTabs = [
+    { label: "All Orders", value: "all", count: totalCount },
+    { label: "Pending", value: "pending", count: countMap["pending"] || 0 },
+    { label: "Confirmed", value: "confirmed", count: countMap["confirmed"] || 0 },
+    { label: "Processing (Packing)", value: "processing", count: countMap["processing"] || 0 },
+    { label: "Shipped (In-Transit)", value: "shipped", count: countMap["shipped"] || 0 },
+    { label: "Delivered", value: "delivered", count: countMap["delivered"] || 0 },
+    { label: "Cancelled", value: "cancelled", count: countMap["cancelled"] || 0 },
+  ];
 
-      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3 }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Order #</TableCell>
-              <TableCell>Customer</TableCell>
-              <TableCell>Items</TableCell>
-              <TableCell>Total</TableCell>
-              <TableCell>Payment</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Date</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {orders.map((o) => (
-              <TableRow key={o.id} hover>
-                <TableCell>
-                  <Link href={`/admin/orders/${o.orderNumber}`} style={{ textDecoration: "none" }}>
-                    <Typography variant="body2" sx={{ fontWeight: 600 }} color="primary.main">
-                      {o.orderNumber}
-                    </Typography>
-                  </Link>
-                </TableCell>
-                <TableCell>{o.customer.name ?? o.customer.email}</TableCell>
-                <TableCell>{o.items.length}</TableCell>
-                <TableCell>₹{o.grandTotal.toString()}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={o.paymentStatus}
-                    size="small"
-                    color={o.paymentStatus === "paid" ? "success" : "default"}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Chip label={o.status} size="small" color={STATUS_COLOR[o.status]} />
-                </TableCell>
-                <TableCell>{o.createdAt.toLocaleDateString("en-IN")}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </>
+  const serializedOrders: SerializedOrder[] = rawOrders.map((o) => ({
+    id: o.id,
+    orderNumber: o.orderNumber,
+    status: o.status,
+    paymentStatus: o.paymentStatus,
+    paymentReference: o.paymentReference,
+    grandTotal: Number(o.grandTotal),
+    subtotal: Number(o.subtotal),
+    taxTotal: Number(o.taxTotal),
+    discountTotal: Number(o.discountTotal),
+    shippingTotal: Number(o.shippingTotal),
+    courierPartner: o.courierPartner,
+    trackingNumber: o.trackingNumber,
+    trackingUrl: o.trackingUrl,
+    isB2b: o.isB2b,
+    companyName: o.companyName,
+    gstin: o.gstin,
+    createdAt: o.createdAt.toISOString(),
+    customer: {
+      name: o.customer.name,
+      email: o.customer.email,
+      phone: o.customer.phone,
+    },
+    shippingAddress: o.shippingAddress
+      ? {
+          line1: o.shippingAddress.line1,
+          line2: o.shippingAddress.line2,
+          city: o.shippingAddress.city,
+          state: o.shippingAddress.state,
+          pincode: o.shippingAddress.pincode,
+        }
+      : null,
+    items: o.items.map((it) => ({
+      id: it.id,
+      productName: it.productName,
+      variantName: it.variantName,
+      quantity: it.quantity,
+      unitPrice: Number(it.unitPrice),
+      lineTotal: Number(it.lineTotal),
+      image: it.variant?.product?.images?.[0]?.url || null,
+    })),
+  }));
+
+  return (
+    <OrdersAccordionClient
+      orders={serializedOrders}
+      filterTabs={filterTabs}
+      activeFulfillmentCount={activeFulfillmentCount}
+    />
   );
 }

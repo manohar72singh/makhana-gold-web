@@ -38,13 +38,19 @@ export function PackagingLabelStudio({
   const [uploadingArtwork, setUploadingArtwork] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const qrDestination = typeof window !== "undefined"
-    ? `${window.location.origin}/product/${productSlug}?source=packet_qr&promo=REFILL15`
-    : `https://makhanagold.com/product/${productSlug}?source=packet_qr&promo=REFILL15`;
+  const [qrDestination, setQrDestination] = useState(
+    `https://makhanagold.com/product/${productSlug}?source=packet_qr&promo=REFILL15`
+  );
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setQrDestination(`${window.location.origin}/product/${productSlug}?source=packet_qr&promo=REFILL15`);
+    }
+  }, [productSlug]);
 
   useEffect(() => {
     generateCodes();
-  }, [barcode, productSlug]);
+  }, [barcode, qrDestination]);
 
   const generateCodes = async () => {
     if (!barcode) return;
@@ -221,7 +227,7 @@ export function PackagingLabelStudio({
                 <Typography variant="caption" sx={{ fontWeight: 700, color: "#8B5A2B", display: "block" }}>
                   Customer Mobile Scan Destination:
                 </Typography>
-                <Typography variant="caption" sx={{ color: "text.secondary", wordBreak: "break-all" }}>
+                <Typography variant="caption" suppressHydrationWarning sx={{ color: "text.secondary", wordBreak: "break-all" }}>
                   {qrDestination}
                 </Typography>
                 <Chip

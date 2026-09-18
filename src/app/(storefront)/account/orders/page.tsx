@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { ReorderButtonClient } from "./ReorderButtonClient";
 
 const STATUS_BADGES: Record<string, string> = {
   pending: "bg-surface-container-high text-on-surface-variant",
@@ -68,9 +69,17 @@ export default async function MyOrdersPage() {
             >
               <div className="flex flex-wrap justify-between items-center gap-2 border-b border-outline-variant/15 pb-4 mb-4">
                 <div>
-                  <span className="font-mono text-xs font-bold text-on-surface block">
-                    Order #{order.orderNumber}
-                  </span>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-mono text-xs font-bold text-on-surface block">
+                      Order #{order.orderNumber}
+                    </span>
+                    {order.isB2b && (
+                      <span className="bg-emerald-100 border border-emerald-300 text-emerald-800 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider inline-flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[12px] text-emerald-600">corporate_fare</span>
+                        <span>B2B {order.companyName ? `• ${order.companyName}` : ""}</span>
+                      </span>
+                    )}
+                  </div>
                   <span className="text-xs text-on-surface-variant">
                     Placed on{" "}
                     {order.createdAt.toLocaleDateString("en-IN", {
@@ -105,7 +114,8 @@ export default async function MyOrdersPage() {
                   <span className="text-xs text-on-surface-variant block">Grand Total</span>
                   <span className="font-bold text-sm text-primary">₹{order.grandTotal.toString()}</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap justify-end">
+                  <ReorderButtonClient orderId={order.id} variant="compact" />
                   <a
                     href={`/api/invoice/${order.orderNumber}`}
                     target="_blank"
@@ -116,7 +126,7 @@ export default async function MyOrdersPage() {
                     <span>Invoice</span>
                   </a>
                   <Link
-                    href={`/checkout/confirmed/${order.orderNumber}`}
+                    href={`/account/orders/${order.orderNumber}`}
                     className="text-xs font-label-md uppercase tracking-wider text-white bg-gradient-to-r from-[#E64A19] to-[#D84315] hover:brightness-110 px-4 py-2 rounded-xl transition-all font-bold inline-flex items-center gap-1 shadow-xs"
                   >
                     <span className="material-symbols-outlined text-[15px]">local_shipping</span>

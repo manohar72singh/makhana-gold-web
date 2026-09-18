@@ -101,6 +101,101 @@ export default async function EditProductPage({ params }: PageProps<"/admin/prod
             </Grid>
           </Grid>
 
+          {/* ── Merchandising Badges ─────────────────────────────────── */}
+          <Box>
+            <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1.5, color: "text.primary" }}>
+              🏷️ Merchandising Badges
+            </Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 2 }}>
+              These badges control which products appear in the Hot Deals &amp; Best Sellers sections on the homepage.
+            </Typography>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+              {/* Hot Deal Toggle */}
+              <Box
+                component="label"
+                htmlFor="toggle-hot-deal"
+                sx={{
+                  flex: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  p: 2,
+                  borderRadius: 2,
+                  border: "1px solid",
+                  borderColor: product.isHotDeal ? "#E64A19" : "divider",
+                  bgcolor: product.isHotDeal ? "#FFF3E0" : "background.default",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                }}
+              >
+                <input
+                  type="checkbox"
+                  id="toggle-hot-deal"
+                  name="isHotDeal"
+                  value="true"
+                  defaultChecked={product.isHotDeal}
+                  style={{
+                    width: 20,
+                    height: 20,
+                    accentColor: "#E64A19",
+                    cursor: "pointer",
+                    flexShrink: 0,
+                  }}
+                />
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 800, color: "#BF360C" }}>
+                    🔥 Hot Deal
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Show in &quot;Hot Deals&quot; section on homepage with a flame badge
+                  </Typography>
+                </Box>
+              </Box>
+
+              {/* Best Seller Toggle */}
+              <Box
+                component="label"
+                htmlFor="toggle-best-seller"
+                sx={{
+                  flex: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  p: 2,
+                  borderRadius: 2,
+                  border: "1px solid",
+                  borderColor: product.isBestSeller ? "#F9A825" : "divider",
+                  bgcolor: product.isBestSeller ? "#FFFDE7" : "background.default",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                }}
+              >
+                <input
+                  type="checkbox"
+                  id="toggle-best-seller"
+                  name="isBestSeller"
+                  value="true"
+                  defaultChecked={product.isBestSeller}
+                  style={{
+                    width: 20,
+                    height: 20,
+                    accentColor: "#F9A825",
+                    cursor: "pointer",
+                    flexShrink: 0,
+                  }}
+                />
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 800, color: "#E65100" }}>
+                    ⭐ Best Seller
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Show in &quot;Best Sellers&quot; section on homepage with a star badge
+                  </Typography>
+                </Box>
+              </Box>
+            </Stack>
+          </Box>
+
           <TextField
             name="description"
             label="Description"

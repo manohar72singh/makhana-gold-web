@@ -38,11 +38,33 @@ export async function initiateOnlineOrderAction(formData: FormData) {
     throw new Error("A valid 10-digit mobile number is mandatory for delivery.");
   }
 
+  // B2B Wholesale / Corporate GST Details
+  const isB2bRaw = formData.get("isB2b") === "true";
+  const rawCompanyName = String(formData.get("companyName") || "").trim();
+  const rawGstin = String(formData.get("gstin") || "").toUpperCase().trim().replace(/[^A-Z0-9]/g, "");
+
+  let isB2b = false;
+  let validatedCompanyName: string | null = null;
+  let validatedGstin: string | null = null;
+
+  if (isB2bRaw) {
+    if (!rawCompanyName) {
+      throw new Error("Company / Registered Trade Name is required for B2B invoice.");
+    }
+    if (!rawGstin || rawGstin.length !== 15) {
+      throw new Error("A valid 15-digit Indian GSTIN is required to claim Input Tax Credit.");
+    }
+    isB2b = true;
+    validatedCompanyName = rawCompanyName;
+    validatedGstin = rawGstin;
+  }
+
   await prisma.customer.update({
     where: { id: customerId },
     data: {
       name: contactName,
       phone: contactPhone,
+      ...(isB2b ? { isB2b: true, companyName: validatedCompanyName, gstin: validatedGstin } : {}),
     },
   });
 
@@ -123,16 +145,17 @@ export async function initiateOnlineOrderAction(formData: FormData) {
     }
   }
 
+  const isMicroTest = subtotal <= 1;
   const couponDiscount = discountTotal;
   // 5% Extra Instant Discount for Online UPI / Card Payments (Anti-RTO Incentive)
-  const prepaidDiscount = Math.round((subtotal * 0.05) * 100) / 100;
+  const prepaidDiscount = isMicroTest ? 0 : Math.round((subtotal * 0.05) * 100) / 100;
   const combinedDiscount = Math.round((couponDiscount + prepaidDiscount) * 100) / 100;
 
   const discountedSubtotal = Math.max(0, subtotal - combinedDiscount);
   const isFreeShipCoupon = couponCode === "FREESHIP";
-  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD || isFreeShipCoupon ? 0 : SHIPPING_FEE;
-  const tax = discountedSubtotal * TAX_RATE;
-  const grandTotal = discountedSubtotal + shipping + tax;
+  const shipping = isMicroTest ? 0 : (subtotal >= FREE_SHIPPING_THRESHOLD || isFreeShipCoupon ? 0 : SHIPPING_FEE);
+  const tax = isMicroTest ? 0 : discountedSubtotal * TAX_RATE;
+  const grandTotal = isMicroTest ? subtotal : discountedSubtotal + shipping + tax;
 
   const orderNumber = `MG-${8000 + (await prisma.order.count()) + 1}`;
 
@@ -150,6 +173,9 @@ export async function initiateOnlineOrderAction(formData: FormData) {
       shippingAddressId: addressId,
       billingAddressId: addressId,
       paymentStatus: "pending",
+      isB2b,
+      companyName: validatedCompanyName,
+      gstin: validatedGstin,
       items: {
         create: await Promise.all(
           cart.items.map(async (item) => {

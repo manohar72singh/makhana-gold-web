@@ -7,6 +7,7 @@ import { LoginFormClient } from "./LoginFormClient";
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   const params = await searchParams;
   const error = typeof params.error === "string" ? params.error : undefined;
+  const phone = typeof params.phone === "string" ? params.phone : undefined;
   const callbackUrl = typeof params.callbackUrl === "string" ? params.callbackUrl : "/account";
 
   const session = await auth();
@@ -44,7 +45,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
         </div>
 
         {/* Interactive Compact Client Form */}
-        <LoginFormClient error={error} callbackUrl={callbackUrl} />
+        <LoginFormClient error={error} initialPhone={phone} callbackUrl={callbackUrl} />
       </div>
     </div>
   );

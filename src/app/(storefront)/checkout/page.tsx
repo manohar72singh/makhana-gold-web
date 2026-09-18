@@ -8,6 +8,7 @@ import { isPlaceholderEmail } from "@/lib/phone-email";
 import { placeOrderAction } from "./actions";
 import { CheckoutAddressSelector } from "./CheckoutAddressSelector";
 import { CheckoutPaymentClient } from "./CheckoutPaymentClient";
+import { CheckoutB2bSection } from "./CheckoutB2bSection";
 
 const TAX_RATE = 0.05;
 const FREE_SHIPPING_THRESHOLD = 500;
@@ -35,7 +36,7 @@ export default async function CheckoutPage({
         }),
         prisma.customer.findUnique({
           where: { id: customerId },
-          select: { name: true, phone: true, email: true },
+          select: { name: true, phone: true, email: true, isB2b: true, companyName: true, gstin: true },
         }),
       ])
     : [[], null];
@@ -77,12 +78,13 @@ export default async function CheckoutPage({
     }
   }
 
+  const isMicroTest = subtotal <= 1;
   const discount = appliedCoupon ? appliedCoupon.discount : 0;
   const discountedSubtotal = Math.max(0, subtotal - discount);
   const isFreeShipCoupon = couponCode === "FREESHIP";
-  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD || isFreeShipCoupon ? 0 : SHIPPING_FEE;
-  const tax = discountedSubtotal * TAX_RATE;
-  const grandTotal = discountedSubtotal + shipping + tax;
+  const shipping = isMicroTest ? 0 : (subtotal >= FREE_SHIPPING_THRESHOLD || isFreeShipCoupon ? 0 : SHIPPING_FEE);
+  const tax = isMicroTest ? 0 : discountedSubtotal * TAX_RATE;
+  const grandTotal = isMicroTest ? subtotal : discountedSubtotal + shipping + tax;
 
   return (
     <main className="max-w-container-max mx-auto px-5 sm:px-gutter py-6 sm:py-10 md:py-16">
@@ -160,6 +162,13 @@ export default async function CheckoutPage({
                   Use this address as my billing address
                 </label>
               </div>
+
+              {/* B2B / Wholesale GST Details (Optional for Retail, Essential for Business) */}
+              <CheckoutB2bSection
+                defaultIsB2b={customer?.isB2b}
+                defaultCompanyName={customer?.companyName || ""}
+                defaultGstin={customer?.gstin || ""}
+              />
 
               {/* Payment Method Selection & Trigger (Online Razorpay vs COD) */}
               <div className="pt-6 border-t border-outline-variant/30">

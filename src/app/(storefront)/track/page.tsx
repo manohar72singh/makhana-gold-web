@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getSiteSettings } from "@/lib/content";
-import { getOrderTrackingTimeline } from "@/lib/logistics";
+import { getOrderTrackingTimeline, getCarrierTrackingUrl } from "@/lib/logistics";
 import { OrderTrackingTimeline } from "@/components/storefront/OrderTrackingTimeline";
 
 export const metadata: Metadata = {
@@ -80,13 +80,10 @@ export default async function TrackOrderPage({
     : [];
 
   const courierUrl =
-    order?.courierPartner?.toLowerCase().includes("delhivery")
-      ? `https://www.delhivery.com/track/package/${order.trackingNumber}`
-      : order?.courierPartner?.toLowerCase().includes("shiprocket")
-      ? `https://shiprocket.co/tracking/${order.trackingNumber}`
-      : order?.trackingNumber
-      ? `https://trackcourier.in/track/${order.trackingNumber}`
-      : null;
+    order?.trackingUrl ||
+    (order?.trackingNumber
+      ? getCarrierTrackingUrl(order.courierPartner || "Delhivery", order.trackingNumber)
+      : null);
 
   return (
     <main className="min-h-screen py-10 sm:py-16 px-5 sm:px-gutter bg-[#FAF6EE]/50">

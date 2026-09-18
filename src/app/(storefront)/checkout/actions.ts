@@ -39,12 +39,34 @@ export async function placeOrderAction(formData: FormData) {
     throw new Error("A valid 10-digit mobile number is mandatory for delivery.");
   }
 
-  // Always update customer name and phone
+  // B2B Wholesale / Corporate GST Details
+  const isB2bRaw = formData.get("isB2b") === "true";
+  const rawCompanyName = String(formData.get("companyName") || "").trim();
+  const rawGstin = String(formData.get("gstin") || "").toUpperCase().trim().replace(/[^A-Z0-9]/g, "");
+
+  let isB2b = false;
+  let validatedCompanyName: string | null = null;
+  let validatedGstin: string | null = null;
+
+  if (isB2bRaw) {
+    if (!rawCompanyName) {
+      throw new Error("Company / Registered Trade Name is required for B2B invoice.");
+    }
+    if (!rawGstin || rawGstin.length !== 15) {
+      throw new Error("A valid 15-digit Indian GSTIN is required to claim Input Tax Credit.");
+    }
+    isB2b = true;
+    validatedCompanyName = rawCompanyName;
+    validatedGstin = rawGstin;
+  }
+
+  // Always update customer name, phone, and optional B2B profile
   await prisma.customer.update({
     where: { id: customerId },
     data: {
       name: contactName,
       phone: contactPhone,
+      ...(isB2b ? { isB2b: true, companyName: validatedCompanyName, gstin: validatedGstin } : {}),
     },
   });
 
@@ -147,6 +169,9 @@ export async function placeOrderAction(formData: FormData) {
       shippingAddressId: addressId,
       billingAddressId: addressId,
       paymentStatus: "pending",
+      isB2b,
+      companyName: validatedCompanyName,
+      gstin: validatedGstin,
       items: {
         create: await Promise.all(
           cart.items.map(async (item) => {

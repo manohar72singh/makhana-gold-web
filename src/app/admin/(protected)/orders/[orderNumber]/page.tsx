@@ -8,9 +8,16 @@ import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Divider from "@mui/material/Divider";
 import Chip from "@mui/material/Chip";
+import Alert from "@mui/material/Alert";
 import { prisma } from "@/lib/db";
-import { updateOrderStatusAction, dispatchCourierOrderAction } from "../actions";
+import {
+  updateOrderStatusAction,
+  dispatchCourierOrderAction,
+  markOrderProcessingAction,
+  markOrderDeliveredAction,
+} from "../actions";
 import { ControlledSelectField } from "@/components/admin/ControlledSelectField";
+import { POPULAR_INDIAN_COURIERS, getCarrierTrackingUrl } from "@/lib/logistics";
 
 const STATUSES = [
   "pending",
@@ -22,12 +29,10 @@ const STATUSES = [
   "returned",
 ] as const;
 
-const COURIER_OPTIONS = [
-  { value: "Delhivery Express Surface", label: "Delhivery Express (Surface / Air)" },
-  { value: "Shiprocket Air Priority", label: "Shiprocket (Air Priority)" },
-  { value: "Bluedart Express", label: "Blue Dart (Express Air)" },
-  { value: "DTDC Premium", label: "DTDC (Premium Courier)" },
-];
+const COURIER_OPTIONS = POPULAR_INDIAN_COURIERS.map((c) => ({
+  value: c.value,
+  label: c.label,
+}));
 
 export default async function AdminOrderDetailPage({
   params,
@@ -59,6 +64,14 @@ export default async function AdminOrderDetailPage({
             <Typography variant="h4" sx={{ fontWeight: 800 }}>
               Order #{order.orderNumber}
             </Typography>
+            {order.isB2b && (
+              <Chip
+                label="B2B ORDER"
+                color="success"
+                size="small"
+                sx={{ fontWeight: 800 }}
+              />
+            )}
             <Chip
               label={order.status.toUpperCase()}
               color={
@@ -187,6 +200,38 @@ export default async function AdminOrderDetailPage({
             <Typography variant="body2" color="text.secondary">
               Email: {order.customer.email} • Phone: {order.customer.phone || "N/A"}
             </Typography>
+
+            {order.isB2b && (
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: 2,
+                  mt: 2,
+                  borderRadius: 2,
+                  bgcolor: "#f0fdf4",
+                  border: "1px solid #86efac",
+                }}
+              >
+                <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: 1 }}>
+                  <Chip
+                    label="B2B TAX INVOICE"
+                    size="small"
+                    color="success"
+                    sx={{ fontWeight: 800, height: 22, fontSize: "0.68rem" }}
+                  />
+                  <Typography variant="caption" sx={{ fontWeight: 700, color: "#065f46" }}>
+                    Input Tax Credit (ITC) Eligible
+                  </Typography>
+                </Stack>
+                <Typography variant="body2" sx={{ fontWeight: 700, color: "#064e3b" }}>
+                  🏢 {order.companyName || "N/A"}
+                </Typography>
+                <Typography variant="body2" sx={{ fontFamily: "monospace", fontWeight: 700, color: "#047857", mt: 0.5 }}>
+                  GSTIN: {order.gstin || "N/A"}
+                </Typography>
+              </Paper>
+            )}
+
             {order.shippingAddress && (
               <>
                 <Divider sx={{ my: 2 }} />
@@ -215,77 +260,246 @@ export default async function AdminOrderDetailPage({
               p: 3,
               borderRadius: 3,
               mb: 3,
-              bgcolor: isShipped ? "#FAF6EE" : "#fff",
-              border: isShipped ? "2px solid #D84315" : "1px solid rgba(0,0,0,0.12)",
+              bgcolor: order.status === "delivered" ? "#f0fdf4" : isShipped ? "#FAF6EE" : "#fff",
+              border:
+                order.status === "delivered"
+                  ? "2px solid #22c55e"
+                  : isShipped
+                  ? "2px solid #D84315"
+                  : "1px solid rgba(0,0,0,0.12)",
             }}
           >
-            <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: 1.5 }}>
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: 1.5, justifyContent: "space-between" }}>
               <Typography variant="h6" sx={{ fontWeight: 800, color: "#1C150C" }}>
-                Courier Fulfillment &amp; AWB
+                Courier Fulfillment &amp; Dispatch
               </Typography>
+              <Chip
+                label={order.status.toUpperCase()}
+                size="small"
+                color={
+                  order.status === "delivered"
+                    ? "success"
+                    : order.status === "shipped"
+                    ? "primary"
+                    : "warning"
+                }
+                sx={{ fontWeight: 800, fontSize: "0.7rem" }}
+              />
             </Stack>
 
-            {isShipped ? (
-              <Stack spacing={1.5}>
+            {/* If Order is Delivered */}
+            {order.status === "delivered" && (
+              <Stack spacing={2}>
+                <Alert severity="success" sx={{ borderRadius: 2 }}>
+                  <strong>Delivered!</strong> The package has been confirmed delivered to customer doorstep.
+                </Alert>
                 <Typography variant="body2" color="text.secondary">
-                  <strong>Carrier:</strong> {order.courierPartner || "Delhivery Express"}
+                  <strong>Carrier:</strong> {order.courierPartner || "Express Partner"}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   <strong>AWB Tracking #:</strong>{" "}
-                  <code style={{ background: "#eee", padding: "2px 6px", borderRadius: 4, fontWeight: "bold" }}>
+                  <code style={{ background: "#e2e8f0", padding: "2px 6px", borderRadius: 4, fontWeight: "bold" }}>
                     {order.trackingNumber || "N/A"}
                   </code>
                 </Typography>
-                <Divider sx={{ my: 1 }} />
-                <Link
-                  href={`/track?order=${order.orderNumber}`}
-                  target="_blank"
-                  style={{ textDecoration: "none" }}
-                >
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    size="small"
-                    sx={{ bgcolor: "#25D366", "&:hover": { bgcolor: "#1EBE5D" }, textTransform: "none", fontWeight: 700 }}
+                <Stack direction="row" spacing={1}>
+                  {order.trackingNumber && (
+                    <a
+                      href={order.trackingUrl || getCarrierTrackingUrl(order.courierPartner || "Delhivery", order.trackingNumber)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ textDecoration: "none", flex: 1, display: "flex" }}
+                    >
+                      <Button
+                        fullWidth
+                        variant="outlined"
+                        size="small"
+                        sx={{ textTransform: "none", fontWeight: 700 }}
+                      >
+                        Carrier Portal ↗
+                      </Button>
+                    </a>
+                  )}
+                  <Link
+                    href={`/track?order=${order.orderNumber}`}
+                    target="_blank"
+                    style={{ textDecoration: "none", flex: 1, display: "flex" }}
                   >
-                    Live Public Tracking View ↗
-                  </Button>
-                </Link>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      size="small"
+                      sx={{ bgcolor: "#1C150C", textTransform: "none", fontWeight: 700 }}
+                    >
+                      Public Track View ↗
+                    </Button>
+                  </Link>
+                </Stack>
               </Stack>
-            ) : (
-              <Stack component="form" action={dispatchCourierOrderAction} spacing={2}>
-                <input type="hidden" name="orderId" value={order.id} />
-                <input type="hidden" name="orderNumber" value={order.orderNumber} />
+            )}
+
+            {/* If Order is Shipped (In-Transit) */}
+            {order.status === "shipped" && (
+              <Stack spacing={2}>
                 <Typography variant="body2" color="text.secondary">
-                  Generate courier Airway Bill (AWB), dispatch package, and automatically email tracking link to customer.
+                  <strong>Logistics Partner:</strong> {order.courierPartner || "Delhivery Express"}
                 </Typography>
-                <ControlledSelectField
-                  name="courierPartner"
-                  label="Select Courier Partner"
-                  defaultValue="Delhivery Express Surface"
-                  options={COURIER_OPTIONS}
-                  fullWidth
-                />
-                <TextField
-                  name="trackingNumber"
-                  label="AWB Tracking # (Leave blank for auto-generate)"
-                  placeholder="e.g. DEL-849204912"
-                  fullWidth
-                  size="small"
-                />
-                <Button
-                  type="submit"
-                  variant="contained"
-                  sx={{
-                    bgcolor: "#1C150C",
-                    "&:hover": { bgcolor: "#D84315" },
-                    fontWeight: 800,
-                    textTransform: "none",
-                    py: 1.2,
-                  }}
-                >
-                  Generate AWB &amp; Mark Dispatched
-                </Button>
+                <Typography variant="body2" color="text.secondary">
+                  <strong>AWB Tracking Number:</strong>{" "}
+                  <code style={{ background: "#eee", padding: "3px 8px", borderRadius: 4, fontWeight: 800, color: "#047857" }}>
+                    {order.trackingNumber || "N/A"}
+                  </code>
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  ✨ Dispatch alerts have been automatically sent to customer via SMS &amp; Email.
+                </Typography>
+
+                <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
+                  {order.trackingNumber && (
+                    <a
+                      href={order.trackingUrl || getCarrierTrackingUrl(order.courierPartner || "Delhivery", order.trackingNumber)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ textDecoration: "none", flex: 1, display: "flex" }}
+                    >
+                      <Button
+                        fullWidth
+                        variant="outlined"
+                        size="small"
+                        sx={{
+                          borderColor: "#1C150C",
+                          color: "#1C150C",
+                          textTransform: "none",
+                          fontWeight: 700,
+                          "&:hover": { bgcolor: "#f5ede0" },
+                        }}
+                      >
+                        Carrier Tracking Site ↗
+                      </Button>
+                    </a>
+                  )}
+                  <Link
+                    href={`/track?order=${order.orderNumber}`}
+                    target="_blank"
+                    style={{ textDecoration: "none", flex: 1, display: "flex" }}
+                  >
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      size="small"
+                      sx={{ bgcolor: "#25D366", "&:hover": { bgcolor: "#1EBE5D" }, textTransform: "none", fontWeight: 700 }}
+                    >
+                      Live Public Tracking ↗
+                    </Button>
+                  </Link>
+                </Stack>
+
+                <Divider sx={{ my: 1 }} />
+
+                {/* 1-Click Mark Delivered Button */}
+                <Stack component="form" action={markOrderDeliveredAction} spacing={1}>
+                  <input type="hidden" name="orderId" value={order.id} />
+                  <input type="hidden" name="orderNumber" value={order.orderNumber} />
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    fullWidth
+                    sx={{
+                      bgcolor: "#047857",
+                      "&:hover": { bgcolor: "#065f46" },
+                      fontWeight: 800,
+                      textTransform: "none",
+                      py: 1,
+                    }}
+                  >
+                    ✅ Mark As Delivered (Doorstep Handover)
+                  </Button>
+                  {order.paymentStatus !== "paid" && (
+                    <Typography variant="caption" color="text.secondary" sx={{ textAlign: "center", display: "block" }}>
+                      Note: Marking delivered will also record COD payment as PAID.
+                    </Typography>
+                  )}
+                </Stack>
+              </Stack>
+            )}
+
+            {/* If Order is Pending, Confirmed, or Processing */}
+            {!isShipped && (
+              <Stack spacing={2.5}>
+                {/* Step 1: Pack Box (if not yet processing) */}
+                {order.status !== "processing" && (
+                  <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, bgcolor: "#fefce8", borderColor: "#fef08a" }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#854d0e", mb: 0.5 }}>
+                      Step 1: Pack Order Box
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1.5 }}>
+                      Pack artisanal fox nuts box, attach 4x6 thermal shipping label &amp; GST tax invoice.
+                    </Typography>
+                    <form action={markOrderProcessingAction}>
+                      <input type="hidden" name="orderId" value={order.id} />
+                      <input type="hidden" name="orderNumber" value={order.orderNumber} />
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        size="small"
+                        fullWidth
+                        sx={{
+                          bgcolor: "#ca8a04",
+                          "&:hover": { bgcolor: "#a16207" },
+                          fontWeight: 800,
+                          textTransform: "none",
+                        }}
+                      >
+                        📦 Start Packing (Move To Dispatch Queue)
+                      </Button>
+                    </form>
+                  </Paper>
+                )}
+
+                {/* Step 2: Dispatch with Courier */}
+                <div>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "#1C150C", mb: 0.5 }}>
+                    {order.status === "processing" ? "Step 2: Assign Courier & Dispatch" : "Or Dispatch Directly:"}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1.5 }}>
+                    Select India logistics partner. Leave AWB blank to auto-generate standard tracking number.
+                  </Typography>
+
+                  <Stack component="form" action={dispatchCourierOrderAction} spacing={1.5}>
+                    <input type="hidden" name="orderId" value={order.id} />
+                    <input type="hidden" name="orderNumber" value={order.orderNumber} />
+
+                    <ControlledSelectField
+                      name="courierPartner"
+                      label="Logistics Courier Partner"
+                      defaultValue="Delhivery Express Surface"
+                      options={COURIER_OPTIONS}
+                      fullWidth
+                    />
+
+                    <TextField
+                      name="trackingNumber"
+                      label="Custom AWB # (Optional - Blank for auto)"
+                      placeholder="e.g. DEL-849204912"
+                      fullWidth
+                      size="small"
+                    />
+
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      sx={{
+                        bgcolor: "#1C150C",
+                        "&:hover": { bgcolor: "#D84315" },
+                        fontWeight: 800,
+                        textTransform: "none",
+                        py: 1.2,
+                      }}
+                    >
+                      🚀 Generate AWB &amp; Mark Dispatched
+                    </Button>
+                  </Stack>
+                </div>
               </Stack>
             )}
           </Paper>

@@ -25,6 +25,8 @@ export async function phoneOtpLoginAction(formData: FormData) {
   const otp = formData.get("otp");
   const callbackUrl = (formData.get("callbackUrl") as string) || "/account";
 
+  const cleanPhone = String(phone || "").replace(/\D/g, "").slice(-10);
+
   try {
     await signIn("credentials", {
       phone,
@@ -35,7 +37,7 @@ export async function phoneOtpLoginAction(formData: FormData) {
     });
   } catch (error) {
     if (error instanceof AuthError) {
-      redirect(`/login?error=OtpError&callbackUrl=${encodeURIComponent(callbackUrl)}`);
+      redirect(`/login?error=OtpError&phone=${cleanPhone}&callbackUrl=${encodeURIComponent(callbackUrl)}`);
     }
     throw error;
   }

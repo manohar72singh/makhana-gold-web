@@ -16,31 +16,58 @@ import {
 } from "@/lib/content";
 import { generateBreadcrumbSchema } from "@/lib/seo";
 
-async function getBestSellers() {
+const PRODUCT_INCLUDE = {
+  images: { orderBy: { sortOrder: "asc" as const }, take: 1 },
+  variants: {
+    orderBy: { price: "asc" as const },
+    take: 1,
+    include: { inventoryStock: true },
+  },
+  category: true,
+  attributes: true,
+};
+
+async function getHotDeals() {
   try {
-    if (!prisma.product) return [];
+    return await prisma.product.findMany({
+      where: { status: "active", isHotDeal: true },
+      include: PRODUCT_INCLUDE,
+      take: 4,
+      orderBy: { updatedAt: "desc" },
+    });
+  } catch { return []; }
+}
+
+async function getBestSellers(excludeIds: number[] = []) {
+  try {
+    return await prisma.product.findMany({
+      where: {
+        status: "active",
+        isBestSeller: true,
+        ...(excludeIds.length > 0 ? { id: { notIn: excludeIds } } : {}),
+      },
+      include: PRODUCT_INCLUDE,
+      take: 4,
+      orderBy: { updatedAt: "desc" },
+    });
+  } catch { return []; }
+}
+
+async function getNewArrivals() {
+  try {
     return await prisma.product.findMany({
       where: { status: "active" },
-      include: {
-        images: { orderBy: { sortOrder: "asc" }, take: 1 },
-        variants: {
-          orderBy: { price: "asc" },
-          take: 1,
-          include: { inventoryStock: true },
-        },
-        category: true,
-        attributes: true,
-      },
-      take: 3,
-      orderBy: { createdAt: "asc" },
+      include: PRODUCT_INCLUDE,
+      take: 4,
+      orderBy: { createdAt: "desc" },
     });
-  } catch (error) {
-    console.error("Error fetching best sellers:", error);
-    return [];
-  }
+  } catch { return []; }
 }
 
 export default async function HomePage() {
+  const hotDeals = await getHotDeals();
+  const hotDealIds = hotDeals.map((p) => p.id);
+
   const [
     heroBanners,
     trustBadges,
@@ -48,6 +75,7 @@ export default async function HomePage() {
     marketplaceLinks,
     storefrontReviews,
     bestSellers,
+    newArrivals,
     session,
     faqCategories,
   ] = await Promise.all([
@@ -56,10 +84,12 @@ export default async function HomePage() {
     getHealthBenefits(),
     getMarketplaceLinks(),
     getStorefrontReviews(),
-    getBestSellers(),
+    getBestSellers(hotDealIds),
+    getNewArrivals(),
     auth(),
     getFaqCategories(),
   ]);
+
   const homeFaqs = faqCategories.flatMap((cat) => cat.items.map((item) => ({ question: item.q, answer: item.a })));
 
   const customerId = session?.user?.id ? Number(session.user.id) : null;
@@ -119,44 +149,120 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* 3. Best Sellers Showcase (Direct Product Catalog) */}
-      <section className="py-10 md:py-16 bg-[#FAF6EE] px-5 sm:px-gutter border-b border-amber-900/10">
-        <div className="max-w-container-max mx-auto">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 mb-8 sm:mb-10">
-            <div>
-              <span className="font-label-sm text-xs uppercase tracking-widest text-amber-700 font-bold block mb-1">
-                Customer Favorites
-              </span>
-              <h2 className="font-headline-md text-2xl md:text-3xl font-bold text-on-surface mb-1">
-                The Gold Standard Collection
-              </h2>
-              <p className="font-body-md text-xs sm:text-sm text-on-surface-variant">
-                Our most celebrated roasted fox nuts, packed fresh at origin in small batches.
-              </p>
+      {/* 3. HOT DEALS Section */}
+      {/* 3. HOT DEALS — Only visible when admin marks products as Hot Deal */}
+      {hotDeals.length > 0 && (
+        <section className="py-10 md:py-14 bg-gradient-to-br from-[#1C0A00] via-[#3E1500] to-[#1C0A00] px-5 sm:px-gutter border-b border-orange-900/30" aria-label="Hot deals and limited offers">
+          <div className="max-w-container-max mx-auto">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 mb-7 sm:mb-9">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/20 border border-red-400/30 text-red-300 text-[10px] font-black uppercase tracking-widest mb-3">
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+                  Limited Time
+                </div>
+                <h2 className="font-headline-md text-2xl md:text-3xl font-bold text-white mb-1">
+                  🔥 Hot Deals
+                </h2>
+                <p className="font-body-md text-xs sm:text-sm text-amber-200/70">
+                  Hand-picked deals, updated by our team. Grab them before they&apos;re gone.
+                </p>
+              </div>
+              <Link href="/shop" className="inline-flex items-center gap-1 text-amber-400 hover:text-white font-label-md text-xs sm:text-sm font-bold transition-colors group">
+                <span>Shop All Deals</span>
+                <span className="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+              </Link>
             </div>
-            <Link
-              href="/shop"
-              className="inline-flex items-center gap-1 text-amber-800 hover:text-[#E64A19] font-label-md text-xs sm:text-sm font-bold transition-colors group"
-            >
-              <span>Explore All Flavours</span>
-              <span className="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">
-                arrow_forward
-              </span>
-            </Link>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+              {hotDeals.map((product) => (
+                <ProductGridCard
+                  key={product.id}
+                  product={product}
+                  badge="🔥 Hot Deal"
+                  badgeType="hot_deal"
+                  isWishlisted={wishlistedIds.has(product.variants[0]?.id)}
+                  showWishlist
+                />
+              ))}
+            </div>
           </div>
+        </section>
+      )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
-            {bestSellers.map((product) => (
-              <ProductGridCard
-                key={product.id}
-                product={product}
-                isWishlisted={wishlistedIds.has(product.variants[0]?.id)}
-                showWishlist
-              />
-            ))}
+      {/* 4. BEST SELLERS — Only visible when admin marks products as Best Seller */}
+      {bestSellers.length > 0 && (
+        <section className="py-10 md:py-14 bg-amber-950 px-5 sm:px-gutter border-b border-amber-900/40" aria-label="Best selling products">
+          <div className="max-w-container-max mx-auto">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 mb-7 sm:mb-9">
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/30 text-amber-300 text-[10px] font-black uppercase tracking-widest mb-3">
+                  <span className="material-symbols-outlined text-[13px]">star</span>
+                  Most Loved
+                </div>
+                <h2 className="font-headline-md text-2xl md:text-3xl font-bold text-white mb-1">
+                  ⭐ Best Sellers
+                </h2>
+                <p className="font-body-md text-xs sm:text-sm text-amber-200/70">
+                  Our most loved products, trusted by thousands of happy customers.
+                </p>
+              </div>
+              <Link href="/shop" className="inline-flex items-center gap-1 text-amber-400 hover:text-white font-label-md text-xs sm:text-sm font-bold transition-colors group">
+                <span>Explore All</span>
+                <span className="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+              {bestSellers.map((product) => (
+                <ProductGridCard
+                  key={product.id}
+                  product={product}
+                  badge="⭐ Best Seller"
+                  badgeType="best_seller"
+                  isWishlisted={wishlistedIds.has(product.variants[0]?.id)}
+                  showWishlist
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
+
+      {/* 5. NEW ARRIVALS — Freshly harvested and latest artisan batches */}
+      {newArrivals.length > 0 && (
+        <section className="py-10 md:py-16 bg-[#FAF6EE] px-5 sm:px-gutter border-b border-amber-900/10" aria-label="New arrivals collection">
+          <div className="max-w-container-max mx-auto">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 mb-8 sm:mb-10">
+              <div>
+                <span className="font-label-sm text-xs uppercase tracking-widest text-emerald-800 font-bold block mb-1">
+                  🌱 Fresh From The Origin
+                </span>
+                <h2 className="font-headline-md text-2xl md:text-3xl font-bold text-on-surface mb-1">
+                  ✨ New Arrivals
+                </h2>
+                <p className="font-body-md text-xs sm:text-sm text-on-surface-variant">
+                  Explore our latest artisanal releases, freshly harvested and slow-roasted to perfection.
+                </p>
+              </div>
+              <Link href="/shop?sort=newest" className="inline-flex items-center gap-1 text-amber-800 hover:text-[#E64A19] font-label-md text-xs sm:text-sm font-bold transition-colors group">
+                <span>Explore All New Arrivals</span>
+                <span className="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-8">
+              {newArrivals.map((product) => (
+                <ProductGridCard
+                  key={product.id}
+                  product={product}
+                  badge="✨ New Arrival"
+                  badgeType="new_arrival"
+                  isWishlisted={wishlistedIds.has(product.variants[0]?.id)}
+                  showWishlist
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
 
       {/* 4. Editorial Heritage Storytelling Banner */}
       <section className="py-10 md:py-16 px-5 sm:px-gutter max-w-container-max mx-auto">

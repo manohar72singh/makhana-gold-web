@@ -32,26 +32,30 @@ enum ProductStatus {
 }
 
 model Product {
-  id          Int                @id @default(autoincrement())
-  name        String
-  slug        String             @unique
-  description String?            @db.Text
-  categoryId  Int?               @map("category_id")
-  category    Category?          @relation(fields: [categoryId], references: [id])
-  status      ProductStatus      @default(draft)
-  avgRating   Decimal            @default(0) @map("avg_rating") @db.Decimal(3, 2)
-  reviewCount Int                @default(0) @map("review_count")
-  variants    ProductVariant[]
-  images      ProductImage[]
-  attributes  ProductAttribute[]
-  wishlists   Wishlist[]
-  reviews     Review[]
-  createdAt   DateTime           @default(now()) @map("created_at")
-  updatedAt   DateTime           @updatedAt @map("updated_at")
+  id           Int                @id @default(autoincrement())
+  name         String
+  slug         String             @unique
+  description  String?            @db.Text
+  categoryId   Int?               @map("category_id")
+  category     Category?          @relation(fields: [categoryId], references: [id])
+  status       ProductStatus      @default(draft)
+  isHotDeal    Boolean            @default(false) @map("is_hot_deal")
+  isBestSeller Boolean            @default(false) @map("is_best_seller")
+  avgRating    Decimal            @default(0) @map("avg_rating") @db.Decimal(3, 2)
+  reviewCount  Int                @default(0) @map("review_count")
+  variants     ProductVariant[]
+  images       ProductImage[]
+  attributes   ProductAttribute[]
+  wishlists    Wishlist[]
+  reviews      Review[]
+  createdAt    DateTime           @default(now()) @map("created_at")
+  updatedAt    DateTime           @updatedAt @map("updated_at")
 
   @@index([status, categoryId])
   @@index([avgRating])
   @@index([createdAt])
+  @@index([isHotDeal])
+  @@index([isBestSeller])
   @@map("products")
 }
 
@@ -148,6 +152,9 @@ model Customer {
   pendingEmail             String?    @map("pending_email")
   pendingEmailOtpHash      String?    @map("pending_email_otp_hash")
   pendingEmailOtpExpiresAt DateTime?  @map("pending_email_otp_expires_at")
+  isB2b                    Boolean    @default(false) @map("is_b2b")
+  companyName              String?    @map("company_name") @db.VarChar(255)
+  gstin                    String?    @map("gstin") @db.VarChar(15)
   addresses                Address[]
   wishlists                Wishlist[]
   carts                    Cart[]
@@ -157,6 +164,7 @@ model Customer {
   updatedAt                DateTime   @updatedAt @map("updated_at")
 
   @@index([phone])
+  @@index([isB2b])
   @@map("customers")
 }
 
@@ -276,6 +284,9 @@ model Order {
   trackingNumber    String?              @map("tracking_number") // AWB Tracking ID e.g. "DEL-9928172635"
   courierPartner    String?              @map("courier_partner") // e.g. "Delhivery Express", "Shiprocket"
   trackingUrl       String?              @map("tracking_url") // Live tracking external link
+  isB2b             Boolean              @default(false) @map("is_b2b")
+  companyName       String?              @map("company_name") @db.VarChar(255)
+  gstin             String?              @map("gstin") @db.VarChar(15)
   items             OrderItem[]
   statusHistory     OrderStatusHistory[]
   createdAt         DateTime             @default(now()) @map("created_at")
@@ -284,6 +295,7 @@ model Order {
   @@index([customerId, status])
   @@index([createdAt])
   @@index([paymentStatus])
+  @@index([isB2b])
   @@map("orders")
 }
 
@@ -648,4 +660,25 @@ model Certification {
   @@index([isActive, sortOrder])
   @@map("certifications")
 }
+
+// ---------------------------------------------------------------------------
+// OTP Verification (Mobile Phone & Authentication)
+// ---------------------------------------------------------------------------
+
+model OtpVerification {
+  id          Int      @id @default(autoincrement())
+  phone       String   @db.VarChar(20)
+  otpHash     String   @map("otp_hash") @db.VarChar(255)
+  expiresAt   DateTime @map("expires_at")
+  attempts    Int      @default(0)
+  maxAttempts Int      @default(5) @map("max_attempts")
+  isVerified  Boolean  @default(false) @map("is_verified")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([phone])
+  @@index([expiresAt])
+  @@map("otp_verifications")
+}
+
 

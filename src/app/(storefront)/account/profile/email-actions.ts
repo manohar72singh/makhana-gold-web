@@ -37,6 +37,18 @@ export async function requestEmailOtpAction(
     return { success: false, error: "This is already your account email." };
   }
 
+  // Strictly block if this email already belongs to another registered customer
+  const existingOtherCustomer = await prisma.customer.findUnique({
+    where: { email },
+    select: { id: true },
+  });
+  if (existingOtherCustomer && existingOtherCustomer.id !== customerId) {
+    return {
+      success: false,
+      error: "This email is already registered with another account. Please use a different email or log in with that account.",
+    };
+  }
+
   const code = String(crypto.randomInt(100000, 999999));
   const otpHash = await bcrypt.hash(code, 10);
 
@@ -77,104 +89,28 @@ export async function verifyEmailOtpAction(
   }
 
   const verifiedEmail = customer.pendingEmail;
-  let merged = false;
+  const otherCustomer = await prisma.customer.findUnique({ where: { email: verifiedEmail } });
+  if (otherCustomer && otherCustomer.id !== customerId) {
+    return {
+      success: false,
+      error: "This email is already registered with another account. Please use a different email or log in with that account.",
+    };
+  }
 
-  await prisma.$transaction(async (tx) => {
-    const otherCustomer = await tx.customer.findUnique({ where: { email: verifiedEmail } });
-
-    if (otherCustomer && otherCustomer.id !== customerId) {
-      merged = true;
-      const oldId = otherCustomer.id;
-
-      // Simple reassignments — no unique constraints to collide with.
-      await tx.address.updateMany({ where: { customerId: oldId }, data: { customerId } });
-      await tx.order.updateMany({ where: { customerId: oldId }, data: { customerId } });
-      await tx.review.updateMany({ where: { customerId: oldId }, data: { customerId } });
-
-      // Wishlist has a unique (customerId, variantId) pair — drop the
-      // duplicate rather than reassigning it if both accounts wishlisted
-      // the same variant.
-      const oldWishlists = await tx.wishlist.findMany({ where: { customerId: oldId } });
-      for (const item of oldWishlists) {
-        const existing = await tx.wishlist.findUnique({
-          where: { customerId_variantId: { customerId, variantId: item.variantId } },
-        });
-        if (existing) {
-          await tx.wishlist.delete({ where: { id: item.id } });
-        } else {
-          await tx.wishlist.update({ where: { id: item.id }, data: { customerId } });
-        }
-      }
-
-      // Carts: fold the old account's active cart items into the current
-      // active cart (merging quantities); reassign any historical carts as-is.
-      const oldCarts = await tx.cart.findMany({
-        where: { customerId: oldId },
-        include: { items: true },
-      });
-      for (const oldCart of oldCarts) {
-        if (oldCart.status !== "active") {
-          await tx.cart.update({ where: { id: oldCart.id }, data: { customerId } });
-          continue;
-        }
-
-        let activeCart = await tx.cart.findFirst({ where: { customerId, status: "active" } });
-        if (!activeCart) {
-          activeCart = await tx.cart.create({ data: { customerId, status: "active" } });
-        }
-
-        for (const item of oldCart.items) {
-          const existingItem = await tx.cartItem.findUnique({
-            where: { cartId_variantId: { cartId: activeCart.id, variantId: item.variantId } },
-          });
-          if (existingItem) {
-            await tx.cartItem.update({
-              where: { id: existingItem.id },
-              data: { quantity: existingItem.quantity + item.quantity },
-            });
-          } else {
-            await tx.cartItem.create({
-              data: {
-                cartId: activeCart.id,
-                variantId: item.variantId,
-                quantity: item.quantity,
-                priceAtAdd: item.priceAtAdd,
-              },
-            });
-          }
-        }
-        await tx.cartItem.deleteMany({ where: { cartId: oldCart.id } });
-        await tx.cart.delete({ where: { id: oldCart.id } });
-      }
-
-      // Carry over a phone number / password the current row is missing.
-      await tx.customer.update({
-        where: { id: customerId },
-        data: {
-          phone: customer.phone ?? otherCustomer.phone ?? undefined,
-          passwordHash: customer.passwordHash ?? otherCustomer.passwordHash ?? undefined,
-        },
-      });
-
-      // Free up the email before claiming it below.
-      await tx.customer.delete({ where: { id: oldId } });
-    }
-
-    await tx.customer.update({
-      where: { id: customerId },
-      data: {
-        email: verifiedEmail,
-        emailVerifiedAt: new Date(),
-        pendingEmail: null,
-        pendingEmailOtpHash: null,
-        pendingEmailOtpExpiresAt: null,
-      },
-    });
+  await prisma.customer.update({
+    where: { id: customerId },
+    data: {
+      email: verifiedEmail,
+      emailVerifiedAt: new Date(),
+      pendingEmail: null,
+      pendingEmailOtpHash: null,
+      pendingEmailOtpExpiresAt: null,
+    },
   });
 
   revalidatePath("/account/profile");
   revalidatePath("/account");
   revalidatePath("/checkout");
 
-  return { success: true, merged };
+  return { success: true, merged: false };
 }

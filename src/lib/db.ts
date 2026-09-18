@@ -1,9 +1,20 @@
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaMariaDb as PrismaMySQLAdapter } from "@prisma/adapter-mariadb";
 
+const PRISMA_CLIENT_VERSION = 3; // Bump whenever schema/prisma client changes
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
+  prismaVersion: number | undefined;
 };
+
+// Automatically invalidate stale cached client on schema/client updates
+if (globalForPrisma.prismaVersion !== PRISMA_CLIENT_VERSION) {
+  if (globalForPrisma.prisma) {
+    globalForPrisma.prisma.$disconnect?.().catch(() => {});
+  }
+  globalForPrisma.prisma = undefined;
+  globalForPrisma.prismaVersion = PRISMA_CLIENT_VERSION;
+}
 
 /**
  * Clean & Standard MySQL Client for Prisma

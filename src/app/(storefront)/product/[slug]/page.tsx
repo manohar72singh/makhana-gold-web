@@ -129,11 +129,14 @@ export default async function ProductPage({
     : [];
   const wishlistedIds = new Set(wishlist.map((w) => w.variantId));
 
-  const badge = product.attributes.find((a) => a.key === "best_seller")
-    ? "Best Seller"
-    : product.attributes.find((a) => a.key === "new")
-      ? "New"
-      : null;
+  let badge: string | null = null;
+  if (product.isHotDeal) {
+    badge = "🔥 Hot Deal";
+  } else if (product.isBestSeller) {
+    badge = "⭐ Best Seller";
+  } else if (product.attributes.some((a) => a.key === "new")) {
+    badge = "✨ New Arrival";
+  }
 
   const barcodeAttr = product.attributes.find((a) => a.key === "barcode");
   const fssaiNumber = settings["fssai_license"] || "10021022000123";

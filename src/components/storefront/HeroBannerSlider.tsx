@@ -173,7 +173,7 @@ export function HeroBannerSlider({
             src={slide.bgImage || "/images/vibrant/hero.jpg"}
             alt={slide.title}
             fill
-            priority={idx === 0}
+            priority={idx <= 2}
             sizes="100vw"
             unoptimized={Boolean(slide.bgImage && (slide.bgImage.startsWith("http") || slide.bgImage.startsWith("/uploads")))}
             className="object-cover object-center"

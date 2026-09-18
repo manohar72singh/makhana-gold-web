@@ -14,6 +14,8 @@ import {
 } from "./MarketplaceLogos";
 import { PincodeChecker } from "./PincodeChecker";
 import { StickyMobileBuyBar } from "./StickyMobileBuyBar";
+import { WholesaleVolumeTiers } from "./WholesaleVolumeTiers";
+import { calculateTierPrice } from "@/lib/pricing";
 
 type Variant = {
   id: number;
@@ -65,6 +67,9 @@ export function ProductPurchasePanel({
   const isLowStock = currentStock > 0 && currentStock <= 10;
 
   const currentPrice = Number(selectedVariant?.price ?? 0);
+  const isWholesaleActive = quantity >= 10;
+  const effectivePrice = calculateTierPrice(currentPrice, quantity);
+
   const comparePrice = selectedVariant?.compareAtPrice
     ? Number(selectedVariant.compareAtPrice)
     : null;
@@ -98,14 +103,26 @@ export function ProductPurchasePanel({
     });
   }
 
+  // Resolve badge styling
+  let badgeStyle = "bg-amber-600 text-white font-bold";
+  if (badge) {
+    if (badge.toLowerCase().includes("hot deal")) {
+      badgeStyle = "bg-gradient-to-r from-red-600 to-rose-600 text-white font-black shadow-md";
+    } else if (badge.toLowerCase().includes("best seller")) {
+      badgeStyle = "bg-gradient-to-r from-amber-500 to-amber-600 text-white font-black shadow-md";
+    } else if (badge.toLowerCase().includes("new")) {
+      badgeStyle = "bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-bold shadow-md";
+    }
+  }
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-10 items-start w-full">
-      {/* 1. Left Gallery */}
-      <div className="lg:col-span-7 flex flex-col gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-10">
+      {/* 1. Left Gallery Shot */}
+      <div className="lg:col-span-7 flex flex-col">
         {/* Main Hero Shot */}
         <div className="relative w-full h-[300px] sm:h-[380px] md:h-[460px] bg-[#FAF6EE] rounded-2xl sm:rounded-3xl overflow-hidden border border-amber-900/10 shadow-ambient">
           {/* Top Badges */}
-          <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5 items-start">
+          <div className="absolute top-3.5 left-3.5 z-10 flex flex-col gap-1.5 items-start">
             {isSoldOut ? (
               <span className="bg-neutral-900 text-white font-label-sm text-[11px] font-extrabold px-3.5 py-1.5 rounded-full uppercase tracking-wider shadow-md border border-neutral-700 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-red-500" />
@@ -116,7 +133,7 @@ export function ProductPurchasePanel({
                 🔥 Low Stock: Only {currentStock} Left
               </span>
             ) : badge ? (
-              <span className="bg-[#E64A19] text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-xs">
+              <span className={`text-[11px] px-3.5 py-1.5 rounded-full uppercase tracking-wider shadow-md flex items-center gap-1.5 ${badgeStyle}`}>
                 {badge}
               </span>
             ) : null}
@@ -138,7 +155,7 @@ export function ProductPurchasePanel({
 
         {/* Thumbnail Strip */}
         {images.length > 1 && (
-          <div className="flex gap-2.5 sm:gap-3 overflow-x-auto pb-2 scrollbar-none">
+          <div className="flex gap-2.5 sm:gap-3 overflow-x-auto pb-2 scrollbar-none mt-4">
             {images.map((img, idx) => (
               <button
                 key={idx}
@@ -165,18 +182,25 @@ export function ProductPurchasePanel({
 
       {/* 2. Right Sticky Purchasing Form */}
       <div className="lg:col-span-5 bg-white p-5 sm:p-7 rounded-2xl sm:rounded-3xl border border-amber-900/10 shadow-warm-1">
-        {/* Rating & Review Counter */}
-        <div className="flex items-center gap-2 mb-2">
-          <div className="flex items-center text-amber-500 text-sm font-bold">
-            <span>★</span>
-            <span className="ml-1 text-on-surface font-body-sm text-xs font-semibold">
-              {avgRating.toFixed(1)}
+        {/* Rating & Promotional Badge Bar */}
+        <div className="flex items-center justify-between gap-3 mb-2 flex-wrap">
+          {badge ? (
+            <span className={`font-label-sm text-[11px] uppercase px-3 py-1 rounded-full tracking-wider shadow-xs flex items-center gap-1.5 ${badgeStyle}`}>
+              {badge}
+            </span>
+          ) : <span />}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center text-amber-500 text-sm font-bold">
+              <span>★</span>
+              <span className="ml-1 text-on-surface font-body-sm text-xs font-semibold">
+                {avgRating.toFixed(1)}
+              </span>
+            </div>
+            <span className="text-outline text-xs">•</span>
+            <span className="font-label-sm text-xs text-on-surface-variant font-medium">
+              {reviewCount} Verified Harvest Reviews
             </span>
           </div>
-          <span className="text-outline text-xs">•</span>
-          <span className="font-label-sm text-xs text-on-surface-variant font-medium">
-            {reviewCount} Verified Harvest Reviews
-          </span>
         </div>
 
         {/* Title */}
@@ -194,9 +218,18 @@ export function ProductPurchasePanel({
         {/* Price Box */}
         <div className="flex items-baseline gap-3 mb-4 p-3.5 bg-[#FAF6EE] rounded-xl border border-amber-900/10">
           <span className="font-headline-lg text-2xl sm:text-3xl font-extrabold text-primary">
-            ₹{currentPrice.toFixed(2)}
+            ₹{effectivePrice.toFixed(2)}
           </span>
-          {comparePrice && comparePrice > currentPrice && (
+          {isWholesaleActive ? (
+            <>
+              <span className="font-body-md text-sm text-on-surface-variant line-through">
+                ₹{currentPrice.toFixed(2)}
+              </span>
+              <span className="bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-black px-2.5 py-0.5 rounded-md uppercase tracking-wider animate-pulse">
+                Wholesale Applied
+              </span>
+            </>
+          ) : comparePrice && comparePrice > currentPrice ? (
             <>
               <span className="font-body-md text-sm text-on-surface-variant line-through">
                 ₹{comparePrice.toFixed(2)}
@@ -207,7 +240,7 @@ export function ProductPurchasePanel({
                 </span>
               )}
             </>
-          )}
+          ) : null}
         </div>
 
         {/* 🟢 DYNAMIC INVENTORY STATUS PILL */}
@@ -283,26 +316,47 @@ export function ProductPurchasePanel({
           </div>
         </div>
 
+        {/* Wholesale & Bulk Pricing Slabs */}
+        {!isSoldOut && (
+          <WholesaleVolumeTiers
+            basePrice={currentPrice}
+            currentQuantity={quantity}
+            onSelectQuantity={(q) => setQuantity(q)}
+          />
+        )}
+
         {/* Quantity Stepper */}
         {!isSoldOut && (
-          <div className="mb-5 flex items-center gap-4">
+          <div className="mb-5 flex items-center justify-between gap-4">
             <span className="font-label-md text-xs text-primary font-bold uppercase tracking-wider">
-              Quantity
+              Quantity (Packs)
             </span>
             <div className="flex items-center border border-outline-variant/60 rounded-xl bg-surface-container-lowest overflow-hidden shadow-xs">
               <button
+                type="button"
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="px-3.5 py-2.5 text-on-surface hover:text-primary hover:bg-surface-container-low transition-colors cursor-pointer"
+                className="px-3.5 py-2 text-on-surface hover:text-primary hover:bg-surface-container-low transition-colors cursor-pointer"
                 aria-label="Decrease quantity"
               >
                 <span className="material-symbols-outlined text-[16px]">remove</span>
               </button>
-              <span className="font-label-md text-sm font-bold w-8 text-center text-on-surface">
-                {quantity}
-              </span>
+              <input
+                type="number"
+                min={1}
+                max={Math.max(currentStock, 500)}
+                value={quantity}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value, 10);
+                  if (!isNaN(val) && val >= 1) {
+                    setQuantity(Math.min(Math.max(currentStock, 500), val));
+                  }
+                }}
+                className="font-label-md text-sm font-bold w-16 text-center text-on-surface bg-transparent focus:outline-none"
+              />
               <button
-                onClick={() => setQuantity((q) => Math.min(currentStock, q + 1))}
-                className="px-3.5 py-2.5 text-on-surface hover:text-primary hover:bg-surface-container-low transition-colors cursor-pointer"
+                type="button"
+                onClick={() => setQuantity((q) => Math.min(Math.max(currentStock, 500), q + 1))}
+                className="px-3.5 py-2 text-on-surface hover:text-primary hover:bg-surface-container-low transition-colors cursor-pointer"
                 aria-label="Increase quantity"
               >
                 <span className="material-symbols-outlined text-[16px]">add</span>

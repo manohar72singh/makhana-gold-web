@@ -8,6 +8,8 @@ export function ProductGridCard({
   product,
   isWishlisted,
   showWishlist = true,
+  badge,
+  badgeType,
 }: {
   product: {
     id: number;
@@ -22,10 +24,14 @@ export function ProductGridCard({
       price: unknown;
       inventoryStock?: { quantityOnHand: number }[];
     }[];
-    attributes: { key: string }[];
+    attributes?: { key: string }[];
+    isHotDeal?: boolean;
+    isBestSeller?: boolean;
   };
   isWishlisted?: boolean;
   showWishlist?: boolean;
+  badge?: string | null;
+  badgeType?: "hot_deal" | "best_seller" | "new_arrival" | "new_harvest" | "custom";
 }) {
   const image = product.images[0];
   const variant = product.variants[0];
@@ -38,11 +44,37 @@ export function ProductGridCard({
   const isSoldOut = stock === 0;
   const isLowStock = stock > 0 && stock <= 10;
 
-  const marketingBadge = product.attributes.find((a) => a.key === "best_seller")
-    ? "Best Seller"
-    : product.attributes.find((a) => a.key === "new")
-      ? "New Harvest"
-      : null;
+  // Unified badge resolution (only 1 badge is ever displayed per card)
+  let badgeText: string | null = null;
+  let badgeStyle = "";
+
+  if (isSoldOut) {
+    badgeText = "Sold Out";
+    badgeStyle = "bg-neutral-900 text-white font-extrabold border border-neutral-700";
+  } else if (isLowStock) {
+    badgeText = `🔥 Only ${stock} Left`;
+    badgeStyle = "bg-amber-500 text-amber-950 font-black animate-pulse border border-amber-600";
+  } else if (badge) {
+    badgeText = badge;
+    if (badgeType === "hot_deal" || badge.toLowerCase().includes("hot deal")) {
+      badgeStyle = "bg-red-600 text-white font-black shadow-md";
+    } else if (badgeType === "best_seller" || badge.toLowerCase().includes("best seller")) {
+      badgeStyle = "bg-amber-500 text-white font-black shadow-md";
+    } else if (badgeType === "new_arrival" || badge.toLowerCase().includes("new")) {
+      badgeStyle = "bg-emerald-700 text-white font-bold shadow-md";
+    } else {
+      badgeStyle = "bg-emerald-600 text-white font-bold shadow-xs";
+    }
+  } else if (product.isHotDeal) {
+    badgeText = "🔥 Hot Deal";
+    badgeStyle = "bg-red-600 text-white font-black shadow-md";
+  } else if (product.isBestSeller) {
+    badgeText = "⭐ Best Seller";
+    badgeStyle = "bg-amber-500 text-white font-black shadow-md";
+  } else if (product.attributes?.some((a) => a.key === "new")) {
+    badgeText = "New Harvest";
+    badgeStyle = "bg-emerald-600 text-white font-bold";
+  }
 
   return (
     <article
@@ -54,29 +86,17 @@ export function ProductGridCard({
           : "border-amber-900/10 hover:border-amber-400"
       }`}
     >
-      {/* 🏷️ INVENTORY & PROMOTIONAL BADGES */}
-      <div className="absolute top-3.5 left-3.5 z-10 flex flex-col gap-1.5 items-start">
-        {isSoldOut ? (
-          <span className="bg-neutral-900 text-white font-label-sm text-[10px] font-extrabold uppercase px-3 py-1 rounded-full tracking-wider shadow-md border border-neutral-700 flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-            Sold Out
-          </span>
-        ) : isLowStock ? (
-          <span className="bg-amber-500 text-amber-950 font-label-sm text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-wider shadow-md animate-pulse border border-amber-600 flex items-center gap-1">
-            🔥 Only {stock} Left
-          </span>
-        ) : marketingBadge ? (
+      {/* 🏷️ SINGLE UNIFIED PROMOTIONAL / INVENTORY BADGE */}
+      {badgeText && (
+        <div className="absolute top-3.5 left-3.5 z-10">
           <span
-            className={`font-label-sm text-[10px] font-bold uppercase px-3 py-1 rounded-full tracking-wider shadow-xs ${
-              marketingBadge === "New Harvest"
-                ? "bg-emerald-600 text-white"
-                : "bg-gradient-to-r from-amber-500 to-yellow-500 text-amber-950 font-extrabold"
-            }`}
+            className={`font-label-sm text-[10px] uppercase px-3 py-1 rounded-full tracking-wider shadow-md flex items-center gap-1.5 ${badgeStyle}`}
           >
-            {marketingBadge}
+            {badgeText === "Sold Out" && <span className="w-1.5 h-1.5 rounded-full bg-red-500" />}
+            {badgeText}
           </span>
-        ) : null}
-      </div>
+        </div>
+      )}
 
       {/* Wishlist Button */}
       {showWishlist && variant && (

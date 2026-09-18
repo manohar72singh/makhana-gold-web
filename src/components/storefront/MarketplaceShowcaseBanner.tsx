@@ -72,7 +72,7 @@ export function MarketplaceShowcaseBanner({
             src="/images/banners/marketplace_bottom_banner.jpg"
             alt="Makhana Gold Available Across Marketplaces"
             fill
-            sizes="100vw"
+            sizes="(max-width: 768px) 100vw, (max-width: 1280px) 95vw, 1280px"
             className="object-cover object-right sm:object-center opacity-65"
             priority={false}
           />

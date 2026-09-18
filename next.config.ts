@@ -16,5 +16,6 @@ const nextConfig: NextConfig = {
   },
 };
 
+// Reload trigger: schema updated with isHotDeal and isBestSeller
 export default nextConfig;
 

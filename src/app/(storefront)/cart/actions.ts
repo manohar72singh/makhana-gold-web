@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { getOrCreateCart } from "@/lib/cart";
+import { calculateTierPrice } from "@/lib/pricing";
 
 export async function addToCartAction(formData: FormData) {
   const variantId = Number(formData.get("variantId"));
@@ -11,10 +12,25 @@ export async function addToCartAction(formData: FormData) {
   const variant = await prisma.productVariant.findUniqueOrThrow({ where: { id: variantId } });
   const cart = await getOrCreateCart();
 
+  const existingItem = await prisma.cartItem.findUnique({
+    where: { cartId_variantId: { cartId: cart.id, variantId } },
+  });
+
+  const newTotalQty = (existingItem?.quantity ?? 0) + quantity;
+  const effectivePrice = calculateTierPrice(Number(variant.price), newTotalQty);
+
   await prisma.cartItem.upsert({
     where: { cartId_variantId: { cartId: cart.id, variantId } },
-    update: { quantity: { increment: quantity } },
-    create: { cartId: cart.id, variantId, quantity, priceAtAdd: variant.price },
+    update: {
+      quantity: { increment: quantity },
+      priceAtAdd: effectivePrice,
+    },
+    create: {
+      cartId: cart.id,
+      variantId,
+      quantity,
+      priceAtAdd: effectivePrice,
+    },
   });
 
   revalidatePath("/", "layout");
@@ -28,10 +44,62 @@ export async function updateCartItemAction(formData: FormData) {
   if (quantity <= 0) {
     await prisma.cartItem.delete({ where: { id: itemId, cartId: cart.id } });
   } else {
-    await prisma.cartItem.update({ where: { id: itemId, cartId: cart.id }, data: { quantity } });
+    const item = await prisma.cartItem.findUnique({
+      where: { id: itemId, cartId: cart.id },
+      include: { variant: true },
+    });
+    if (item && item.variant) {
+      const effectivePrice = calculateTierPrice(Number(item.variant.price), quantity);
+      await prisma.cartItem.update({
+        where: { id: itemId, cartId: cart.id },
+        data: { quantity, priceAtAdd: effectivePrice },
+      });
+    } else {
+      await prisma.cartItem.update({
+        where: { id: itemId, cartId: cart.id },
+        data: { quantity },
+      });
+    }
   }
 
   revalidatePath("/", "layout");
+}
+
+export async function addBulkToCartAction(items: { variantId: number; quantity: number }[]) {
+  const cart = await getOrCreateCart();
+  const validItems = items.filter((i) => i.quantity > 0);
+  if (validItems.length === 0) {
+    throw new Error("Please select at least 1 packet to add to cart.");
+  }
+
+  const aggregateBulkQty = validItems.reduce((sum, i) => sum + i.quantity, 0);
+
+  for (const item of validItems) {
+    const variant = await prisma.productVariant.findUniqueOrThrow({ where: { id: item.variantId } });
+    const existing = await prisma.cartItem.findUnique({
+      where: { cartId_variantId: { cartId: cart.id, variantId: item.variantId } },
+    });
+    const totalQty = (existing?.quantity ?? 0) + item.quantity;
+    const tierBasisQty = Math.max(totalQty, aggregateBulkQty);
+    const effectivePrice = calculateTierPrice(Number(variant.price), tierBasisQty);
+
+    await prisma.cartItem.upsert({
+      where: { cartId_variantId: { cartId: cart.id, variantId: item.variantId } },
+      update: {
+        quantity: { increment: item.quantity },
+        priceAtAdd: effectivePrice,
+      },
+      create: {
+        cartId: cart.id,
+        variantId: item.variantId,
+        quantity: item.quantity,
+        priceAtAdd: effectivePrice,
+      },
+    });
+  }
+
+  revalidatePath("/", "layout");
+  return { success: true, count: validItems.length };
 }
 
 export async function removeCartItemAction(formData: FormData) {

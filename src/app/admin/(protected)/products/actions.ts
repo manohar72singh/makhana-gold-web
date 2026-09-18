@@ -16,6 +16,8 @@ export async function createProductAction(formData: FormData) {
   const categoryId = Number(formData.get("categoryId"));
   const description = String(formData.get("description") || "").trim();
   const status = String(formData.get("status") || "draft") as "draft" | "active" | "archived";
+  const isHotDeal = formData.get("isHotDeal") === "true";
+  const isBestSeller = formData.get("isBestSeller") === "true";
   const packSize = String(formData.get("packSize") || "100g").trim();
   const price = Number(formData.get("price") || 0);
   const compareAtPriceRaw = formData.get("compareAtPrice");
@@ -33,14 +35,18 @@ export async function createProductAction(formData: FormData) {
     images = [];
   }
 
+  const validCategoryId = categoryId && !isNaN(categoryId) && categoryId > 0 ? categoryId : null;
+
   // 1. Create Product and Variant
   const product = await prisma.product.create({
     data: {
       name,
       slug: `${slugify(name)}-${Date.now().toString(36)}`,
       description,
-      categoryId: categoryId || null,
+      category: validCategoryId ? { connect: { id: validCategoryId } } : undefined,
       status,
+      isHotDeal,
+      isBestSeller,
       variants: {
         create: [
           {
@@ -96,6 +102,7 @@ export async function createProductAction(formData: FormData) {
 
   revalidatePath("/admin/products");
   revalidatePath("/shop");
+  revalidatePath("/");
   redirect(`/admin/products/${product.id}`);
 }
 
@@ -105,6 +112,8 @@ export async function updateProductAction(formData: FormData) {
   const categoryId = Number(formData.get("categoryId"));
   const description = String(formData.get("description") || "").trim();
   const status = String(formData.get("status") || "draft") as "draft" | "active" | "archived";
+  const isHotDeal = formData.get("isHotDeal") === "true";
+  const isBestSeller = formData.get("isBestSeller") === "true";
   const barcode = String(formData.get("barcode") || "").trim();
   const packagingArtworkUrl = String(formData.get("packagingArtworkUrl") || "").trim();
 
@@ -116,13 +125,17 @@ export async function updateProductAction(formData: FormData) {
     images = [];
   }
 
+  const validCategoryId = categoryId && !isNaN(categoryId) && categoryId > 0 ? categoryId : null;
+
   await prisma.product.update({
     where: { id },
     data: {
       name,
-      categoryId: categoryId || null,
+      category: validCategoryId ? { connect: { id: validCategoryId } } : { disconnect: true },
       description,
       status,
+      isHotDeal,
+      isBestSeller,
     },
   });
 
@@ -162,6 +175,7 @@ export async function updateProductAction(formData: FormData) {
   revalidatePath("/admin/products");
   revalidatePath(`/admin/products/${id}`);
   revalidatePath("/shop");
+  revalidatePath("/");
 }
 
 export async function deleteProductAction(formData: FormData) {

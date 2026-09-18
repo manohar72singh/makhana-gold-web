@@ -60,27 +60,71 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const otp = String(credentials?.otp || "").trim();
           const providedName = String(credentials?.name || "").trim();
           if (!rawPhone || rawPhone.length < 10) return null;
-
-          // Instant demo/live validation: verify OTP is provided (min 4 digits e.g. 1234)
           if (!otp || otp.length < 4) return null;
 
           const clean10Digit = rawPhone.slice(-10);
           const formattedPhone = `+91${clean10Digit}`;
+
+          // Real OTP Verification from database
+          const activeOtpRecord = await prisma.otpVerification.findFirst({
+            where: {
+              phone: formattedPhone,
+              isVerified: false,
+              expiresAt: { gt: new Date() },
+            },
+            orderBy: { createdAt: "desc" },
+          });
+
+          const isDevTestAllowed =
+            process.env.ALLOW_TEST_OTP === "true" &&
+            (otp === "123456" || otp === "1234");
+
+          if (!activeOtpRecord && !isDevTestAllowed) {
+            console.warn(`[Auth OTP] No active unverified OTP found for ${formattedPhone}`);
+            return null;
+          }
+
+          if (activeOtpRecord) {
+            if (activeOtpRecord.attempts >= activeOtpRecord.maxAttempts) {
+              console.warn(`[Auth OTP] Max attempts exceeded for ${formattedPhone}`);
+              return null;
+            }
+
+            const isMatch = isDevTestAllowed || (await bcrypt.compare(otp, activeOtpRecord.otpHash));
+            if (!isMatch) {
+              await prisma.otpVerification.update({
+                where: { id: activeOtpRecord.id },
+                data: { attempts: activeOtpRecord.attempts + 1 },
+              });
+              console.warn(`[Auth OTP] Incorrect OTP entered for ${formattedPhone}`);
+              return null;
+            }
+
+            // Mark OTP as verified to prevent reuse/replay attacks
+            await prisma.otpVerification.update({
+              where: { id: activeOtpRecord.id },
+              data: { isVerified: true },
+            });
+          }
+
           const defaultEmail = credentials?.email
             ? String(credentials.email).toLowerCase().trim()
             : makePhoneEmail(clean10Digit);
 
+          // Find existing customer (matches Google account with phone, or previous registration)
           let customer = await prisma.customer.findFirst({
             where: {
               OR: [
                 { phone: formattedPhone },
                 { phone: clean10Digit },
+                { phone: { contains: clean10Digit } },
                 { email: defaultEmail },
               ],
             },
           });
 
           if (!customer) {
+            // New user registration
             customer = await prisma.customer.create({
               data: {
                 name: providedName || null,
@@ -90,18 +134,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               },
             });
           } else {
-            if (providedName && (!customer.name || customer.name === formattedPhone)) {
+            // Existing user (e.g. Google user who added phone, or existing phone user)
+            const updates: { name?: string; phone?: string } = {};
+
+            if (providedName && (!customer.name || customer.name === formattedPhone || customer.name === clean10Digit)) {
+              updates.name = providedName;
+            }
+            if (!customer.phone || customer.phone === clean10Digit) {
+              updates.phone = formattedPhone;
+            }
+
+            if (Object.keys(updates).length > 0) {
               customer = await prisma.customer.update({
                 where: { id: customer.id },
-                data: {
-                  name: providedName,
-                  phone: formattedPhone,
-                },
-              });
-            } else if (!customer.phone) {
-              customer = await prisma.customer.update({
-                where: { id: customer.id },
-                data: { phone: formattedPhone },
+                data: updates,
               });
             }
           }

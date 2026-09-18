@@ -64,7 +64,15 @@ export async function getOrCreateCart() {
   const sessionToken = await getOrCreateGuestToken();
   let cart = await prisma.cart.findFirst({ where: { sessionToken, status: "active" } });
   if (!cart) {
-    cart = await prisma.cart.create({ data: { sessionToken, status: "active" } });
+    const existingCart = await prisma.cart.findUnique({ where: { sessionToken } });
+    if (existingCart) {
+      cart = await prisma.cart.update({
+        where: { id: existingCart.id },
+        data: { status: "active", customerId: null },
+      });
+    } else {
+      cart = await prisma.cart.create({ data: { sessionToken, status: "active" } });
+    }
   }
   return cart;
 }

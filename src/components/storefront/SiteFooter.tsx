@@ -170,6 +170,12 @@ export async function SiteFooter() {
             <Link href="/corporate-gifting" title="Corporate and bulk gifting solutions from Makhana Gold" className="text-xs sm:text-sm text-amber-100/70 hover:text-amber-300 transition-colors">
               Corporate &amp; Bulk Gifting
             </Link>
+            <Link href="/b2b" title="Makhana Gold B2B Wholesale & Volume Slabs" className="text-xs sm:text-sm text-amber-100/70 hover:text-amber-300 transition-colors inline-flex items-center gap-1.5">
+              <span>B2B Wholesale Portal</span>
+              <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-bold">
+                Up to 35% OFF
+              </span>
+            </Link>
           </div>
 
           {/* Newsletter Column — full-width on mobile */}

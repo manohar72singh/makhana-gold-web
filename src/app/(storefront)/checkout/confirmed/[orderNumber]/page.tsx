@@ -7,10 +7,12 @@ import { getOrderTrackingTimeline } from "@/lib/logistics";
 import { OrderTrackingTimeline } from "@/components/storefront/OrderTrackingTimeline";
 import { PurchaseTrackerClient } from "@/components/storefront/PurchaseTrackerClient";
 
-async function getOrder(orderNumber: string, customerId: number) {
-  return prisma.order.findFirst({
-    where: { orderNumber, customerId },
+async function getOrder(orderNumber: string) {
+  return prisma.order.findUnique({
+    where: { orderNumber },
     include: {
+      customer: true,
+      shippingAddress: true,
       items: {
         include: {
           variant: {
@@ -32,10 +34,14 @@ export default async function OrderConfirmedPage({
   const { orderNumber } = await params;
   const session = await auth();
   const customerId = session?.user?.id ? Number(session.user.id) : null;
-  if (!customerId) notFound();
 
-  const order = await getOrder(orderNumber, customerId);
+  const order = await getOrder(orderNumber);
   if (!order) notFound();
+
+  // If a logged-in user accesses an order belonging to a different customer, block it
+  if (customerId && order.customerId !== customerId) {
+    notFound();
+  }
 
   const trackingSteps = getOrderTrackingTimeline({
     status: order.status,

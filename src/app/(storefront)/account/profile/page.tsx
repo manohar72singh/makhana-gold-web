@@ -127,6 +127,62 @@ export default async function CustomerProfilePage({
               />
             </div>
 
+            {/* B2B Wholesale & Business Tax Details */}
+            <div className="pt-4 border-t border-amber-900/10">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="material-symbols-outlined text-[#D84315] text-lg">corporate_fare</span>
+                <h3 className="font-label-md text-xs font-bold text-amber-900 uppercase tracking-wider">
+                  Business &amp; GST Details (Optional for Retail, Required for B2B)
+                </h3>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-[#FAF6EE] border border-amber-900/10 space-y-4">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="isB2b"
+                    name="isB2b"
+                    defaultChecked={customer.isB2b || Boolean(customer.gstin)}
+                    className="h-4 w-4 rounded text-[#D84315] accent-[#D84315] cursor-pointer"
+                  />
+                  <label htmlFor="isB2b" className="text-xs font-bold text-[#1C150C] cursor-pointer">
+                    Enable Business / B2B Profile (Pre-fill at Checkout)
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                  <div>
+                    <label htmlFor="companyName" className="block font-label-sm text-xs font-bold text-on-surface mb-1">
+                      Company / Trade Name
+                    </label>
+                    <input
+                      id="companyName"
+                      name="companyName"
+                      type="text"
+                      defaultValue={customer.companyName || ""}
+                      placeholder="e.g. Mithila Agro Traders Pvt. Ltd."
+                      className="w-full bg-white rounded-xl border border-amber-900/15 px-3.5 py-2.5 text-xs text-[#1C150C] focus:border-amber-700 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="gstin" className="block font-label-sm text-xs font-bold text-on-surface mb-1">
+                      GSTIN Number (15 Digits)
+                    </label>
+                    <input
+                      id="gstin"
+                      name="gstin"
+                      type="text"
+                      maxLength={15}
+                      defaultValue={customer.gstin || ""}
+                      placeholder="e.g. 10AAACM1234F1Z5"
+                      className="w-full bg-white rounded-xl border border-amber-900/15 px-3.5 py-2.5 text-xs text-[#1C150C] font-mono uppercase tracking-wider focus:border-amber-700 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="pt-2">
               <button
                 type="submit"
