@@ -24,6 +24,7 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import Chip from "@mui/material/Chip";
 import SaveIcon from "@mui/icons-material/SaveOutlined";
 import LockResetIcon from "@mui/icons-material/LockResetOutlined";
+import CategoryIcon from "@mui/icons-material/CategoryOutlined";
 import { updateSiteSettingsAction } from "./actions";
 import { changeAdminPasswordAction } from "./password-actions";
 
@@ -90,6 +91,11 @@ export function SettingsFormClient({ initialSettings, adminUser }: SettingsFormP
     newsletter_description:
       initialSettings.newsletter_description ??
       "Join for 15% off your first order, private festive pre-sales, and curated culinary recipes.",
+
+    // Catalog & Category Launch Controls
+    category_makhana_status: initialSettings.category_makhana_status ?? "active",
+    category_sattu_status: initialSettings.category_sattu_status ?? "coming_soon",
+    category_poha_status: initialSettings.category_poha_status ?? "coming_soon",
   });
 
   const handleChange = (key: string, value: string) => {
@@ -134,6 +140,7 @@ export function SettingsFormClient({ initialSettings, adminUser }: SettingsFormP
           sx={{ borderBottom: 1, borderColor: "divider", bgcolor: "grey.50" }}
         >
           <Tab icon={<CampaignIcon />} iconPosition="start" label="Announcement Bar" sx={{ fontWeight: 600 }} />
+          <Tab icon={<CategoryIcon />} iconPosition="start" label="Catalog & Launch Status" sx={{ fontWeight: 600 }} />
           <Tab icon={<StoreIcon />} iconPosition="start" label="Branding &amp; Support" sx={{ fontWeight: 600 }} />
           <Tab icon={<LocalShippingIcon />} iconPosition="start" label="Shipping &amp; Legal" sx={{ fontWeight: 600 }} />
           <Tab icon={<PaymentIcon />} iconPosition="start" label="Payment Gateway" sx={{ fontWeight: 600 }} />
@@ -222,8 +229,148 @@ export function SettingsFormClient({ initialSettings, adminUser }: SettingsFormP
           </Box>
         )}
 
-        {/* TAB 1: Branding & Support */}
+        {/* TAB 1: Catalog & Launch Status */}
         {tabIndex === 1 && (
+          <Box sx={{ p: 4 }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
+              Catalog &amp; Category Launch Controls
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+              Manage which superfood categories are active for retail orders. Categories marked as &quot;Coming Soon&quot; display a promotional badge on the storefront, disable Add to Cart / Checkout, and show a teaser notice to visitors.
+            </Typography>
+
+            <Stack spacing={3}>
+              {/* Makhana */}
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: 3,
+                  borderRadius: 2.5,
+                  bgcolor: settings.category_makhana_status === "active" ? "#FAFDF7" : "#FFFBF5",
+                  borderColor: settings.category_makhana_status === "active" ? "#C8E6C9" : "#FFE0B2",
+                }}
+              >
+                <Stack direction={{ xs: "column", sm: "row" }} sx={{ justifyContent: "space-between", alignItems: { sm: "center" } }} spacing={2}>
+                  <Box>
+                    <Stack direction="row" sx={{ alignItems: "center", mb: 0.5 }} spacing={1.5}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
+                        👑 Makhana (Fox Nuts) Collection
+                      </Typography>
+                      <Chip
+                        label={settings.category_makhana_status === "active" ? "LIVE ON SALE" : "COMING SOON"}
+                        color={settings.category_makhana_status === "active" ? "success" : "warning"}
+                        size="small"
+                        sx={{ fontWeight: 800, fontSize: 11 }}
+                      />
+                    </Stack>
+                    <Typography variant="body2" color="text.secondary">
+                      Artisanal slow-roasted Mithila wetland lotus seeds (Pink Salt, Truffle, Peri Peri, Heritage Bundles).
+                    </Typography>
+                  </Box>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={settings.category_makhana_status === "active"}
+                        onChange={(e) => handleChange("category_makhana_status", e.target.checked ? "active" : "coming_soon")}
+                        color="success"
+                      />
+                    }
+                    label={settings.category_makhana_status === "active" ? "Selling Active" : "Coming Soon"}
+                    sx={{ m: 0, fontWeight: 700 }}
+                  />
+                </Stack>
+                <input type="hidden" name="category_makhana_status" value={settings.category_makhana_status} />
+              </Paper>
+
+              {/* Sattu */}
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: 3,
+                  borderRadius: 2.5,
+                  bgcolor: settings.category_sattu_status === "active" ? "#FAFDF7" : "#FFFBF5",
+                  borderColor: settings.category_sattu_status === "active" ? "#C8E6C9" : "#FFE0B2",
+                }}
+              >
+                <Stack direction={{ xs: "column", sm: "row" }} sx={{ justifyContent: "space-between", alignItems: { sm: "center" } }} spacing={2}>
+                  <Box>
+                    <Stack direction="row" sx={{ alignItems: "center", mb: 0.5 }} spacing={1.5}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
+                        🥣 Artisanal Sattu Collection
+                      </Typography>
+                      <Chip
+                        label={settings.category_sattu_status === "active" ? "LIVE ON SALE" : "COMING SOON"}
+                        color={settings.category_sattu_status === "active" ? "success" : "warning"}
+                        size="small"
+                        sx={{ fontWeight: 800, fontSize: 11 }}
+                      />
+                    </Stack>
+                    <Typography variant="body2" color="text.secondary">
+                      Pure roasted chana sattu, spiced drink sharbat, and high-protein gym fitness flour.
+                    </Typography>
+                  </Box>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={settings.category_sattu_status === "active"}
+                        onChange={(e) => handleChange("category_sattu_status", e.target.checked ? "active" : "coming_soon")}
+                        color="success"
+                      />
+                    }
+                    label={settings.category_sattu_status === "active" ? "Selling Active" : "Coming Soon"}
+                    sx={{ m: 0, fontWeight: 700 }}
+                  />
+                </Stack>
+                <input type="hidden" name="category_sattu_status" value={settings.category_sattu_status} />
+              </Paper>
+
+              {/* Poha */}
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: 3,
+                  borderRadius: 2.5,
+                  bgcolor: settings.category_poha_status === "active" ? "#FAFDF7" : "#FFFBF5",
+                  borderColor: settings.category_poha_status === "active" ? "#C8E6C9" : "#FFE0B2",
+                }}
+              >
+                <Stack direction={{ xs: "column", sm: "row" }} sx={{ justifyContent: "space-between", alignItems: { sm: "center" } }} spacing={2}>
+                  <Box>
+                    <Stack direction="row" sx={{ alignItems: "center", mb: 0.5 }} spacing={1.5}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
+                        🌾 Traditional Poha Collection
+                      </Typography>
+                      <Chip
+                        label={settings.category_poha_status === "active" ? "LIVE ON SALE" : "COMING SOON"}
+                        color={settings.category_poha_status === "active" ? "success" : "warning"}
+                        size="small"
+                        sx={{ fontWeight: 800, fontSize: 11 }}
+                      />
+                    </Stack>
+                    <Typography variant="body2" color="text.secondary">
+                      Organic red rice poha, thick batata mota poha, and roasted chivda diet snacks.
+                    </Typography>
+                  </Box>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={settings.category_poha_status === "active"}
+                        onChange={(e) => handleChange("category_poha_status", e.target.checked ? "active" : "coming_soon")}
+                        color="success"
+                      />
+                    }
+                    label={settings.category_poha_status === "active" ? "Selling Active" : "Coming Soon"}
+                    sx={{ m: 0, fontWeight: 700 }}
+                  />
+                </Stack>
+                <input type="hidden" name="category_poha_status" value={settings.category_poha_status} />
+              </Paper>
+            </Stack>
+          </Box>
+        )}
+
+        {/* TAB 2: Branding & Support */}
+        {tabIndex === 2 && (
           <Box sx={{ p: 4 }}>
             <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
               Store Branding &amp; Concierge Contact
@@ -325,8 +472,8 @@ export function SettingsFormClient({ initialSettings, adminUser }: SettingsFormP
           </Box>
         )}
 
-        {/* TAB 2: Shipping & Legal */}
-        {tabIndex === 2 && (
+        {/* TAB 3: Shipping & Legal */}
+        {tabIndex === 3 && (
           <Box sx={{ p: 4 }}>
             <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
               Commerce Thresholds &amp; Legal Compliance
@@ -397,8 +544,8 @@ export function SettingsFormClient({ initialSettings, adminUser }: SettingsFormP
           </Box>
         )}
 
-        {/* TAB 3: Payment Gateway */}
-        {tabIndex === 3 && (
+        {/* TAB 4: Payment Gateway */}
+        {tabIndex === 4 && (
           <Box sx={{ p: 4 }}>
             <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
               Razorpay Online Payment Gateway
@@ -509,8 +656,8 @@ export function SettingsFormClient({ initialSettings, adminUser }: SettingsFormP
           </Box>
         )}
 
-        {/* TAB 4: Social & Newsletter */}
-        {tabIndex === 4 && (
+        {/* TAB 5: Social & Newsletter */}
+        {tabIndex === 5 && (
           <Box sx={{ p: 4 }}>
             <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
               Social Media Channels &amp; Newsletter Perks
@@ -597,8 +744,8 @@ export function SettingsFormClient({ initialSettings, adminUser }: SettingsFormP
           </Box>
         )}
 
-        {/* TAB 5: Admin Profile */}
-        {tabIndex === 5 && (
+        {/* TAB 6: Admin Profile */}
+        {tabIndex === 6 && (
           <Box sx={{ p: 4 }}>
             <Typography variant="h6" gutterBottom sx={{ fontWeight: 700 }}>
               Admin Profile &amp; Role

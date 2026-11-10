@@ -13,6 +13,7 @@ import {
   getMarketplaceLinks,
   getStorefrontReviews,
   getFaqCategories,
+  getSiteSettings,
 } from "@/lib/content";
 import { generateBreadcrumbSchema } from "@/lib/seo";
 
@@ -78,6 +79,7 @@ export default async function HomePage() {
     newArrivals,
     session,
     faqCategories,
+    siteSettings,
   ] = await Promise.all([
     getHeroBanners(),
     getTrustBadges(),
@@ -88,7 +90,22 @@ export default async function HomePage() {
     getNewArrivals(),
     auth(),
     getFaqCategories(),
+    getSiteSettings(),
   ]);
+
+  const launchStatusMap = {
+    makhana: siteSettings["category_makhana_status"] || "active",
+    sattu: siteSettings["category_sattu_status"] || "coming_soon",
+    poha: siteSettings["category_poha_status"] || "coming_soon",
+  };
+
+  const isProductComingSoon = (product: { category?: { slug?: string | null } | null }) => {
+    const catSlug = product.category?.slug?.toLowerCase() || "";
+    if (catSlug.includes("sattu")) return launchStatusMap.sattu !== "active";
+    if (catSlug.includes("poha")) return launchStatusMap.poha !== "active";
+    if (catSlug.includes("makhana")) return launchStatusMap.makhana === "coming_soon";
+    return false;
+  };
 
   const homeFaqs = faqCategories.flatMap((cat) => cat.items.map((item) => ({ question: item.q, answer: item.a })));
 
@@ -177,6 +194,7 @@ export default async function HomePage() {
                 <ProductGridCard
                   key={product.id}
                   product={product}
+                  isComingSoon={isProductComingSoon(product)}
                   badge="🔥 Hot Deal"
                   badgeType="hot_deal"
                   isWishlisted={wishlistedIds.has(product.variants[0]?.id)}
@@ -215,6 +233,7 @@ export default async function HomePage() {
                 <ProductGridCard
                   key={product.id}
                   product={product}
+                  isComingSoon={isProductComingSoon(product)}
                   badge="⭐ Best Seller"
                   badgeType="best_seller"
                   isWishlisted={wishlistedIds.has(product.variants[0]?.id)}
@@ -252,6 +271,7 @@ export default async function HomePage() {
                 <ProductGridCard
                   key={product.id}
                   product={product}
+                  isComingSoon={isProductComingSoon(product)}
                   badge="✨ New Arrival"
                   badgeType="new_arrival"
                   isWishlisted={wishlistedIds.has(product.variants[0]?.id)}

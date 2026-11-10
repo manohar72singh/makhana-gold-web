@@ -23,8 +23,9 @@ export async function SiteHeader() {
     session = results[1];
     settings = results[2];
     categoryTree = results[3];
-  } catch (err: any) {
-    if (err?.digest !== "DYNAMIC_SERVER_USAGE" && !err?.message?.includes("DYNAMIC_SERVER_USAGE")) {
+  } catch (err: unknown) {
+    const error = err as { digest?: string; message?: string } | undefined;
+    if (error?.digest !== "DYNAMIC_SERVER_USAGE" && !error?.message?.includes("DYNAMIC_SERVER_USAGE")) {
       console.error("[header] Error loading header data:", err);
     }
   }
@@ -86,6 +87,11 @@ export async function SiteHeader() {
         isLoggedIn={Boolean(session?.user?.id)}
         userName={session?.user?.name || null}
         categoryTree={categoryTree}
+        launchStatusMap={{
+          makhana: settings["category_makhana_status"] || "active",
+          sattu: settings["category_sattu_status"] || "coming_soon",
+          poha: settings["category_poha_status"] || "coming_soon",
+        }}
       />
     </>
   );

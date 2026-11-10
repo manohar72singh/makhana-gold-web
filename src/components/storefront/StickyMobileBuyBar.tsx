@@ -15,23 +15,24 @@ export function StickyMobileBuyBar({
   imageUrl,
   variants,
   selectedVariantId,
-  onSelectVariant,
   onAddToCart,
   onBuyNow,
   isPending,
   isSoldOut,
   added,
+  isComingSoon = false,
 }: {
   productName: string;
   imageUrl?: string;
   variants: Variant[];
   selectedVariantId: number;
-  onSelectVariant: (id: number) => void;
+  onSelectVariant?: (id: number) => void;
   onAddToCart: () => void;
   onBuyNow: () => void;
   isPending: boolean;
   isSoldOut: boolean;
   added: boolean;
+  isComingSoon?: boolean;
 }) {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -49,7 +50,7 @@ export function StickyMobileBuyBar({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  if (!isVisible) return null;
+  if (!isVisible || isComingSoon) return null;
 
   const currentVariant =
     variants.find((v) => v.id === selectedVariantId) ?? variants[0];

@@ -4,12 +4,28 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { getOrCreateCart } from "@/lib/cart";
 import { calculateTierPrice } from "@/lib/pricing";
+import { getSiteSettings } from "@/lib/content";
 
 export async function addToCartAction(formData: FormData) {
   const variantId = Number(formData.get("variantId"));
   const quantity = Math.max(1, Number(formData.get("quantity") || 1));
 
-  const variant = await prisma.productVariant.findUniqueOrThrow({ where: { id: variantId } });
+  const variant = await prisma.productVariant.findUniqueOrThrow({
+    where: { id: variantId },
+    include: { product: { include: { category: true } } },
+  });
+
+  const settings = await getSiteSettings();
+  const catSlug = variant.product?.category?.slug?.toLowerCase() || "";
+  const isComingSoon =
+    (catSlug.includes("sattu") && settings["category_sattu_status"] !== "active") ||
+    (catSlug.includes("poha") && settings["category_poha_status"] !== "active") ||
+    (catSlug.includes("makhana") && settings["category_makhana_status"] === "coming_soon");
+
+  if (isComingSoon) {
+    throw new Error("This artisanal superfood collection is launching soon and cannot be ordered yet.");
+  }
+
   const cart = await getOrCreateCart();
 
   const existingItem = await prisma.cartItem.findUnique({
@@ -72,10 +88,22 @@ export async function addBulkToCartAction(items: { variantId: number; quantity: 
     throw new Error("Please select at least 1 packet to add to cart.");
   }
 
+  const settings = await getSiteSettings();
   const aggregateBulkQty = validItems.reduce((sum, i) => sum + i.quantity, 0);
 
   for (const item of validItems) {
-    const variant = await prisma.productVariant.findUniqueOrThrow({ where: { id: item.variantId } });
+    const variant = await prisma.productVariant.findUniqueOrThrow({
+      where: { id: item.variantId },
+      include: { product: { include: { category: true } } },
+    });
+
+    const catSlug = variant.product?.category?.slug?.toLowerCase() || "";
+    const isComingSoon =
+      (catSlug.includes("sattu") && settings["category_sattu_status"] !== "active") ||
+      (catSlug.includes("poha") && settings["category_poha_status"] !== "active") ||
+      (catSlug.includes("makhana") && settings["category_makhana_status"] === "coming_soon");
+
+    if (isComingSoon) continue;
     const existing = await prisma.cartItem.findUnique({
       where: { cartId_variantId: { cartId: cart.id, variantId: item.variantId } },
     });

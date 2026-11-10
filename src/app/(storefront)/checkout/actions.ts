@@ -7,10 +7,9 @@ import { getCartWithItems } from "@/lib/cart";
 import { sendOrderConfirmationEmail } from "@/lib/email";
 import { isPlaceholderEmail } from "@/lib/phone-email";
 import { notifyAdmins } from "@/lib/admin-notifications";
+import { getSiteSettings } from "@/lib/content";
 
 const TAX_RATE = 0.05;
-const FREE_SHIPPING_THRESHOLD = 500;
-const SHIPPING_FEE = 60;
 
 export async function placeOrderAction(formData: FormData) {
   const session = await auth();
@@ -147,9 +146,13 @@ export async function placeOrderAction(formData: FormData) {
     }
   }
 
+  const settings = await getSiteSettings();
+  const freeShippingThreshold = Number(settings["free_shipping_threshold"] || 500);
+  const shippingFee = Number(settings["standard_shipping_rate"] || 60);
+
   const discountedSubtotal = Math.max(0, subtotal - discountTotal);
   const isFreeShipCoupon = couponCode === "FREESHIP";
-  const shipping = (subtotal >= FREE_SHIPPING_THRESHOLD || isFreeShipCoupon) ? 0 : SHIPPING_FEE;
+  const shipping = (subtotal >= freeShippingThreshold || isFreeShipCoupon) ? 0 : shippingFee;
   const tax = discountedSubtotal * TAX_RATE;
   const grandTotal = discountedSubtotal + shipping + tax;
 

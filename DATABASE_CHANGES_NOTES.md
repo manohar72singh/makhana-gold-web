@@ -235,3 +235,69 @@ npx prisma db push
 # Regenerate Prisma Client
 npx prisma generate
 ```
+
+---
+
+## 8. 🌾 Handpicked Makhana Catalog Migration (4 Suta, Premium, 6+ Suta, 7+ Suta)
+
+Run this SQL query in **phpMyAdmin** on your live server to archive old dummy products and activate the 4 authentic Handpicked Makhana products:
+
+```sql
+-- Step 1: Archive old dummy makhana (IDs 1, 2, 3, 4) - keeps foreign keys and order history safe!
+UPDATE `products` 
+SET `status` = 'archived', `is_hot_deal` = 0, `is_best_seller` = 0 
+WHERE `id` IN (1, 2, 3, 4);
+
+-- Step 2: Insert or Update the 4 authentic Handpicked Makhana products
+INSERT INTO `products` (`id`, `name`, `slug`, `description`, `category_id`, `status`, `is_hot_deal`, `is_best_seller`, `avg_rating`, `review_count`, `created_at`, `updated_at`)
+VALUES
+(22, '4 Suta Handpicked Makhana', '4-suta-handpicked-makhana', 'Traditional 4 Suta handpicked lotus seeds harvested from mineral-rich Bihar wetlands. Naturally sun-dried, crunchy, low GI, and rich in natural plant protein.', 1, 'active', 0, 0, 4.80, 19, NOW(), NOW()),
+(23, 'Premium Handpicked Makhana', 'premium-handpicked-makhana', 'Authentic 5+ Suta standard hand-graded Bihar wetland fox nuts. Naturally crisp, gluten-free, zero cholesterol — slow roasted to perfection for daily wholesome health.', 1, 'active', 1, 1, 4.90, 47, NOW(), NOW()),
+(24, '6+ Suta Handpicked Makhana', '6-plus-suta-handpicked-makhana', 'Selected 6+ Suta Jumbo Grade handpicked lotus seeds from Mithila. Extra large pop, premium roundness, high magnesium, and satisfying pure crunch.', 1, 'active', 0, 1, 4.90, 38, NOW(), NOW()),
+(25, '7+ Suta Handpicked Makhana', '7-plus-suta-handpicked-makhana', 'Royal 7+ Suta Super Jumbo Grade handpicked Makhana. King size export quality, hand-graded from generational Bihar wetland ponds. Highest grade available.', 1, 'active', 1, 0, 5.00, 26, NOW(), NOW())
+ON DUPLICATE KEY UPDATE 
+  `name` = VALUES(`name`),
+  `description` = VALUES(`description`),
+  `status` = 'active',
+  `is_hot_deal` = VALUES(`is_hot_deal`),
+  `is_best_seller` = VALUES(`is_best_seller`);
+
+-- Step 3: Insert Product Variants with exact 250g packaging and pricing
+INSERT INTO `product_variants` (`product_id`, `sku`, `pack_size`, `price`, `compare_at_price`, `weight_grams`, `created_at`, `updated_at`)
+VALUES
+(22, 'MG-4SUTA-250G', '250g', 200.00, 250.00, 250, NOW(), NOW()),
+(23, 'MG-PREM-250G', '250g', 225.00, 280.00, 250, NOW(), NOW()),
+(24, 'MG-6SUTA-250G', '250g', 337.50, 400.00, 250, NOW(), NOW()),
+(25, 'MG-7SUTA-250G', '250g', 450.00, 550.00, 250, NOW(), NOW())
+ON DUPLICATE KEY UPDATE
+  `price` = VALUES(`price`),
+  `compare_at_price` = VALUES(`compare_at_price`),
+  `pack_size` = VALUES(`pack_size`);
+
+-- Step 4: Insert Primary Pack Images
+INSERT INTO `product_images` (`product_id`, `url`, `alt_text`, `sort_order`, `is_primary`)
+VALUES
+(22, '/images/products/classic-raw-1.png', '4 Suta Handpicked Makhana 250g - Pure Bihar Wetland Makhana', 0, 1),
+(23, '/images/products/classic-raw-1.png', 'Premium Handpicked Makhana 250g - Pure Bihar Wetland Makhana', 0, 1),
+(24, '/images/products/classic-raw-1.png', '6+ Suta Handpicked Makhana 250g - Pure Bihar Wetland Makhana', 0, 1),
+(25, '/images/products/classic-raw-1.png', '7+ Suta Handpicked Makhana 250g - Pure Bihar Wetland Makhana', 0, 1);
+```
+
+---
+
+## 9. 🌾 Archive Sattu & Poha (Pure Makhana-Only Catalog)
+
+To ensure the storefront and shop display **ONLY** authentic Handpicked Makhana products and completely remove Sattu, Poha, and test products while protecting foreign keys and order history, run this SQL query in **phpMyAdmin**:
+
+```sql
+-- Archive Sattu products (IDs: 11, 12, 13, 14, 15)
+-- Archive Poha products (IDs: 16, 17, 18, 19, 20)
+-- Archive Test product (ID: 21)
+UPDATE `products` 
+SET 
+  `status` = 'archived', 
+  `is_hot_deal` = 0, 
+  `is_best_seller` = 0 
+WHERE `id` IN (11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21);
+```
+

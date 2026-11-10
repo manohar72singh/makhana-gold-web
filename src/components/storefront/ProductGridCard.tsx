@@ -8,6 +8,7 @@ export function ProductGridCard({
   product,
   isWishlisted,
   showWishlist = true,
+  isComingSoon = false,
   badge,
   badgeType,
 }: {
@@ -30,6 +31,7 @@ export function ProductGridCard({
   };
   isWishlisted?: boolean;
   showWishlist?: boolean;
+  isComingSoon?: boolean;
   badge?: string | null;
   badgeType?: "hot_deal" | "best_seller" | "new_arrival" | "new_harvest" | "custom";
 }) {
@@ -48,7 +50,10 @@ export function ProductGridCard({
   let badgeText: string | null = null;
   let badgeStyle = "";
 
-  if (isSoldOut) {
+  if (isComingSoon) {
+    badgeText = "Coming Soon";
+    badgeStyle = "bg-gradient-to-r from-amber-600 to-orange-600 text-white font-black shadow-md border border-amber-400";
+  } else if (isSoldOut) {
     badgeText = "Sold Out";
     badgeStyle = "bg-neutral-900 text-white font-extrabold border border-neutral-700";
   } else if (isLowStock) {
@@ -119,7 +124,7 @@ export function ProductGridCard({
       )}
 
       {/* Quick View Trigger on Hover */}
-      {variant && !isSoldOut && (
+      {variant && !isSoldOut && !isComingSoon && (
         <QuickViewTrigger
           product={{
             id: product.id,
@@ -193,7 +198,12 @@ export function ProductGridCard({
           </div>
 
           {variant && (
-            isSoldOut ? (
+            isComingSoon ? (
+              <span className="bg-amber-500/15 text-amber-950 border border-amber-500/40 font-label-md text-xs uppercase tracking-wider px-3.5 py-2 rounded-xl flex items-center gap-1 font-bold">
+                <span className="material-symbols-outlined text-[15px] text-amber-700">schedule</span>
+                <span>Coming Soon</span>
+              </span>
+            ) : isSoldOut ? (
               <button
                 disabled
                 className="bg-neutral-200 text-neutral-500 font-label-md text-xs uppercase tracking-wider px-3.5 py-2.5 rounded-xl flex items-center gap-1 font-bold cursor-not-allowed"

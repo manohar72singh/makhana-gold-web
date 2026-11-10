@@ -129,8 +129,16 @@ export default async function ProductPage({
     : [];
   const wishlistedIds = new Set(wishlist.map((w) => w.variantId));
 
+  const catSlug = product.category?.slug?.toLowerCase() || "";
+  const isComingSoon =
+    (catSlug.includes("sattu") && settings.category_sattu_status !== "active") ||
+    (catSlug.includes("poha") && settings.category_poha_status !== "active") ||
+    (catSlug.includes("makhana") && settings.category_makhana_status === "coming_soon");
+
   let badge: string | null = null;
-  if (product.isHotDeal) {
+  if (isComingSoon) {
+    badge = "Coming Soon";
+  } else if (product.isHotDeal) {
     badge = "🔥 Hot Deal";
   } else if (product.isBestSeller) {
     badge = "⭐ Best Seller";
@@ -261,6 +269,7 @@ export default async function ProductPage({
           productName={product.name}
           description={product.description}
           badge={badge}
+          isComingSoon={isComingSoon}
           images={product.images.map((i) => ({ url: i.url, altText: i.altText }))}
           variants={product.variants.map((v) => ({
             id: v.id,

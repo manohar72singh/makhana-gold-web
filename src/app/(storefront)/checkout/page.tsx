@@ -5,27 +5,30 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getCartWithItems } from "@/lib/cart";
 import { isPlaceholderEmail } from "@/lib/phone-email";
+import { getSiteSettings } from "@/lib/content";
 import { placeOrderAction } from "./actions";
 import { CheckoutAddressSelector } from "./CheckoutAddressSelector";
 import { CheckoutPaymentClient } from "./CheckoutPaymentClient";
 import { CheckoutB2bSection } from "./CheckoutB2bSection";
 
 const TAX_RATE = 0.05;
-const FREE_SHIPPING_THRESHOLD = 500;
-const SHIPPING_FEE = 60;
 
 export default async function CheckoutPage({
   searchParams,
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const [params, cart, session] = await Promise.all([
+  const [params, cart, session, settings] = await Promise.all([
     searchParams,
     getCartWithItems(),
     auth(),
+    getSiteSettings(),
   ]);
 
   if (cart.items.length === 0) redirect("/cart");
+
+  const freeShippingThreshold = Number(settings["free_shipping_threshold"] || 500);
+  const shippingFee = Number(settings["standard_shipping_rate"] || 60);
 
   const customerId = session?.user?.id ? Number(session.user.id) : null;
   const [savedAddresses, customer] = customerId
@@ -82,7 +85,7 @@ export default async function CheckoutPage({
   const discount = appliedCoupon ? appliedCoupon.discount : 0;
   const discountedSubtotal = Math.max(0, subtotal - discount);
   const isFreeShipCoupon = couponCode === "FREESHIP";
-  const shipping = isMicroTest ? 0 : (subtotal >= FREE_SHIPPING_THRESHOLD || isFreeShipCoupon ? 0 : SHIPPING_FEE);
+  const shipping = isMicroTest ? 0 : (subtotal >= freeShippingThreshold || isFreeShipCoupon ? 0 : shippingFee);
   const tax = isMicroTest ? 0 : discountedSubtotal * TAX_RATE;
   const grandTotal = isMicroTest ? subtotal : discountedSubtotal + shipping + tax;
 

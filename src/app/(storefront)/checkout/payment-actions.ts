@@ -10,10 +10,9 @@ import {
   isRazorpayConfigured,
 } from "@/lib/razorpay";
 import { sendOrderConfirmationEmail } from "@/lib/email";
+import { getSiteSettings } from "@/lib/content";
 
 const TAX_RATE = 0.05;
-const FREE_SHIPPING_THRESHOLD = 500;
-const SHIPPING_FEE = 60;
 
 export async function initiateOnlineOrderAction(formData: FormData) {
   const session = await auth();
@@ -151,9 +150,13 @@ export async function initiateOnlineOrderAction(formData: FormData) {
   const prepaidDiscount = isMicroTest ? 0 : Math.round((subtotal * 0.05) * 100) / 100;
   const combinedDiscount = Math.round((couponDiscount + prepaidDiscount) * 100) / 100;
 
+  const settings = await getSiteSettings();
+  const freeShippingThreshold = Number(settings["free_shipping_threshold"] || 500);
+  const shippingFee = Number(settings["standard_shipping_rate"] || 60);
+
   const discountedSubtotal = Math.max(0, subtotal - combinedDiscount);
   const isFreeShipCoupon = couponCode === "FREESHIP";
-  const shipping = isMicroTest ? 0 : (subtotal >= FREE_SHIPPING_THRESHOLD || isFreeShipCoupon ? 0 : SHIPPING_FEE);
+  const shipping = isMicroTest ? 0 : (subtotal >= freeShippingThreshold || isFreeShipCoupon ? 0 : shippingFee);
   const tax = isMicroTest ? 0 : discountedSubtotal * TAX_RATE;
   const grandTotal = isMicroTest ? subtotal : discountedSubtotal + shipping + tax;
 

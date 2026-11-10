@@ -89,6 +89,15 @@ export async function SiteFooter() {
                   <span className="material-symbols-outlined text-[18px]">mail</span>
                 </a>
               )}
+              {supportPhone && (
+                <a
+                  href={`tel:${supportPhone.replace(/[^0-9+]/g, "")}`}
+                  aria-label="Direct Phone Support"
+                  className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-amber-600 hover:text-white hover:border-amber-600 transition-all cursor-pointer shadow-xs"
+                >
+                  <span className="material-symbols-outlined text-[18px]">call</span>
+                </a>
+              )}
               {supportWhatsapp && (
                 <a
                   href={`https://wa.me/${supportWhatsapp.replace(/[^0-9]/g, "")}`}
@@ -112,37 +121,46 @@ export async function SiteFooter() {
               href="/shop"
               className="text-xs sm:text-sm text-amber-100/70 hover:text-amber-300 transition-colors"
             >
-              All Roasted Flavours
+              All Handpicked Makhana
             </Link>
             <Link
-              href="/shop?category=roasted-makhana"
+              href="/product/7-plus-suta-handpicked-makhana"
               className="text-xs sm:text-sm text-amber-100/70 hover:text-amber-300 transition-colors inline-flex items-center gap-1.5"
             >
-              <span>Himalayan Pink Salt</span>
+              <span>7+ Suta Super Jumbo</span>
               <span className="text-[9px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-bold">
-                Best Seller
+                Super Grade
               </span>
             </Link>
             <Link
-              href="/shop?category=flavoured-makhana"
+              href="/product/6-plus-suta-handpicked-makhana"
               className="text-xs sm:text-sm text-amber-100/70 hover:text-amber-300 transition-colors"
             >
-              Fiery Peri Peri Zest
+              6+ Suta Jumbo Grade
             </Link>
             <Link
-              href="/product/truffle-parmesan-makhana"
+              href="/product/premium-handpicked-makhana"
               className="text-xs sm:text-sm text-amber-100/70 hover:text-amber-300 transition-colors inline-flex items-center gap-1.5"
             >
-              <span>Black Truffle &amp; Herb</span>
+              <span>Premium (5+ Suta)</span>
               <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-bold">
-                New
+                Best Value
               </span>
             </Link>
             <Link
-              href="/offers"
+              href="/product/4-suta-handpicked-makhana"
               className="text-xs sm:text-sm text-amber-100/70 hover:text-amber-300 transition-colors"
             >
-              Festive Gift Hampers
+              4 Suta Standard Grade
+            </Link>
+            <Link
+              href="/b2b"
+              className="text-xs sm:text-sm text-amber-300 hover:text-amber-200 font-bold transition-colors inline-flex items-center gap-1"
+            >
+              <span>Raw Wholesale (10 kg MOQ)</span>
+              <span className="text-[9px] bg-[#D84315] text-white px-1.5 py-0.2 rounded font-black">
+                B2B
+              </span>
             </Link>
           </div>
 

@@ -110,6 +110,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let categoryPages: MetadataRoute.Sitemap = [];
   try {
     const categories = await prisma.category.findMany({
+      where: {
+        slug: {
+          notIn: [
+            "sattu",
+            "poha",
+            "chana-sattu",
+            "spiced-sattu",
+            "fitness-sattu",
+            "red-brown-poha",
+            "thick-batata-poha",
+            "poha-snacks",
+          ],
+        },
+      },
       select: { slug: true, updatedAt: true },
     });
 

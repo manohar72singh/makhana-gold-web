@@ -1,22 +1,29 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getCartWithItems } from "@/lib/cart";
+import { getSiteSettings } from "@/lib/content";
 import { updateCartItemAction, removeCartItemAction } from "./actions";
 import { CartSummaryClient } from "./CartSummaryClient";
 
 const TAX_RATE = 0.05;
-const FREE_SHIPPING_THRESHOLD = 500;
-const SHIPPING_FEE = 60;
 
 export default async function CartPage() {
-  const cart = await getCartWithItems();
+  const [cart, settings] = await Promise.all([
+    getCartWithItems(),
+    getSiteSettings(),
+  ]);
+
+  const freeShippingThreshold = Number(settings["free_shipping_threshold"] || 500);
+  const shippingFee = Number(settings["standard_shipping_rate"] || 60);
 
   const subtotal = cart.items.reduce(
     (sum, item) => sum + Number(item.priceAtAdd) * item.quantity,
     0
   );
-  const freeShippingLeft = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
-  const freeShippingProgress = Math.min(100, Math.round((subtotal / FREE_SHIPPING_THRESHOLD) * 100));
+  const freeShippingLeft = Math.max(0, freeShippingThreshold - subtotal);
+  const freeShippingProgress = freeShippingThreshold > 0
+    ? Math.min(100, Math.round((subtotal / freeShippingThreshold) * 100))
+    : 100;
 
   return (
     <main className="grow pt-6 sm:pt-8 pb-16 sm:pb-huge px-5 sm:px-gutter max-w-container-max mx-auto w-full">
@@ -56,7 +63,11 @@ export default async function CartPage() {
         {/* Order Summary — shown at top on mobile via order, right on desktop */}
         {cart.items.length > 0 && (
           <div className="w-full lg:w-[420px] shrink-0 order-first lg:order-last lg:sticky lg:top-28">
-            <CartSummaryClient subtotal={subtotal} />
+            <CartSummaryClient
+              subtotal={subtotal}
+              freeShippingThreshold={freeShippingThreshold}
+              shippingFee={shippingFee}
+            />
           </div>
         )}
 

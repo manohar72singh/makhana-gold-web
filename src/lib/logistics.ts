@@ -26,6 +26,7 @@ export interface TrackingStep {
 }
 
 export const POPULAR_INDIAN_COURIERS = [
+  { value: "Ekart Logistics Express", label: "Ekart Logistics (Ekart Express / Flipkart)" },
   { value: "Delhivery Express Surface", label: "Delhivery (Express Surface / Air)" },
   { value: "Shiprocket Express", label: "Shiprocket (Multi-Carrier Auto)" },
   { value: "Blue Dart Air Priority", label: "Blue Dart (Express Air)" },
@@ -37,6 +38,9 @@ export const POPULAR_INDIAN_COURIERS = [
 
 export function getCarrierTrackingUrl(courier: string, trackingNumber: string): string {
   const c = courier.toLowerCase();
+  if (c.includes("ekart") || c.includes("ecart")) {
+    return `https://ekartlogistics.com/shipmenttrack/${trackingNumber}`;
+  }
   if (c.includes("delhivery")) {
     return `https://www.delhivery.com/track/package/${trackingNumber}`;
   }
@@ -57,13 +61,15 @@ export function getCarrierTrackingUrl(courier: string, trackingNumber: string): 
 
 export function generateAwbTrackingDetails(
   orderNumber: string,
-  courier: string = "Delhivery Express Surface",
+  courier: string = "Ekart Logistics Express",
   customAwb?: string
 ) {
   let trackingNumber = (customAwb || "").trim();
 
   if (!trackingNumber) {
-    const prefix = courier.toLowerCase().includes("delhivery")
+    const prefix = courier.toLowerCase().includes("ekart") || courier.toLowerCase().includes("ecart")
+      ? "FMPC"
+      : courier.toLowerCase().includes("delhivery")
       ? "DEL"
       : courier.toLowerCase().includes("shiprocket")
       ? "SR"

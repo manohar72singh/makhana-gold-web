@@ -158,7 +158,36 @@ const DEFAULT_SITE_SETTINGS: Record<string, string> = {
   announcement_coupon: "GOLDEN15",
   announcement_shipping_text: "🚚 Free Shipping on Orders ₹500+",
   iso_certified_text: "ISO 22000 & 9001 Certified",
+  // Delivery & Shipping Controls (Admin Managed)
+  free_shipping_threshold: "500",
+  standard_shipping_rate: "60",
+  // Category Launch Controls (Admin Managed)
+  category_makhana_status: "active",
+  category_sattu_status: "coming_soon",
+  category_poha_status: "coming_soon",
 };
+
+export type CategoryLaunchStatus = "active" | "coming_soon";
+
+export function getCategoryLaunchStatusMap(settings: Record<string, string>): Record<string, CategoryLaunchStatus> {
+  return {
+    makhana: (settings["category_makhana_status"] as CategoryLaunchStatus) || "active",
+    sattu: (settings["category_sattu_status"] as CategoryLaunchStatus) || "coming_soon",
+    poha: (settings["category_poha_status"] as CategoryLaunchStatus) || "coming_soon",
+  };
+}
+
+export function isCategorySlugComingSoon(
+  slug: string | null | undefined,
+  settings: Record<string, string>
+): boolean {
+  if (!slug) return false;
+  const s = slug.toLowerCase();
+  if (s.includes("sattu")) return settings["category_sattu_status"] !== "active";
+  if (s.includes("poha")) return settings["category_poha_status"] !== "active";
+  if (s.includes("makhana")) return settings["category_makhana_status"] === "coming_soon";
+  return false;
+}
 
 /**
  * Fetch all active Hero Banners from the database.
@@ -354,7 +383,10 @@ export const getCategoryTree = cache(unstable_cache(async function getCategoryTr
   try {
     if (!prisma.category) return [];
     return await prisma.category.findMany({
-      where: { parentId: null },
+      where: {
+        parentId: null,
+        slug: { notIn: ["sattu", "poha"] },
+      },
       include: {
         children: { orderBy: { name: "asc" } },
       },

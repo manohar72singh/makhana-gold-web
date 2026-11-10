@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import { getSiteSettings } from "@/lib/content";
 import { CorporateGiftingFormClient } from "./CorporateGiftingFormClient";
 
@@ -43,30 +42,34 @@ export default async function CorporateGiftingPage() {
         <div className="max-w-4xl mx-auto text-center relative z-10 space-y-4">
           <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold uppercase tracking-widest">
             <span className="material-symbols-outlined text-[16px] text-amber-400">card_giftcard</span>
-            Corporate &amp; Enterprise Gifting
+            Corporate Gifting &amp; Private Labeling • Starts from 500g
           </span>
 
           <h1 className="font-display-lg text-3xl sm:text-5xl md:text-6xl font-bold text-white leading-tight">
-            Artisanal Wellness Hampers.<br />
-            <span className="italic font-normal text-amber-400">Tailored for Your Brand.</span>
+            Artisanal Makhana Hampers.<br />
+            <span className="italic font-normal text-amber-400">Customized with Your Company Labeling.</span>
           </h1>
 
           <p className="font-body-md text-xs sm:text-base text-amber-100/80 max-w-2xl mx-auto leading-relaxed">
-            Move away from generic sweets. Gift your clients, partners, and employees the purity of 100% natural, slow-roasted Bihar wetland Fox Nuts in bespoke co-branded luxury packaging.
+            Move away from generic sweets. Gift your clients, partners, and employees 100% natural, handpicked Bihar wetland Fox Nuts in bespoke co-branded luxury packaging. Orders start from just <strong>500g</strong> with full custom logo branding and private company labeling.
           </p>
 
           <div className="pt-3 flex flex-wrap items-center justify-center gap-4 text-xs font-semibold text-amber-200">
             <span className="flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
-              <span className="material-symbols-outlined text-amber-400 text-base">receipt_long</span>
-              100% GST Input Credit (GSTIN: {gstinNumber})
-            </span>
-            <span className="flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
-              <span className="material-symbols-outlined text-amber-400 text-base">pin_drop</span>
-              Pan-India Multi-Desk Delivery
+              <span className="material-symbols-outlined text-amber-400 text-base">scale</span>
+              Orders Start from 500g
             </span>
             <span className="flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
               <span className="material-symbols-outlined text-amber-400 text-base">brush</span>
-              Custom Logo Sleeves
+              Custom Logo &amp; Company Labeling
+            </span>
+            <span className="flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+              <span className="material-symbols-outlined text-amber-400 text-base">verified</span>
+              4 Certified Grades (7, 6, 5, 4 Suta)
+            </span>
+            <span className="flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+              <span className="material-symbols-outlined text-amber-400 text-base">receipt_long</span>
+              100% GST Input Credit (GSTIN: {gstinNumber})
             </span>
           </div>
         </div>
@@ -77,41 +80,45 @@ export default async function CorporateGiftingPage() {
         <div className="max-w-container-max mx-auto">
           <div className="text-center max-w-2xl mx-auto mb-10">
             <span className="font-label-sm text-xs uppercase tracking-widest text-[#D84315] font-bold block mb-1">
-              Transparent Volume Pricing
+              Flexible Corporate Volume Pricing
             </span>
             <h2 className="font-headline-md text-2xl sm:text-3xl font-bold text-on-surface">
-              Tiered Bulk Discounts
+              Corporate Order &amp; Labeling Tiers
             </h2>
             <p className="text-xs sm:text-sm text-on-surface-variant mt-1">
-              Direct farm-to-table pricing with zero middlemen markups.
+              Bespoke packaging, private company branding, and doorstep sample delivery starting from 500g.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {/* Silver Tier */}
+            {/* Starter Tier */}
             <div className="bg-white p-6 sm:p-8 rounded-3xl border border-amber-900/10 shadow-ambient flex flex-col justify-between">
               <div>
                 <span className="inline-block bg-neutral-100 text-neutral-800 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-3">
-                  Silver Tier
+                  Starter / Boutique Tier
                 </span>
                 <h3 className="font-headline-sm text-xl font-bold text-on-surface mb-1">
-                  25 – 50 Units
+                  500g – 5 kg
                 </h3>
                 <p className="text-2xl font-black text-[#D84315] mb-4">
-                  10% OFF <span className="text-xs font-normal text-neutral-500">Retail MRP</span>
+                  Starting from 500g <span className="text-xs font-normal text-neutral-500">Trial / Executive</span>
                 </p>
                 <ul className="space-y-2.5 text-xs text-neutral-600 border-t border-amber-900/10 pt-4">
                   <li className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-emerald-600 text-sm">check_circle</span>
-                    <span>Standard Gold Presentation Box</span>
+                    <span>500g Presentation Box or Golden Tin</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-emerald-600 text-sm">check_circle</span>
-                    <span>Custom Message Insert Card</span>
+                    <span>Custom Company Logo Sticker &amp; Sleeve</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-emerald-600 text-sm">check_circle</span>
-                    <span>Free Single-Point Bulk Delivery</span>
+                    <span>Personalized Executive Greeting Card</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-emerald-600 text-sm">check_circle</span>
+                    <span>Choice of 7, 6, 5, or 4 Suta Raw Makhana</span>
                   </li>
                 </ul>
               </div>
@@ -127,19 +134,23 @@ export default async function CorporateGiftingPage() {
                   Gold Privilege Tier
                 </span>
                 <h3 className="font-headline-sm text-xl font-bold text-white mb-1">
-                  50 – 200 Units
+                  5 kg – 50 kg
                 </h3>
                 <p className="text-2xl font-black text-amber-400 mb-4">
-                  15% OFF <span className="text-xs font-normal text-amber-200/60">Retail MRP</span>
+                  15% OFF <span className="text-xs font-normal text-amber-200/60">Corporate Rate</span>
                 </p>
                 <ul className="space-y-2.5 text-xs text-amber-100/80 border-t border-white/10 pt-4">
                   <li className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-amber-400 text-sm">check_circle</span>
-                    <span>Custom Co-Branded Outer Sleeve</span>
+                    <span>Full Custom Company Branding &amp; Labeling</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-amber-400 text-sm">check_circle</span>
-                    <span>Choose Any 3 Flavours Mix</span>
+                    <span>500g Luxury Hard Boxes or Air-Tight Tins</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-amber-400 text-sm">check_circle</span>
+                    <span>Premium Super Jumbo 7+ or 6+ Suta Makhana</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-amber-400 text-sm">check_circle</span>
@@ -147,7 +158,7 @@ export default async function CorporateGiftingPage() {
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-amber-400 text-sm">check_circle</span>
-                    <span>Priority Dispatch in 3 Business Days</span>
+                    <span>Priority Dispatch in 48–72 Hours</span>
                   </li>
                 </ul>
               </div>
@@ -157,22 +168,26 @@ export default async function CorporateGiftingPage() {
             <div className="bg-white p-6 sm:p-8 rounded-3xl border border-amber-900/10 shadow-ambient flex flex-col justify-between">
               <div>
                 <span className="inline-block bg-neutral-100 text-neutral-800 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-3">
-                  Enterprise Wholesale
+                  Enterprise Private Label
                 </span>
                 <h3 className="font-headline-sm text-xl font-bold text-on-surface mb-1">
-                  200+ Units
+                  50 kg+ Bulk
                 </h3>
                 <p className="text-2xl font-black text-[#D84315] mb-4">
-                  25% OFF <span className="text-xs font-normal text-neutral-500">Direct Sourcing</span>
+                  25% OFF <span className="text-xs font-normal text-neutral-500">Direct Mill Pricing</span>
                 </p>
                 <ul className="space-y-2.5 text-xs text-neutral-600 border-t border-amber-900/10 pt-4">
                   <li className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-emerald-600 text-sm">check_circle</span>
-                    <span>100% Bespoke Gift Box Design</span>
+                    <span>100% Bespoke Box &amp; Pouch Private Labeling</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-emerald-600 text-sm">check_circle</span>
                     <span>Pan-India Multi-Desk Employee Shipping</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-emerald-600 text-sm">check_circle</span>
+                    <span>Full GST ITC Invoice (HSN 19041090)</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-emerald-600 text-sm">check_circle</span>

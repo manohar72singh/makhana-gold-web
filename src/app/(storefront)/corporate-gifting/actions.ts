@@ -9,9 +9,11 @@ export async function submitCorporateInquiryAction(formData: FormData) {
   const companyName = String(formData.get("companyName") || "").trim();
   const email = String(formData.get("email") || "").trim().toLowerCase();
   const phone = String(formData.get("phone") || "").trim();
-  const quantityRange = String(formData.get("quantityRange") || "50-200 Units");
+  const quantityRange = String(formData.get("quantityRange") || "500g – 5 kg (Starts from 500g)");
   const occasion = String(formData.get("occasion") || "Corporate Gifting");
-  const customBranding = formData.get("customBranding") === "yes" ? "Yes (Custom Logo/Sleeve Needed)" : "No (Standard Gold Packaging)";
+  const packagingPreference = String(formData.get("packagingPreference") || "500g Luxury Hardtop Gift Box");
+  const makhanaGrade = String(formData.get("makhanaGrade") || "7+ Suta Super Jumbo");
+  const customBranding = formData.get("customBranding") === "yes" ? "Yes (Custom Company Logo & Labeling Needed)" : "No (Standard Gold Packaging)";
   const eventDate = String(formData.get("eventDate") || "Flexible / Not Fixed");
   const message = String(formData.get("message") || "").trim();
 
@@ -19,7 +21,7 @@ export async function submitCorporateInquiryAction(formData: FormData) {
     return { success: false, error: "Please provide your Name, Email, and Phone Number." };
   }
 
-  const subject = `[Corporate RFQ] ${companyName ? `${companyName} — ` : ""}${quantityRange} (${occasion})`;
+  const subject = `[Corporate RFQ] ${companyName ? `${companyName} — ` : ""}${quantityRange} (${packagingPreference})`;
 
   const formattedInquiry = `
 Company / Organization: ${companyName || "N/A"}
@@ -28,9 +30,11 @@ Phone: ${phone}
 Email: ${email}
 Required Quantity: ${quantityRange}
 Occasion / Purpose: ${occasion}
+Packaging Preference: ${packagingPreference}
+Raw Makhana Grade: ${makhanaGrade}
 Custom Branding Required: ${customBranding}
 Target Delivery Date: ${eventDate}
-Additional Notes / Custom Flavours:
+Additional Notes:
 ${message || "No additional notes provided."}
   `.trim();
 
@@ -44,7 +48,7 @@ ${message || "No additional notes provided."}
         subject,
         message: formattedInquiry,
         status: "new",
-        adminNotes: `Corporate RFQ Tier: ${quantityRange} | Occasion: ${occasion}`,
+        adminNotes: `Corporate RFQ Tier: ${quantityRange} | Pack: ${packagingPreference} | Grade: ${makhanaGrade}`,
       },
     });
 
@@ -61,6 +65,8 @@ ${message || "No additional notes provided."}
           <p style="font-size: 14px; color: #333;"><strong>Phone / WhatsApp:</strong> <a href="tel:${phone}" style="color: #D84315; font-weight: bold;">${phone}</a> | <a href="https://wa.me/${phone.replace(/[^0-9]/g, "")}" style="color: #25D366; font-weight: bold;">Chat on WhatsApp</a></p>
           <p style="font-size: 14px; color: #333;"><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
           <p style="font-size: 14px; color: #333;"><strong>Quantity Range:</strong> <span style="background: #FAF6EE; padding: 3px 8px; border-radius: 6px; font-weight: bold; color: #D84315;">${quantityRange}</span></p>
+          <p style="font-size: 14px; color: #333;"><strong>Packaging Format:</strong> ${packagingPreference}</p>
+          <p style="font-size: 14px; color: #333;"><strong>Makhana Grade:</strong> ${makhanaGrade}</p>
           <p style="font-size: 14px; color: #333;"><strong>Occasion:</strong> ${occasion}</p>
           <p style="font-size: 14px; color: #333;"><strong>Custom Branding:</strong> ${customBranding}</p>
           <p style="font-size: 14px; color: #333;"><strong>Required By Date:</strong> ${eventDate}</p>
@@ -70,7 +76,7 @@ ${message || "No additional notes provided."}
           </div>
 
           <div style="text-align: center; margin-top: 24px;">
-            <a href="https://wa.me/${phone.replace(/[^0-9]/g, "")}?text=Namaste%20${encodeURIComponent(name)}%2C%20thank%20you%20for%20reaching%20out%20to%20Makhana%20Gold%20for%20your%20corporate%20bulk%20order..." style="display: inline-block; background: #25D366; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; font-size: 13px;">
+            <a href="https://wa.me/${phone.replace(/[^0-9]/g, "")}?text=Namaste%20${encodeURIComponent(name)}%2C%20thank%20you%20for%20reaching%20out%20to%20Makhana%20Gold%20for%20your%20corporate%20order..." style="display: inline-block; background: #25D366; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; font-size: 13px;">
               💬 Quick WhatsApp Reply to Client
             </a>
           </div>

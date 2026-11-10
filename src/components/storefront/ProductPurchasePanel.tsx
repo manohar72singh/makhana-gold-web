@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { addToCartAction } from "@/app/(storefront)/cart/actions";
 import { dispatchCartAdded } from "./CartToast";
@@ -35,6 +36,7 @@ export function ProductPurchasePanel({
   productName,
   description,
   badge,
+  isComingSoon = false,
   images,
   variants,
   reviewCount = 0,
@@ -43,6 +45,7 @@ export function ProductPurchasePanel({
   productName: string;
   description: string | null;
   badge?: string | null;
+  isComingSoon?: boolean;
   images: ProductImage[];
   variants: Variant[];
   reviewCount?: number;
@@ -317,7 +320,8 @@ export function ProductPurchasePanel({
         </div>
 
         {/* Wholesale & Bulk Pricing Slabs */}
-        {!isSoldOut && (
+        {/* Wholesale & Bulk Pricing Slabs */}
+        {!isSoldOut && !isComingSoon && (
           <WholesaleVolumeTiers
             basePrice={currentPrice}
             currentQuantity={quantity}
@@ -326,7 +330,7 @@ export function ProductPurchasePanel({
         )}
 
         {/* Quantity Stepper */}
-        {!isSoldOut && (
+        {!isSoldOut && !isComingSoon && (
           <div className="mb-5 flex items-center justify-between gap-4">
             <span className="font-label-md text-xs text-primary font-bold uppercase tracking-wider">
               Quantity (Packs)
@@ -366,11 +370,33 @@ export function ProductPurchasePanel({
         )}
 
         {/* Pincode Estimator */}
-        <PincodeChecker />
+        {!isComingSoon && <PincodeChecker />}
 
         {/* Dual CTAs — full width */}
         <div className="flex flex-col gap-3 mb-6">
-          {isSoldOut ? (
+          {isComingSoon ? (
+            <div className="p-6 rounded-3xl bg-[#FAF6EE] border-2 border-amber-500/30 text-center space-y-3 shadow-xs">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-950 font-black text-xs uppercase tracking-wider">
+                <span className="material-symbols-outlined text-[16px] text-amber-800">schedule</span>
+                <span>Coming Soon • Launching Soon</span>
+              </div>
+              <h4 className="font-headline-sm text-base font-bold text-amber-950">
+                Artisanal Batch In Preparation
+              </h4>
+              <p className="font-body-md text-xs text-amber-900/80 leading-relaxed max-w-sm mx-auto">
+                This seasonal collection is currently being prepared and graded. Only our certified Makhana harvests are open for retail orders.
+              </p>
+              <div className="pt-1">
+                <Link
+                  href="/shop?category=makhana"
+                  className="inline-flex items-center gap-2 bg-[#D84315] hover:bg-[#BF360C] text-white px-5 py-2.5 rounded-xl font-label-md text-xs font-bold uppercase tracking-wider transition-all shadow-xs"
+                >
+                  <span>Explore Available Makhana</span>
+                  <span className="material-symbols-outlined text-[15px]">arrow_forward</span>
+                </Link>
+              </div>
+            </div>
+          ) : isSoldOut ? (
             <button
               disabled
               className="w-full py-4 rounded-xl bg-neutral-200 text-neutral-500 font-label-md text-sm uppercase tracking-wider flex items-center justify-center gap-2 cursor-not-allowed font-bold"
@@ -467,6 +493,7 @@ export function ProductPurchasePanel({
         onBuyNow={handleBuyNow}
         isPending={pending}
         isSoldOut={isSoldOut}
+        isComingSoon={isComingSoon}
         added={added}
       />
     </div>

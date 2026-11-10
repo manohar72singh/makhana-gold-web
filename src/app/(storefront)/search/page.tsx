@@ -7,12 +7,12 @@ import { Pagination } from "@/components/storefront/Pagination";
 const PAGE_SIZE = 6;
 
 const POPULAR_SEARCHES = [
-  "Pink Salt",
-  "Chana Sattu",
-  "Red Rice Poha",
-  "Truffle",
-  "Litti Special",
-  "Poha Chivda",
+  "7+ Suta Super Jumbo",
+  "6+ Suta Jumbo",
+  "Premium Handpicked",
+  "4 Suta Makhana",
+  "Raw Wholesale B2B",
+  "Slow-Roasted",
 ];
 
 async function searchProducts(q: string, page: number) {
@@ -87,7 +87,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
           <input
             name="q"
             defaultValue={q}
-            placeholder="Search Makhana, Sattu, Poha, Flavours..."
+            placeholder="Search 4 Suta, 6+ Suta, 7+ Suta Handpicked Makhana..."
             autoFocus
             className="w-full pl-14 pr-24 py-4 rounded-2xl bg-surface-container-lowest border border-outline-variant/40 shadow-ambient focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none font-body-md text-sm text-on-surface"
           />

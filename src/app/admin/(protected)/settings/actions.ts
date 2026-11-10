@@ -20,6 +20,8 @@ export async function updateSiteSettingsAction(formData: FormData) {
   // Instant cache revalidation across entire storefront
   revalidatePath("/", "layout");
   revalidatePath("/shop");
+  revalidatePath("/cart");
+  revalidatePath("/checkout");
   revalidatePath("/support");
   revalidatePath("/our-story");
   revalidatePath("/offers");

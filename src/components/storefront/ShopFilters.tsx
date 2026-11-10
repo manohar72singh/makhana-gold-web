@@ -36,7 +36,13 @@ export interface CategoryNode {
   }[];
 }
 
-export function CategoryFilter({ categoryTree }: { categoryTree: CategoryNode[] }) {
+export function CategoryFilter({
+  categoryTree,
+  launchStatusMap = {},
+}: {
+  categoryTree: CategoryNode[];
+  launchStatusMap?: Record<string, string>;
+}) {
   const searchParams = useSearchParams();
   const activeCategory = searchParams.get("category");
   const pushParams = usePushParams();
@@ -45,6 +51,14 @@ export function CategoryFilter({ categoryTree }: { categoryTree: CategoryNode[] 
     makhana: "👑",
     sattu: "🥣",
     poha: "🌾",
+  };
+
+  const isPillarComingSoon = (slug: string) => {
+    const s = slug.toLowerCase();
+    if (s.includes("sattu")) return launchStatusMap["sattu"] !== "active";
+    if (s.includes("poha")) return launchStatusMap["poha"] !== "active";
+    if (s.includes("makhana")) return launchStatusMap["makhana"] === "coming_soon";
+    return false;
   };
 
   return (
@@ -59,7 +73,7 @@ export function CategoryFilter({ categoryTree }: { categoryTree: CategoryNode[] 
               : "bg-[#FAF6EE] text-amber-950 border border-amber-900/10"
           }`}
         >
-          ✨ All Superfoods
+          ✨ All Handpicked Makhana
         </button>
         {categoryTree.map((parent) => {
           const isParentActive =
@@ -78,6 +92,17 @@ export function CategoryFilter({ categoryTree }: { categoryTree: CategoryNode[] 
             >
               <span>{PILLAR_ICONS[parent.slug] || "📦"}</span>
               <span>{parent.name}</span>
+              {isPillarComingSoon(parent.slug) && (
+                <span
+                  className={`text-[8px] uppercase tracking-wider px-1.5 py-0.5 rounded-full font-extrabold ${
+                    isParentActive
+                      ? "bg-white/20 text-white border border-white/30"
+                      : "bg-amber-500/20 text-amber-950 border border-amber-500/40"
+                  }`}
+                >
+                  Coming Soon
+                </span>
+              )}
             </button>
           );
         })}
@@ -108,7 +133,7 @@ export function CategoryFilter({ categoryTree }: { categoryTree: CategoryNode[] 
             >
               <span className="flex items-center gap-2">
                 <span>✨</span>
-                <span>All Superfoods Collection</span>
+                <span>All Handpicked Makhana</span>
               </span>
               {!activeCategory && (
                 <span className="material-symbols-outlined text-[16px]">chevron_right</span>
@@ -132,9 +157,20 @@ export function CategoryFilter({ categoryTree }: { categoryTree: CategoryNode[] 
                         : "text-amber-950 hover:bg-[#FAF6EE]"
                     }`}
                   >
-                    <span className="flex items-center gap-2">
+                    <span className="flex items-center gap-2 flex-wrap">
                       <span>{PILLAR_ICONS[parent.slug] || "📦"}</span>
                       <span>{parent.name}</span>
+                      {isPillarComingSoon(parent.slug) && (
+                        <span
+                          className={`text-[9px] uppercase tracking-wider px-2 py-0.5 rounded-full font-black ${
+                            isDirectParentActive
+                              ? "bg-white/20 text-white border border-white/40"
+                              : "bg-amber-500/20 text-amber-950 border border-amber-500/40"
+                          }`}
+                        >
+                          Coming Soon
+                        </span>
+                      )}
                     </span>
                     <span className="text-[10px] opacity-75">All →</span>
                   </button>

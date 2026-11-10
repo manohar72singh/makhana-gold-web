@@ -29,6 +29,7 @@ export interface B2BProductItem {
   category?: { name: string; slug: string } | null;
   images: { url: string; altText: string | null }[];
   variants: B2BVariant[];
+  isComingSoon?: boolean;
 }
 
 // ─── Tier chip colors ───────────────────────────────────────────────────────
@@ -101,20 +102,26 @@ export function BulkOrderSheetClient({
   const calc = useMemo(() => {
     let totalUnits = 0;
     let totalRegular = 0;
+    let totalWeightGrams = 0;
     const items: { product: B2BProductItem; variant: B2BVariant; quantity: number; base: number }[] = [];
 
     for (const p of products) {
+      if (p.isComingSoon) continue;
       for (const v of p.variants) {
         const qty = quantities[v.id] || 0;
         if (qty > 0) {
           const base = Number(v.price);
+          const weight = v.weightGrams ?? 250;
           totalUnits += qty;
           totalRegular += base * qty;
+          totalWeightGrams += weight * qty;
           items.push({ product: p, variant: v, quantity: qty, base });
         }
       }
     }
 
+    const totalWeightKg = totalWeightGrams / 1000;
+    const meetsMoq = totalWeightKg >= 10;
     const tier = getTierForQuantity(totalUnits);
     const tierIdx = WHOLESALE_TIERS.findIndex((t) => t.id === tier.id);
     const nextTier: WholesaleTier | null = tierIdx < WHOLESALE_TIERS.length - 1 ? WHOLESALE_TIERS[tierIdx + 1] : null;
@@ -128,6 +135,8 @@ export function BulkOrderSheetClient({
       totalUnits,
       totalRegular,
       totalEffective,
+      totalWeightKg,
+      meetsMoq,
       totalSavings: Math.max(0, totalRegular - totalEffective),
       tier,
       nextTier,
@@ -157,35 +166,43 @@ export function BulkOrderSheetClient({
     safePage * ITEMS_PER_PAGE
   );
 
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, selectedCategory, onlySelected]);
-
   const goToPage = (p: number) => setCurrentPage(Math.max(1, Math.min(p, totalPages)));
 
   const handleAddToCart = () => {
     if (!calc.items.length) { setErrorMessage("Select at least one product to add."); return; }
+    if (!calc.meetsMoq) {
+      setErrorMessage(
+        `Wholesale Minimum Order Quantity (MOQ) is 10 kg (40 packs of 250g). Current selection: ${calc.totalWeightKg.toFixed(1)} kg (${calc.totalUnits} packs). Please add ${(10 - calc.totalWeightKg).toFixed(1)} kg more to checkout at wholesale pricing, or contact us on WhatsApp for smaller trial batches.`
+      );
+      return;
+    }
     setErrorMessage(null);
     startTransition(async () => {
       try {
         await addBulkToCartAction(calc.items.map((i) => ({ variantId: i.variant.id, quantity: i.quantity })));
-        dispatchCartAdded({ name: `Bulk Order (${calc.totalUnits} packs)` });
-        setSuccessMessage(`${calc.totalUnits} packs added to cart across ${calc.skuCount} SKUs.`);
+        dispatchCartAdded({ name: `Wholesale Order (${calc.totalWeightKg.toFixed(1)} kg / ${calc.totalUnits} packs)` });
+        setSuccessMessage(`${calc.totalWeightKg.toFixed(1)} kg (${calc.totalUnits} packs) added to cart across ${calc.skuCount} SKUs.`);
         router.refresh();
-      } catch (e: any) { setErrorMessage(e?.message || "Failed to add to cart."); }
+      } catch (e: unknown) {
+        setErrorMessage(e instanceof Error ? e.message : "Failed to add to cart.");
+      }
     });
   };
 
   const waUrl = useMemo(() => {
     if (!calc.items.length) return "#";
-    const lines = ["💼 *B2B PROCUREMENT INQUIRY — Makhana Gold*", ""];
+    const lines = ["💼 *B2B RAW MAKHANA PROCUREMENT INQUIRY — Makhana Gold*", ""];
     calc.items.forEach((item, i) => {
       const eu = calculateTierPrice(item.base, calc.totalUnits);
       lines.push(`${i + 1}. *${item.product.name}* [${item.variant.packSize}] × ${item.quantity} = ₹${(eu * item.quantity).toFixed(0)}`);
     });
-    lines.push(`\n📦 *Total:* ${calc.totalUnits} packs | ⚡ *Tier:* ${calc.tier.name} (${calc.tier.badge}) | 💰 *Value:* ₹${calc.totalEffective.toFixed(0)}`);
-    if (companyName) lines.push(`🏢 ${companyName}`);
+    lines.push(
+      `\n📦 *Total Weight:* ${calc.totalWeightKg.toFixed(1)} kg (${calc.totalUnits} packs) | ⚡ *Tier:* ${calc.tier.name} (${calc.tier.badge}) | 💰 *Value:* ₹${calc.totalEffective.toFixed(0)}`
+    );
+    if (!calc.meetsMoq) {
+      lines.push(`⚠️ Note: Current order is below standard 10 kg MOQ (Requesting special trial quotation)`);
+    }
+    if (companyName) lines.push(`🏢 Company: ${companyName}`);
     if (gstin) lines.push(`📑 GSTIN: ${gstin.toUpperCase()}`);
     return `https://wa.me/${supportWhatsapp}?text=${encodeURIComponent(lines.join("\n"))}`;
   }, [calc, companyName, gstin, supportWhatsapp]);
@@ -250,11 +267,22 @@ export function BulkOrderSheetClient({
             type="text"
             placeholder="Search product..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
             className="w-full pl-8 pr-8 py-2 rounded-xl border border-neutral-200 bg-white text-xs text-neutral-800 font-medium placeholder-neutral-400 focus:outline-none focus:border-[#D84315] focus:ring-1 focus:ring-[#D84315]/20"
           />
           {searchQuery && (
-            <button onClick={() => setSearchQuery("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 text-xs cursor-pointer">✕</button>
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                setCurrentPage(1);
+              }}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 text-xs cursor-pointer"
+            >
+              ✕
+            </button>
           )}
         </div>
 
@@ -264,7 +292,10 @@ export function BulkOrderSheetClient({
             <button
               key={cat.slug}
               type="button"
-              onClick={() => setSelectedCategory(cat.slug)}
+              onClick={() => {
+                setSelectedCategory(cat.slug);
+                setCurrentPage(1);
+              }}
               className={`px-3 py-1 rounded-full text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer shrink-0 ${
                 selectedCategory === cat.slug
                   ? "bg-[#D84315] text-white shadow-xs"
@@ -280,7 +311,10 @@ export function BulkOrderSheetClient({
         {calc.skuCount > 0 && (
           <button
             type="button"
-            onClick={() => setOnlySelected(!onlySelected)}
+            onClick={() => {
+              setOnlySelected(!onlySelected);
+              setCurrentPage(1);
+            }}
             className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer ${onlySelected ? "bg-amber-950 text-white" : "bg-white border border-neutral-200 text-neutral-700"}`}
           >
             <span className="material-symbols-outlined text-[14px]">{onlySelected ? "check_circle" : "tune"}</span>
@@ -340,6 +374,8 @@ export function BulkOrderSheetClient({
                   className={`w-full grid grid-cols-12 gap-x-3 items-center px-4 sm:px-5 py-3.5 text-left transition-colors cursor-pointer ${
                     productQty > 0
                       ? "bg-amber-50 hover:bg-amber-100/60"
+                      : product.isComingSoon
+                      ? "bg-neutral-50/70 hover:bg-neutral-100/60 opacity-75"
                       : "bg-white hover:bg-neutral-50"
                   }`}
                 >
@@ -353,6 +389,11 @@ export function BulkOrderSheetClient({
                         <span className="text-[12px] sm:text-[13px] font-black text-amber-950 leading-tight line-clamp-1">
                           {product.name}
                         </span>
+                        {product.isComingSoon && (
+                          <span className="shrink-0 text-[9px] font-black text-amber-800 bg-amber-100 border border-amber-300 px-1.5 py-0.2 rounded-full uppercase tracking-wider">
+                            Coming Soon
+                          </span>
+                        )}
                         {productQty > 0 && (
                           <span className="shrink-0 text-[10px] font-black text-amber-950 bg-amber-200 px-1.5 py-0.5 rounded-full">
                             {productQty}
@@ -374,32 +415,42 @@ export function BulkOrderSheetClient({
 
                   {/* col 6-7: Price range */}
                   <div className="col-span-2 text-right">
-                    <span className="text-[11px] font-semibold text-neutral-500">
-                      ₹{Math.min(...product.variants.map((v) => Number(v.price)))}
-                      {product.variants.length > 1 &&
-                        ` – ₹${Math.max(...product.variants.map((v) => Number(v.price)))}`}
-                    </span>
+                    {product.isComingSoon ? (
+                      <span className="text-[11px] font-semibold text-neutral-400 italic">Coming Soon</span>
+                    ) : (
+                      <span className="text-[11px] font-semibold text-neutral-500">
+                        ₹{Math.min(...product.variants.map((v) => Number(v.price)))}
+                        {product.variants.length > 1 &&
+                          ` – ₹${Math.max(...product.variants.map((v) => Number(v.price)))}`}
+                      </span>
+                    )}
                   </div>
 
                   {/* col 8-9: Wholesale range */}
                   <div className="col-span-2 text-right">
-                    <span className="text-[11px] font-black text-amber-950">
-                      ₹{Math.round(calculateTierPrice(
-                          Math.min(...product.variants.map((v) => Number(v.price))),
-                          calc.totalUnits
-                        ))}
-                      {product.variants.length > 1 && ` – ₹${Math.round(calculateTierPrice(
-                          Math.max(...product.variants.map((v) => Number(v.price))),
-                          calc.totalUnits
-                        ))}`}
-                    </span>
+                    {product.isComingSoon ? (
+                      <span className="text-[10px] font-black text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">
+                        Wholesale Soon
+                      </span>
+                    ) : (
+                      <span className="text-[11px] font-black text-amber-950">
+                        ₹{Math.round(calculateTierPrice(
+                            Math.min(...product.variants.map((v) => Number(v.price))),
+                            calc.totalUnits
+                          ))}
+                        {product.variants.length > 1 && ` – ₹${Math.round(calculateTierPrice(
+                            Math.max(...product.variants.map((v) => Number(v.price))),
+                            calc.totalUnits
+                          ))}`}
+                      </span>
+                    )}
                   </div>
 
                   {/* col 10-12: Expand chevron */}
                   <div className="col-span-3 flex items-center justify-end gap-2">
                     {productQty > 0 && (
                       <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-                        {productQty} packs
+                        {productQty} packs ({(productQty * 0.25).toFixed(1)} kg)
                       </span>
                     )}
                     <span
@@ -415,94 +466,106 @@ export function BulkOrderSheetClient({
                 {/* ── Variant Rows (collapsible) ─────────────────── */}
                 {isExpanded && (
                   <div className="divide-y divide-neutral-50/80 border-t border-neutral-100 bg-neutral-50/40">
-                    {product.variants.map((variant) => {
-                      const base = Number(variant.price);
-                      const qty = quantities[variant.id] || 0;
-                      const eu = calculateTierPrice(base, calc.totalUnits);
-                      const savings = (base - eu) * qty;
+                    {product.isComingSoon ? (
+                      <div className="px-6 py-4 text-center bg-amber-50/50">
+                        <p className="text-xs text-amber-900 font-bold">
+                          🚀 Wholesale for this product is launching soon.
+                        </p>
+                        <p className="text-[11px] text-amber-800/70 mt-0.5">
+                          Currently only 100% Handpicked Raw Makhana (7, 6, 5, 4 Suta) is available for wholesale procurement.
+                        </p>
+                      </div>
+                    ) : (
+                      product.variants.map((variant) => {
+                        const base = Number(variant.price);
+                        const qty = quantities[variant.id] || 0;
+                        const eu = calculateTierPrice(base, calc.totalUnits);
+                        const savings = (base - eu) * qty;
 
-                      return (
-                        <div
-                          key={variant.id}
-                          className={`grid grid-cols-12 gap-x-3 items-center pl-16 pr-4 sm:pr-5 py-3 transition-colors ${
-                            qty > 0 ? "bg-amber-50/60" : "hover:bg-white/80"
-                          }`}
-                        >
-                          {/* col 1-5: Pack label (indented under product) */}
-                          <div className="col-span-5 flex items-center gap-2 min-w-0">
-                            <span className="inline-block px-2 py-0.5 rounded-lg bg-white text-neutral-700 text-[11px] font-bold border border-neutral-200 shrink-0 shadow-2xs">
-                              {variant.packSize}
-                            </span>
-                            {qty > 0 && savings > 0 && (
-                              <span className="text-[10px] font-extrabold text-emerald-700 whitespace-nowrap">
-                                Saved ₹{savings.toFixed(0)}
+                        return (
+                          <div
+                            key={variant.id}
+                            className={`grid grid-cols-12 gap-x-3 items-center pl-16 pr-4 sm:pr-5 py-3 transition-colors ${
+                              qty > 0 ? "bg-amber-50/60" : "hover:bg-white/80"
+                            }`}
+                          >
+                            {/* col 1-5: Pack label (indented under product) */}
+                            <div className="col-span-5 flex items-center gap-2 min-w-0">
+                              <span className="inline-block px-2 py-0.5 rounded-lg bg-white text-neutral-700 text-[11px] font-bold border border-neutral-200 shrink-0 shadow-2xs">
+                                {variant.packSize}
                               </span>
-                            )}
-                          </div>
-
-                          {/* col 6-7: MRP */}
-                          <div className="col-span-2 text-right">
-                            <span className={`text-xs font-semibold ${
-                              calc.tier.discountPercent > 0
-                                ? "text-neutral-400 line-through"
-                                : "text-neutral-700 font-bold"
-                            }`}>
-                              ₹{base}
-                            </span>
-                          </div>
-
-                          {/* col 8-9: Wholesale Rate */}
-                          <div className="col-span-2 text-right">
-                            <div className="text-sm font-black text-amber-950">₹{eu.toFixed(0)}</div>
-                            {calc.tier.discountPercent > 0 && (
-                              <div className="text-[9px] font-black text-emerald-700">-{calc.tier.discountPercent}%</div>
-                            )}
-                          </div>
-
-                          {/* col 10-12: Stepper */}
-                          <div className="col-span-3 flex flex-col items-end gap-1">
-                            <div className="flex items-center border border-neutral-200 rounded-xl overflow-hidden bg-white shadow-2xs">
-                              <button
-                                type="button"
-                                onClick={() => handleQtyChange(variant.id, qty - 1)}
-                                disabled={qty === 0}
-                                className="px-2 py-1.5 text-neutral-500 hover:text-amber-950 hover:bg-neutral-100 disabled:opacity-25 transition-colors cursor-pointer"
-                              >
-                                <span className="material-symbols-outlined text-[14px]">remove</span>
-                              </button>
-                              <input
-                                type="number"
-                                min={0}
-                                max={999}
-                                value={qty === 0 ? "" : qty}
-                                placeholder="0"
-                                onChange={(e) => handleQtyChange(variant.id, parseInt(e.target.value, 10))}
-                                className="w-10 text-center font-bold text-xs text-amber-950 focus:outline-none bg-transparent"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => handleQtyChange(variant.id, qty + 1)}
-                                className="px-2 py-1.5 text-neutral-500 hover:text-amber-950 hover:bg-neutral-100 transition-colors cursor-pointer"
-                              >
-                                <span className="material-symbols-outlined text-[14px]">add</span>
-                              </button>
+                              {qty > 0 && savings > 0 && (
+                                <span className="text-[10px] font-extrabold text-emerald-700 whitespace-nowrap">
+                                  Saved ₹{savings.toFixed(0)}
+                                </span>
+                              )}
                             </div>
-                            <div className="flex items-center gap-1">
-                              {[10, 25, 50].map((n) => (
+
+                            {/* col 6-7: MRP */}
+                            <div className="col-span-2 text-right">
+                              <span className={`text-xs font-semibold ${
+                                calc.tier.discountPercent > 0
+                                  ? "text-neutral-400 line-through"
+                                  : "text-neutral-700 font-bold"
+                              }`}>
+                                ₹{base}
+                              </span>
+                            </div>
+
+                            {/* col 8-9: Wholesale Rate */}
+                            <div className="col-span-2 text-right">
+                              <div className="text-sm font-black text-amber-950">₹{eu.toFixed(0)}</div>
+                              {calc.tier.discountPercent > 0 && (
+                                <div className="text-[9px] font-black text-emerald-700">-{calc.tier.discountPercent}%</div>
+                              )}
+                            </div>
+
+                            {/* col 10-12: Stepper */}
+                            <div className="col-span-3 flex flex-col items-end gap-1">
+                              <div className="flex items-center border border-neutral-200 rounded-xl overflow-hidden bg-white shadow-2xs">
                                 <button
-                                  key={n}
                                   type="button"
-                                  onClick={() => handlePreset(variant.id, n)}
-                                  className="px-1.5 py-0.5 rounded-md bg-neutral-100 hover:bg-amber-100 text-neutral-600 hover:text-amber-900 text-[9px] font-extrabold transition-colors cursor-pointer"
+                                  onClick={() => handleQtyChange(variant.id, qty - 1)}
+                                  disabled={qty === 0}
+                                  className="px-2 py-1.5 text-neutral-500 hover:text-amber-950 hover:bg-neutral-100 disabled:opacity-25 transition-colors cursor-pointer"
                                 >
-                                  +{n}
+                                  <span className="material-symbols-outlined text-[14px]">remove</span>
                                 </button>
-                              ))}
+                                <input
+                                  type="number"
+                                  min={0}
+                                  max={999}
+                                  value={qty === 0 ? "" : qty}
+                                  placeholder="0"
+                                  onChange={(e) => handleQtyChange(variant.id, parseInt(e.target.value, 10))}
+                                  className="w-10 text-center font-bold text-xs text-amber-950 focus:outline-none bg-transparent"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => handleQtyChange(variant.id, qty + 1)}
+                                  className="px-2 py-1.5 text-neutral-500 hover:text-amber-950 hover:bg-neutral-100 transition-colors cursor-pointer"
+                                >
+                                  <span className="material-symbols-outlined text-[14px]">add</span>
+                                </button>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                {[10, 20, 40].map((n) => (
+                                  <button
+                                    key={n}
+                                    type="button"
+                                    onClick={() => handlePreset(variant.id, n)}
+                                    className="px-1.5 py-0.5 rounded-md bg-neutral-100 hover:bg-amber-100 text-neutral-600 hover:text-amber-900 text-[9px] font-extrabold transition-colors cursor-pointer"
+                                    title={`Add ${n} packs (${(n * 0.25).toFixed(1)} kg)`}
+                                  >
+                                    +{n}
+                                  </button>
+                                ))}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })
+                    )}
                   </div>
                 )}
               </div>
@@ -561,10 +624,20 @@ export function BulkOrderSheetClient({
             {/* Order Summary */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
-                <span className="text-[10px] text-amber-300/80 font-bold uppercase tracking-wider">Order Total</span>
+                <span className="text-[10px] text-amber-300/80 font-bold uppercase tracking-wider">Wholesale Order</span>
                 <span className={`text-[9px] font-black px-2 py-0.5 rounded-full border uppercase ${TIER_COLORS[calc.tier.id].bg.replace("bg-", "bg-")} ${TIER_COLORS[calc.tier.id].text} border-current/20`}>
                   ⚡ {calc.tier.name}
                 </span>
+                {calc.totalUnits > 0 && !calc.meetsMoq && (
+                  <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/40 uppercase">
+                    ⚠️ Below 10 kg MOQ ({calc.totalWeightKg.toFixed(1)}/10 kg)
+                  </span>
+                )}
+                {calc.meetsMoq && (
+                  <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 uppercase">
+                    ✓ MOQ Met ({calc.totalWeightKg.toFixed(1)} kg)
+                  </span>
+                )}
               </div>
               <div className="flex items-baseline gap-2">
                 <span className="text-xl font-black">₹{calc.totalEffective.toFixed(0)}</span>
@@ -576,7 +649,7 @@ export function BulkOrderSheetClient({
                 )}
               </div>
               <div className="text-[10px] text-neutral-400 font-medium">
-                {calc.totalUnits} packs · {calc.skuCount} SKUs · HSN 19041090
+                <strong className="text-amber-300">{calc.totalWeightKg.toFixed(1)} kg</strong> ({calc.totalUnits} packs) · {calc.skuCount} SKUs · HSN 19041090
               </div>
             </div>
 
@@ -610,12 +683,26 @@ export function BulkOrderSheetClient({
               onClick={handleAddToCart}
               disabled={pending || calc.totalUnits === 0}
               className={`shrink-0 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wide flex items-center gap-1.5 transition-all cursor-pointer ${
-                calc.totalUnits > 0 ? "bg-linear-to-r from-[#E64A19] to-[#D84315] text-white hover:brightness-110 shadow-lg" : "bg-neutral-800 text-neutral-500 pointer-events-none opacity-40"
+                calc.totalUnits === 0
+                  ? "bg-neutral-800 text-neutral-500 pointer-events-none opacity-40"
+                  : !calc.meetsMoq
+                  ? "bg-amber-600 hover:bg-amber-500 text-white shadow-md"
+                  : "bg-linear-to-r from-[#E64A19] to-[#D84315] text-white hover:brightness-110 shadow-lg"
               }`}
             >
               <span className="material-symbols-outlined text-[16px]">{pending ? "hourglass_top" : "shopping_cart_checkout"}</span>
-              <span className="hidden sm:inline">{pending ? "Adding..." : `Add ${calc.totalUnits > 0 ? calc.totalUnits : ""} Packs to Cart`}</span>
-              <span className="sm:hidden">{pending ? "..." : "Add to Cart"}</span>
+              <span className="hidden sm:inline">
+                {pending
+                  ? "Adding..."
+                  : calc.totalUnits === 0
+                  ? "Select Min 10 kg"
+                  : !calc.meetsMoq
+                  ? `Need ${(10 - calc.totalWeightKg).toFixed(1)} kg more (10 kg MOQ)`
+                  : `Add ${calc.totalWeightKg.toFixed(1)} kg to Cart`}
+              </span>
+              <span className="sm:hidden">
+                {pending ? "..." : !calc.meetsMoq ? "Min 10 kg" : "Add to Cart"}
+              </span>
             </button>
           </div>
 

@@ -12,12 +12,14 @@ export function CorporateGiftingFormClient({
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const [quantity, setQuantity] = useState("50-200 Units (Gold Tier - 15% OFF)");
+  const [quantity, setQuantity] = useState("500g – 5 kg (Starter / Boutique Order • Starts from 500g)");
   const [occasion, setOccasion] = useState("Diwali & Festive Gifting");
+  const [packaging, setPackaging] = useState("500g Luxury Hardtop Gift Box");
+  const [grade, setGrade] = useState("7+ Suta Super Jumbo (Biggest Handpicked)");
 
   const cleanWhatsapp = whatsappNumber.replace(/[^0-9]/g, "") || "916001684216";
   const whatsappQuoteUrl = `https://wa.me/${cleanWhatsapp}?text=${encodeURIComponent(
-    "Namaste Makhana Gold! I would like to request an instant corporate bulk quote for custom hampers / wholesale supply."
+    "Namaste Makhana Gold! I would like to request an instant corporate quotation for 500g+ orders with custom company branding & labeling."
   )}`;
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -45,7 +47,7 @@ export function CorporateGiftingFormClient({
           Quotation Request Received!
         </h3>
         <p className="text-sm text-neutral-600 mb-6 leading-relaxed">
-          Thank you for reaching out. Our dedicated Corporate Concierge team will prepare your customized volume pricing &amp; digital hamper mockups within <strong>2 to 4 business hours</strong>.
+          Thank you for reaching out. Our dedicated Corporate Concierge team will prepare your customized volume pricing &amp; digital packaging mockups with your company labeling within <strong>2 to 4 business hours</strong>.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <a
@@ -72,13 +74,13 @@ export function CorporateGiftingFormClient({
     <div className="bg-white p-6 sm:p-10 rounded-3xl border border-amber-900/10 shadow-warm-2 max-w-3xl mx-auto">
       <div className="border-b border-amber-900/10 pb-5 mb-6 text-center sm:text-left">
         <span className="font-label-sm text-xs uppercase tracking-widest text-[#D84315] font-bold block mb-1">
-          Instant Request for Quotation (RFQ)
+          Instant Request for Quotation (RFQ) • Starts from 500g
         </span>
         <h3 className="font-headline-md text-2xl font-bold text-on-surface">
-          Customize Your Bulk Corporate Order
+          Customize Your Corporate Order &amp; Labeling
         </h3>
         <p className="text-xs text-neutral-500 mt-1">
-          Receive tailored tiered pricing, packaging mockups, and pan-India doorstep sample boxes.
+          Receive tailored pricing, digital packaging mockups with your company logo, and doorstep sample boxes.
         </p>
       </div>
 
@@ -106,12 +108,13 @@ export function CorporateGiftingFormClient({
 
           <div>
             <label className="block text-xs font-bold text-amber-950 uppercase tracking-wider mb-1.5">
-              Company / Brand Name
+              Company / Brand Name *
             </label>
             <input
               type="text"
               name="companyName"
-              placeholder="e.g. Google India / Reliance"
+              required
+              placeholder="e.g. Tata Consultancy / Reliance / Startup"
               className="w-full bg-[#FAF6EE] border border-amber-900/15 rounded-xl px-4 py-2.5 text-xs text-on-surface focus:outline-none focus:border-[#D84315] shadow-xs"
             />
           </div>
@@ -148,7 +151,7 @@ export function CorporateGiftingFormClient({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-bold text-amber-950 uppercase tracking-wider mb-1.5">
-              Estimated Quantity
+              Estimated Order Quantity (Starts from 500g)
             </label>
             <select
               name="quantityRange"
@@ -156,16 +159,24 @@ export function CorporateGiftingFormClient({
               onChange={(e) => setQuantity(e.target.value)}
               className="w-full bg-[#FAF6EE] border border-amber-900/15 rounded-xl px-4 py-2.5 text-xs text-on-surface focus:outline-none focus:border-[#D84315] shadow-xs cursor-pointer"
             >
-              <option value="25-50 Units (Silver Tier - 10% OFF)">25 - 50 Units (Silver Tier • 10% OFF)</option>
-              <option value="50-200 Units (Gold Tier - 15% OFF)">50 - 200 Units (Gold Tier • 15% OFF)</option>
-              <option value="200-500 Units (Platinum Tier - 20% OFF)">200 - 500 Units (Platinum Tier • 20% OFF)</option>
-              <option value="500+ Units (Enterprise Wholesale - 25% OFF)">500+ Units (Enterprise Wholesale • 25% OFF)</option>
+              <option value="500g – 5 kg (Starter / Boutique Order • Starts from 500g)">
+                500g – 5 kg (Starter / Boutique Order • Starts from 500g)
+              </option>
+              <option value="5 kg – 25 kg (Silver Tier • 10% OFF)">
+                5 kg – 25 kg (Silver Tier • 10% OFF)
+              </option>
+              <option value="25 kg – 50 kg (Gold Privilege Tier • 15% OFF)">
+                25 kg – 50 kg (Gold Privilege Tier • 15% OFF)
+              </option>
+              <option value="50 kg+ (Enterprise Private Label • 25% OFF)">
+                50 kg+ (Enterprise Private Label • 25% OFF)
+              </option>
             </select>
           </div>
 
           <div>
             <label className="block text-xs font-bold text-amber-950 uppercase tracking-wider mb-1.5">
-              Occasion / Purpose
+              Occasion / Gifting Purpose
             </label>
             <select
               name="occasion"
@@ -176,8 +187,48 @@ export function CorporateGiftingFormClient({
               <option value="Diwali & Festive Gifting">Diwali &amp; Festive Gifting</option>
               <option value="Employee Welcome & Wellness Kit">Employee Welcome &amp; Wellness Kit</option>
               <option value="VIP Client Keepsake Hamper">VIP Client Keepsake Hamper</option>
+              <option value="Corporate Event / Conference Gift">Corporate Event / Conference Gift</option>
               <option value="Wedding / Celebration Favours">Wedding &amp; Celebration Favours</option>
-              <option value="Wholesale Cafeteria / Gym / Retail Resale">Wholesale Cafeteria / Gym / Retail Resale</option>
+              <option value="White-Label Retail / Cafe Brand">White-Label Retail / Cafe Brand</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Packaging Style & Raw Makhana Grade Selectors */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-bold text-amber-950 uppercase tracking-wider mb-1.5">
+              Preferred Packaging Format
+            </label>
+            <select
+              name="packagingPreference"
+              value={packaging}
+              onChange={(e) => setPackaging(e.target.value)}
+              className="w-full bg-[#FAF6EE] border border-amber-900/15 rounded-xl px-4 py-2.5 text-xs text-on-surface focus:outline-none focus:border-[#D84315] shadow-xs cursor-pointer"
+            >
+              <option value="500g Luxury Hardtop Gift Box">500g Luxury Hardtop Gift Box</option>
+              <option value="500g Golden Air-Tight Tin">500g Golden Air-Tight Tin</option>
+              <option value="250g × 2 Twin Gift Pack (500g Total)">250g × 2 Twin Gift Pack (500g Total)</option>
+              <option value="Bespoke Festive Hamper / Pouch">Bespoke Festive Hamper / Pouch</option>
+              <option value="Eco-Friendly Jute Bag Packaging">Eco-Friendly Jute Bag Packaging</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-amber-950 uppercase tracking-wider mb-1.5">
+              Preferred Raw Makhana Grade
+            </label>
+            <select
+              name="makhanaGrade"
+              value={grade}
+              onChange={(e) => setGrade(e.target.value)}
+              className="w-full bg-[#FAF6EE] border border-amber-900/15 rounded-xl px-4 py-2.5 text-xs text-on-surface focus:outline-none focus:border-[#D84315] shadow-xs cursor-pointer"
+            >
+              <option value="7+ Suta Super Jumbo (Biggest Handpicked)">7+ Suta Super Jumbo (Biggest Handpicked Size)</option>
+              <option value="6+ Suta Jumbo Grade">6+ Suta Jumbo Grade</option>
+              <option value="5+ Suta Premium Handpicked">5+ Suta Premium Handpicked</option>
+              <option value="4 Suta Standard Grade">4 Suta Standard Grade</option>
+              <option value="Assorted / Let Makhana Gold Recommend">Assorted / Let Makhana Gold Recommend</option>
             </select>
           </div>
         </div>
@@ -195,8 +246,8 @@ export function CorporateGiftingFormClient({
             />
           </div>
 
-          <div className="pt-4 sm:pt-6">
-            <label className="flex items-center gap-2.5 cursor-pointer text-xs font-semibold text-amber-950">
+          <div className="pt-2 sm:pt-4">
+            <label className="flex items-center gap-2.5 cursor-pointer text-xs font-bold text-amber-950 bg-amber-500/10 p-3 rounded-xl border border-amber-500/20">
               <input
                 type="checkbox"
                 name="customBranding"
@@ -204,19 +255,19 @@ export function CorporateGiftingFormClient({
                 defaultChecked
                 className="w-4 h-4 rounded text-[#D84315] accent-[#D84315] cursor-pointer"
               />
-              <span>Include Custom Brand Logo &amp; Festive Sleeve</span>
+              <span>Include Custom Company Logo, Labeling &amp; Festive Sleeve</span>
             </label>
           </div>
         </div>
 
         <div>
           <label className="block text-xs font-bold text-amber-950 uppercase tracking-wider mb-1.5">
-            Specific Requirements / Flavour Preferences (Optional)
+            Specific Requirements / Notes (Optional)
           </label>
           <textarea
             name="message"
             rows={3}
-            placeholder="e.g. We would like a mix of Himalayan Pink Salt, Peri Peri, and Truffle in 250g packs..."
+            placeholder="e.g. We require 500g luxury presentation boxes with our company logo printed on the lid and personalized greeting cards for our executive team..."
             className="w-full bg-[#FAF6EE] border border-amber-900/15 rounded-xl p-3 text-xs text-on-surface focus:outline-none focus:border-[#D84315] shadow-xs"
           />
         </div>

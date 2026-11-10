@@ -25,11 +25,13 @@ export function SiteHeaderClient({
   isLoggedIn,
   userName,
   categoryTree = [],
+  launchStatusMap = {},
 }: {
   cartCount: number;
   isLoggedIn: boolean;
   userName?: string | null;
   categoryTree?: HeaderCategoryParent[];
+  launchStatusMap?: Record<string, string>;
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileShopExpanded, setMobileShopExpanded] = useState(false);
@@ -54,9 +56,12 @@ export function SiteHeaderClient({
 
   // Close dropdown on route change
   useEffect(() => {
-    setShopDropdownOpen(false);
-    setB2bDropdownOpen(false);
-    setMobileMenuOpen(false);
+    const timer = setTimeout(() => {
+      setShopDropdownOpen(false);
+      setB2bDropdownOpen(false);
+      setMobileMenuOpen(false);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [pathname]);
 
   // Keyboard shortcut listener (/ or Ctrl+K)
@@ -106,6 +111,14 @@ export function SiteHeaderClient({
     makhana: "Bihar Wetland Fox Nuts",
     sattu: "Cold Stone-Ground Gram Flour",
     poha: "Whole Grain Flattened Rice",
+  };
+
+  const isPillarComingSoon = (slug: string) => {
+    const s = slug.toLowerCase();
+    if (s.includes("sattu")) return launchStatusMap["sattu"] !== "active";
+    if (s.includes("poha")) return launchStatusMap["poha"] !== "active";
+    if (s.includes("makhana")) return launchStatusMap["makhana"] === "coming_soon";
+    return false;
   };
 
   return (
@@ -166,73 +179,293 @@ export function SiteHeaderClient({
                 <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[720px] bg-white rounded-3xl shadow-2xl border border-amber-900/15 p-6 animate-in fade-in zoom-in-95 duration-200 z-50">
                   <div className="flex items-center justify-between pb-3 mb-4 border-b border-amber-900/10">
                     <span className="text-[11px] font-black uppercase tracking-widest text-[#D84315] flex items-center gap-1.5">
-                      <span>✨</span>
-                      <span>Artisanal Superfoods Catalog</span>
+                      <span>👑</span>
+                      <span>Makhana Gold Harvest Catalog</span>
                     </span>
                     <Link
                       href="/shop"
                       onClick={() => setShopDropdownOpen(false)}
                       className="text-xs text-amber-800 hover:text-[#D84315] font-bold flex items-center gap-1 hover:underline"
                     >
-                      <span>Explore All Products</span>
+                      <span>Explore All Makhana</span>
                       <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
                     </Link>
                   </div>
 
-                  {/* 3 Main Pillars Grid */}
-                  <div className="grid grid-cols-3 gap-5">
-                    {categoryTree.map((parent) => (
-                      <div
-                        key={parent.slug}
-                        className="p-3.5 rounded-2xl bg-[#FAF6EE]/60 border border-amber-900/10 hover:border-amber-400 hover:bg-[#FAF6EE] transition-all flex flex-col justify-between"
-                      >
+                  {categoryTree.length <= 1 ? (
+                    /* 👑 Focused 3-Column Makhana Layout */
+                    <div className="grid grid-cols-3 gap-5">
+                      {/* Column 1: Handpicked Grades */}
+                      <div className="p-3.5 rounded-2xl bg-[#FAF6EE]/60 border border-amber-900/10 hover:border-amber-400 hover:bg-[#FAF6EE] transition-all flex flex-col justify-between">
                         <div>
-                          {/* Pillar Header */}
-                          <Link
-                            href={`/shop?category=${parent.slug}`}
-                            onClick={() => setShopDropdownOpen(false)}
-                            className="group block mb-2.5"
-                          >
-                            <div className="flex items-center gap-2 mb-0.5">
-                              <span className="text-lg">{PILLAR_ICONS[parent.slug] || "📦"}</span>
-                              <h4 className="font-headline-sm text-sm font-black text-amber-950 group-hover:text-[#D84315] transition-colors">
-                                {parent.name}
+                          <div className="mb-2.5">
+                            <div className="flex items-center gap-1.5 mb-0.5">
+                              <span className="text-lg">🌾</span>
+                              <h4 className="font-headline-sm text-sm font-black text-amber-950">
+                                Handpicked Grades
                               </h4>
                             </div>
                             <p className="text-[10px] text-amber-800/70 font-medium">
-                              {PILLAR_SUBTITLES[parent.slug] || "Artisanal Harvest"}
+                              Generational Bihar Wetlands
                             </p>
-                          </Link>
-
-                          {/* Sub-categories List */}
+                          </div>
                           <ul className="space-y-1.5 mb-3">
-                            {parent.children.map((child) => (
-                              <li key={child.slug}>
-                                <Link
-                                  href={`/shop?category=${child.slug}`}
-                                  onClick={() => setShopDropdownOpen(false)}
-                                  className="text-xs text-[#5C4D3C] hover:text-[#D84315] hover:font-bold transition-colors flex items-center gap-1.5 py-0.5"
-                                >
+                            <li>
+                              <Link
+                                href="/product/7-plus-suta-handpicked-makhana"
+                                onClick={() => setShopDropdownOpen(false)}
+                                className="text-xs text-[#5C4D3C] hover:text-[#D84315] hover:font-bold transition-colors flex items-center justify-between py-0.5"
+                              >
+                                <span className="flex items-center gap-1.5">
                                   <span className="w-1 h-1 rounded-full bg-amber-400 shrink-0" />
-                                  <span className="line-clamp-1">{child.name}</span>
-                                </Link>
-                              </li>
-                            ))}
+                                  <span>7+ Suta Super Jumbo</span>
+                                </span>
+                                <span className="text-[9px] bg-amber-500/20 text-amber-900 px-1 py-0.2 rounded font-bold">King Size</span>
+                              </Link>
+                            </li>
+                            <li>
+                              <Link
+                                href="/product/6-plus-suta-handpicked-makhana"
+                                onClick={() => setShopDropdownOpen(false)}
+                                className="text-xs text-[#5C4D3C] hover:text-[#D84315] hover:font-bold transition-colors flex items-center gap-1.5 py-0.5"
+                              >
+                                <span className="w-1 h-1 rounded-full bg-amber-400 shrink-0" />
+                                <span>6+ Suta Jumbo Grade</span>
+                              </Link>
+                            </li>
+                            <li>
+                              <Link
+                                href="/product/premium-handpicked-makhana"
+                                onClick={() => setShopDropdownOpen(false)}
+                                className="text-xs text-[#5C4D3C] hover:text-[#D84315] hover:font-bold transition-colors flex items-center justify-between py-0.5"
+                              >
+                                <span className="flex items-center gap-1.5">
+                                  <span className="w-1 h-1 rounded-full bg-amber-400 shrink-0" />
+                                  <span>Premium (5+ Suta)</span>
+                                </span>
+                                <span className="text-[9px] bg-emerald-500/20 text-emerald-800 px-1 py-0.2 rounded font-bold">Best Value</span>
+                              </Link>
+                            </li>
+                            <li>
+                              <Link
+                                href="/product/4-suta-handpicked-makhana"
+                                onClick={() => setShopDropdownOpen(false)}
+                                className="text-xs text-[#5C4D3C] hover:text-[#D84315] hover:font-bold transition-colors flex items-center gap-1.5 py-0.5"
+                              >
+                                <span className="w-1 h-1 rounded-full bg-amber-400 shrink-0" />
+                                <span>4 Suta Standard Grade</span>
+                              </Link>
+                            </li>
                           </ul>
                         </div>
-
-                        {/* View All Pillar Link */}
                         <Link
-                          href={`/shop?category=${parent.slug}`}
+                          href="/shop"
                           onClick={() => setShopDropdownOpen(false)}
                           className="text-[11px] font-bold text-[#D84315] hover:underline pt-2 border-t border-amber-900/10 flex items-center justify-between"
                         >
-                          <span>All {parent.name.split(" ")[0]}</span>
+                          <span>All Handpicked Makhana</span>
                           <span>→</span>
                         </Link>
                       </div>
-                    ))}
-                  </div>
+
+                      {/* Column 2: Makhana Collections */}
+                      <div className="p-3.5 rounded-2xl bg-[#FAF6EE]/60 border border-amber-900/10 hover:border-amber-400 hover:bg-[#FAF6EE] transition-all flex flex-col justify-between">
+                        <div>
+                          <div className="mb-2.5">
+                            <div className="flex items-center gap-1.5 mb-0.5">
+                              <span className="text-lg">✨</span>
+                              <h4 className="font-headline-sm text-sm font-black text-amber-950">
+                                Collections
+                              </h4>
+                            </div>
+                            <p className="text-[10px] text-amber-800/70 font-medium">
+                              Roasted & Festive Packs
+                            </p>
+                          </div>
+                          <ul className="space-y-1.5 mb-3">
+                            <li>
+                              <Link
+                                href="/shop?category=roasted-makhana"
+                                onClick={() => setShopDropdownOpen(false)}
+                                className="text-xs text-[#5C4D3C] hover:text-[#D84315] hover:font-bold transition-colors flex items-center gap-1.5 py-0.5"
+                              >
+                                <span className="w-1 h-1 rounded-full bg-amber-400 shrink-0" />
+                                <span>Slow-Roasted & Raw</span>
+                              </Link>
+                            </li>
+                            <li>
+                              <Link
+                                href="/shop?category=flavoured-makhana"
+                                onClick={() => setShopDropdownOpen(false)}
+                                className="text-xs text-[#5C4D3C] hover:text-[#D84315] hover:font-bold transition-colors flex items-center gap-1.5 py-0.5"
+                              >
+                                <span className="w-1 h-1 rounded-full bg-amber-400 shrink-0" />
+                                <span>Flavoured Gourmet</span>
+                              </Link>
+                            </li>
+                            <li>
+                              <Link
+                                href="/shop?category=makhana-hampers"
+                                onClick={() => setShopDropdownOpen(false)}
+                                className="text-xs text-[#5C4D3C] hover:text-[#D84315] hover:font-bold transition-colors flex items-center gap-1.5 py-0.5"
+                              >
+                                <span className="w-1 h-1 rounded-full bg-amber-400 shrink-0" />
+                                <span>Festive Gift Hampers</span>
+                              </Link>
+                            </li>
+                            <li>
+                              <Link
+                                href="/certifications"
+                                onClick={() => setShopDropdownOpen(false)}
+                                className="text-xs text-[#5C4D3C] hover:text-[#D84315] hover:font-bold transition-colors flex items-center gap-1.5 py-0.5"
+                              >
+                                <span className="w-1 h-1 rounded-full bg-amber-400 shrink-0" />
+                                <span>ISO & FSSAI Lab Verified</span>
+                              </Link>
+                            </li>
+                          </ul>
+                        </div>
+                        <Link
+                          href="/shop"
+                          onClick={() => setShopDropdownOpen(false)}
+                          className="text-[11px] font-bold text-[#D84315] hover:underline pt-2 border-t border-amber-900/10 flex items-center justify-between"
+                        >
+                          <span>Explore Collections</span>
+                          <span>→</span>
+                        </Link>
+                      </div>
+
+                      {/* Column 3: B2B Wholesale & Bulk */}
+                      <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 hover:border-amber-500 transition-all flex flex-col justify-between">
+                        <div>
+                          <div className="mb-2.5">
+                            <div className="flex items-center gap-1.5 mb-0.5">
+                              <span className="text-lg">🏢</span>
+                              <h4 className="font-headline-sm text-sm font-black text-amber-950">
+                                B2B Wholesale
+                              </h4>
+                            </div>
+                            <p className="text-[10px] text-amber-800/80 font-medium">
+                              Direct Farm-to-Business Supply
+                            </p>
+                          </div>
+                          <ul className="space-y-1.5 mb-3">
+                            <li>
+                              <Link
+                                href="/b2b"
+                                onClick={() => setShopDropdownOpen(false)}
+                                className="text-xs text-[#4A3B28] hover:text-[#D84315] hover:font-bold transition-colors flex items-center justify-between py-0.5"
+                              >
+                                <span className="flex items-center gap-1.5">
+                                  <span className="w-1 h-1 rounded-full bg-[#D84315] shrink-0" />
+                                  <span>Raw Wholesale (10 kg MOQ)</span>
+                                </span>
+                                <span className="text-[9px] bg-[#D84315] text-white px-1.5 py-0.2 rounded font-black">B2B</span>
+                              </Link>
+                            </li>
+                            <li>
+                              <Link
+                                href="/b2b"
+                                onClick={() => setShopDropdownOpen(false)}
+                                className="text-xs text-[#4A3B28] hover:text-[#D84315] hover:font-bold transition-colors flex items-center gap-1.5 py-0.5"
+                              >
+                                <span className="w-1 h-1 rounded-full bg-[#D84315] shrink-0" />
+                                <span>Volume Slabs (Up to 35% OFF)</span>
+                              </Link>
+                            </li>
+                            <li>
+                              <Link
+                                href="/corporate-gifting"
+                                onClick={() => setShopDropdownOpen(false)}
+                                className="text-xs text-[#4A3B28] hover:text-[#D84315] hover:font-bold transition-colors flex items-center gap-1.5 py-0.5"
+                              >
+                                <span className="w-1 h-1 rounded-full bg-[#D84315] shrink-0" />
+                                <span>Corporate Custom Hampers</span>
+                              </Link>
+                            </li>
+                            <li>
+                              <Link
+                                href="/b2b"
+                                onClick={() => setShopDropdownOpen(false)}
+                                className="text-xs text-[#4A3B28] hover:text-[#D84315] hover:font-bold transition-colors flex items-center gap-1.5 py-0.5"
+                              >
+                                <span className="w-1 h-1 rounded-full bg-[#D84315] shrink-0" />
+                                <span>GST Tax Invoices Included</span>
+                              </Link>
+                            </li>
+                          </ul>
+                        </div>
+                        <Link
+                          href="/b2b"
+                          onClick={() => setShopDropdownOpen(false)}
+                          className="text-[11px] font-bold text-[#D84315] hover:underline pt-2 border-t border-amber-900/10 flex items-center justify-between"
+                        >
+                          <span>Open B2B Order Sheet</span>
+                          <span>→</span>
+                        </Link>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Fallback Multi-Pillar Grid */
+                    <div className="grid grid-cols-3 gap-5">
+                      {categoryTree.map((parent) => (
+                        <div
+                          key={parent.slug}
+                          className="p-3.5 rounded-2xl bg-[#FAF6EE]/60 border border-amber-900/10 hover:border-amber-400 hover:bg-[#FAF6EE] transition-all flex flex-col justify-between"
+                        >
+                          <div>
+                            {/* Pillar Header */}
+                            <Link
+                              href={`/shop?category=${parent.slug}`}
+                              onClick={() => setShopDropdownOpen(false)}
+                              className="group block mb-2.5"
+                            >
+                              <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
+                                <span className="text-lg">{PILLAR_ICONS[parent.slug] || "📦"}</span>
+                                <h4 className="font-headline-sm text-sm font-black text-amber-950 group-hover:text-[#D84315] transition-colors">
+                                  {parent.name}
+                                </h4>
+                                {isPillarComingSoon(parent.slug) && (
+                                  <span className="text-[9px] bg-amber-500/20 text-amber-950 border border-amber-500/50 px-1.5 py-0.5 rounded-full font-extrabold uppercase tracking-wider">
+                                    Coming Soon
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[10px] text-amber-800/70 font-medium">
+                                {PILLAR_SUBTITLES[parent.slug] || "Artisanal Harvest"}
+                              </p>
+                            </Link>
+
+                            {/* Sub-categories List */}
+                            <ul className="space-y-1.5 mb-3">
+                              {parent.children.map((child) => (
+                                <li key={child.slug}>
+                                  <Link
+                                    href={`/shop?category=${child.slug}`}
+                                    onClick={() => setShopDropdownOpen(false)}
+                                    className="text-xs text-[#5C4D3C] hover:text-[#D84315] hover:font-bold transition-colors flex items-center gap-1.5 py-0.5"
+                                  >
+                                    <span className="w-1 h-1 rounded-full bg-amber-400 shrink-0" />
+                                    <span className="line-clamp-1">{child.name}</span>
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          {/* View All Pillar Link */}
+                          <Link
+                            href={`/shop?category=${parent.slug}`}
+                            onClick={() => setShopDropdownOpen(false)}
+                            className="text-[11px] font-bold text-[#D84315] hover:underline pt-2 border-t border-amber-900/10 flex items-center justify-between"
+                          >
+                            <span>All {parent.name.split(" ")[0]}</span>
+                            <span>→</span>
+                          </Link>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -498,32 +731,92 @@ export function SiteHeaderClient({
                   <Link
                     href="/shop"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="block p-2 rounded-xl bg-amber-50 text-xs font-black text-[#D84315]"
+                    className="block p-2.5 rounded-xl bg-amber-50 text-xs font-black text-[#D84315]"
                   >
-                    ✨ View All Superfoods (Complete Catalog) →
+                    ✨ View All Handpicked Makhana Catalog →
                   </Link>
 
-                  {categoryTree.map((parent) => (
-                    <div key={parent.slug} className="space-y-1">
-                      <Link
-                        href={`/shop?category=${parent.slug}`}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="block px-2 py-1 text-xs font-black text-amber-950"
-                      >
-                        {PILLAR_ICONS[parent.slug]} {parent.name}
-                      </Link>
-                      {parent.children.map((child) => (
+                  {categoryTree.length <= 1 ? (
+                    <div className="space-y-3">
+                      <div>
+                        <div className="px-2 py-1 text-xs font-black text-amber-950 flex items-center gap-1.5">
+                          <span>🌾</span>
+                          <span>Handpicked Makhana Grades</span>
+                        </div>
+                        <div className="space-y-1 mt-1">
+                          <Link
+                            href="/product/7-plus-suta-handpicked-makhana"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block pl-6 pr-2 py-1 text-[11px] text-neutral-700 font-medium hover:text-[#D84315]"
+                          >
+                            • 7+ Suta Super Jumbo (King Size)
+                          </Link>
+                          <Link
+                            href="/product/6-plus-suta-handpicked-makhana"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block pl-6 pr-2 py-1 text-[11px] text-neutral-700 font-medium hover:text-[#D84315]"
+                          >
+                            • 6+ Suta Jumbo Grade
+                          </Link>
+                          <Link
+                            href="/product/premium-handpicked-makhana"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block pl-6 pr-2 py-1 text-[11px] text-neutral-700 font-medium hover:text-[#D84315]"
+                          >
+                            • Premium Handpicked (5+ Suta)
+                          </Link>
+                          <Link
+                            href="/product/4-suta-handpicked-makhana"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block pl-6 pr-2 py-1 text-[11px] text-neutral-700 font-medium hover:text-[#D84315]"
+                          >
+                            • 4 Suta Standard Grade
+                          </Link>
+                        </div>
+                      </div>
+
+                      <div className="pt-2 border-t border-amber-900/10">
                         <Link
-                          key={child.slug}
-                          href={`/shop?category=${child.slug}`}
+                          href="/b2b"
                           onClick={() => setMobileMenuOpen(false)}
-                          className="block pl-6 pr-2 py-1 text-[11px] text-neutral-600 hover:text-[#D84315]"
+                          className="flex items-center justify-between px-2 py-1.5 text-xs font-black text-amber-950 bg-amber-500/10 rounded-lg"
                         >
-                          • {child.name}
+                          <span className="flex items-center gap-1.5">
+                            <span>🏢</span>
+                            <span>Raw Wholesale (10 kg MOQ)</span>
+                          </span>
+                          <span className="text-[9px] bg-[#D84315] text-white px-1.5 py-0.2 rounded font-black">B2B</span>
                         </Link>
-                      ))}
+                      </div>
                     </div>
-                  ))}
+                  ) : (
+                    categoryTree.map((parent) => (
+                      <div key={parent.slug} className="space-y-1">
+                        <Link
+                          href={`/shop?category=${parent.slug}`}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center justify-between px-2 py-1 text-xs font-black text-amber-950"
+                        >
+                          <span>{PILLAR_ICONS[parent.slug]} {parent.name}</span>
+                          {isPillarComingSoon(parent.slug) && (
+                            <span className="text-[9px] bg-amber-500/20 text-amber-950 border border-amber-500/50 px-1.5 py-0.2 rounded-full font-bold uppercase tracking-wider">
+                              Coming Soon
+                            </span>
+                          )}
+                        </Link>
+                        {parent.children.map((child) => (
+                          <Link
+                            key={child.slug}
+                            href={`/shop?category=${child.slug}`}
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block pl-6 pr-2 py-1 text-[11px] text-neutral-600 hover:text-[#D84315]"
+                          >
+                            • {child.name}
+                          </Link>
+                        ))}
+                      </div>
+                    ))
+                  )}
                 </div>
               )}
             </div>

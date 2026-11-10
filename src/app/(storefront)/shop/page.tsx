@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { getSiteSettings } from "@/lib/content";
 import { CategoryFilter, SortSelect } from "@/components/storefront/ShopFilters";
 import { ProductGridCard } from "@/components/storefront/ProductGridCard";
 import { Pagination } from "@/components/storefront/Pagination";
@@ -9,16 +10,16 @@ import { Pagination } from "@/components/storefront/Pagination";
 const PAGE_SIZE = 6;
 
 export const metadata: Metadata = {
-  title: "Shop All Artisanal Roasted Fox Nuts, Sattu & Organic Poha",
+  title: "Shop Authentic Handpicked Makhana & Roasted Fox Nuts | Makhana Gold",
   description:
-    "Explore our complete range of slow-roasted Makhana, stone-ground Bihari Chana Sattu, and whole-grain organic Poha. Free shipping available across India.",
+    "Explore our complete range of authentic Bihar wetland Handpicked Makhana: 4 Suta, Premium 5+ Suta, 6+ Suta Jumbo, and Royal 7+ Suta Super Jumbo. Free shipping across India.",
   alternates: {
     canonical: "/shop",
   },
   openGraph: {
-    title: "Shop Artisanal Superfoods Collection | Makhana Gold",
+    title: "Shop Pure Handpicked Makhana Collection | Makhana Gold",
     description:
-      "Hand-selected, slow dry-roasted Bihar wetland lotus seeds, stone-ground Sattu, and organic Poha.",
+      "Hand-selected, slow dry-roasted Bihar wetland lotus seeds graded in 4 Suta, 6+ Suta, and 7+ Suta Super Jumbo.",
     url: "https://makhanagold.com/shop",
     siteName: "Makhana Gold",
     images: ["/images/vibrant/hero.jpg"],
@@ -27,7 +28,10 @@ export const metadata: Metadata = {
 
 async function getCategoryTree() {
   return prisma.category.findMany({
-    where: { parentId: null },
+    where: {
+      parentId: null,
+      slug: { notIn: ["sattu", "poha"] },
+    },
     include: {
       children: { orderBy: { name: "asc" } },
     },
@@ -45,7 +49,7 @@ async function getPaginatedProducts(
       ? ({ createdAt: "desc" } as const)
       : ({ createdAt: "asc" } as const);
 
-  let categoryCondition: any = {};
+  let categoryCondition: Record<string, unknown> = {};
 
   if (categorySlug) {
     const selectedCat = await prisma.category.findUnique({
@@ -113,14 +117,21 @@ export default async function ShopAllPage({ searchParams }: PageProps<"/shop">) 
   const session = await auth();
   const customerId = session?.user?.id ? Number(session.user.id) : null;
 
-  const [categoriesTree, { products, totalCount, totalPages, currentPage }, wishlist] =
+  const [categoriesTree, { products, totalCount, totalPages, currentPage }, wishlist, settings] =
     await Promise.all([
       getCategoryTree(),
       getPaginatedProducts(categorySlug, sort, page),
       customerId
         ? prisma.wishlist.findMany({ where: { customerId }, select: { variantId: true } })
         : Promise.resolve([]),
+      getSiteSettings(),
     ]);
+
+  const launchStatusMap = {
+    makhana: settings["category_makhana_status"] || "active",
+    sattu: settings["category_sattu_status"] || "coming_soon",
+    poha: settings["category_poha_status"] || "coming_soon",
+  };
 
   const wishlistedIds = new Set(wishlist.map((w) => w.variantId));
 
@@ -146,20 +157,20 @@ export default async function ShopAllPage({ searchParams }: PageProps<"/shop">) 
       {/* Hero Heading */}
       <div className="max-w-3xl mb-8 sm:mb-12">
         <span className="font-label-md text-xs uppercase tracking-widest text-[#D84315] font-black block mb-2">
-          Pure • Traditional • Nutrient-Dense
+          Pure • Handpicked • Wetland Harvest
         </span>
         <h1 className="font-headline-lg text-3xl sm:text-4xl font-extrabold text-on-surface mb-3 tracking-tight">
-          Artisanal Superfoods Harvest
+          Handpicked Makhana Harvest
         </h1>
         <p className="font-body-md text-sm sm:text-base text-on-surface-variant leading-relaxed">
-          Explore our generational harvests from Bihar: hand-graded roasted Fox Nuts (Makhana), cold stone-ground pure Chana Sattu, and whole-grain organic Poha.
+          Explore our generational harvests from Bihar wetlands: handpicked lotus seeds graded in 4 Suta, Premium 5+ Suta, 6+ Suta Jumbo, and Royal 7+ Suta Super Jumbo.
         </p>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
         {/* Hierarchical Category Sidebar & Top Filter */}
         <aside className="w-full lg:w-72 shrink-0 lg:sticky lg:top-[100px]">
-          <CategoryFilter categoryTree={categoriesTree} />
+          <CategoryFilter categoryTree={categoriesTree} launchStatusMap={launchStatusMap} />
         </aside>
 
         {/* Product Grid Area */}
@@ -177,20 +188,29 @@ export default async function ShopAllPage({ searchParams }: PageProps<"/shop">) 
                 No products found in this category.
               </p>
               <p className="font-body-md text-xs text-on-surface-variant">
-                Try selecting &quot;All Superfoods&quot; or another category filter.
+                Try selecting &quot;All Handpicked Makhana&quot; or another category filter.
               </p>
             </div>
           ) : (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
-                {products.map((product) => (
-                  <ProductGridCard
-                    key={product.id}
-                    product={product}
-                    isWishlisted={wishlistedIds.has(product.variants[0]?.id)}
-                    showWishlist
-                  />
-                ))}
+                {products.map((product) => {
+                  const catSlug = product.category?.slug?.toLowerCase() || "";
+                  const isComingSoon =
+                    (catSlug.includes("sattu") && launchStatusMap.sattu !== "active") ||
+                    (catSlug.includes("poha") && launchStatusMap.poha !== "active") ||
+                    (catSlug.includes("makhana") && launchStatusMap.makhana === "coming_soon");
+
+                  return (
+                    <ProductGridCard
+                      key={product.id}
+                      product={product}
+                      isComingSoon={isComingSoon}
+                      isWishlisted={wishlistedIds.has(product.variants[0]?.id)}
+                      showWishlist
+                    />
+                  );
+                })}
               </div>
 
               {/* 📄 STOREFRONT PAGINATION */}

@@ -28,7 +28,7 @@ export function WholesaleVolumeTiers({
           </span>
         ) : (
           <span className="text-[10px] text-amber-900/70 font-semibold">
-            Order 10+ for wholesale rates
+            Order 40+ packs (10 kg MOQ) for wholesale rates
           </span>
         )}
       </div>
@@ -80,12 +80,19 @@ export function WholesaleVolumeTiers({
         })}
       </div>
 
-      {activeTier.discountPercent > 0 && (
+      {activeTier.discountPercent > 0 ? (
         <p className="text-[11px] text-emerald-800 font-medium mt-2 flex items-center gap-1">
           <span className="material-symbols-outlined text-[13px] text-emerald-600">verified</span>
           <span>
             Wholesale Tier Applied: ₹{calculateTierPrice(basePrice, currentQuantity).toFixed(0)}/pack (You save {activeTier.discountPercent}% on this quantity)
           </span>
+        </p>
+      ) : (
+        <p className="text-[10px] text-neutral-500 mt-2">
+          Corporate gifting starting from 500g with custom company labeling?{" "}
+          <a href="/corporate-gifting" className="text-[#D84315] font-bold hover:underline">
+            Corporate Gifting Portal →
+          </a>
         </p>
       )}
     </div>
