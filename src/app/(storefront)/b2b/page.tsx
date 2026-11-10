@@ -4,6 +4,8 @@ import { prisma } from "@/lib/db";
 import { getSiteSettings, isCategorySlugComingSoon } from "@/lib/content";
 import { BulkOrderSheetClient } from "./BulkOrderSheetClient";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "B2B Raw Makhana Wholesale Portal | 10 kg MOQ | Makhana Gold",
   description:
@@ -18,9 +20,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function B2BWholesalePage() {
-  const [rawProducts, settings] = await Promise.all([
-    prisma.product.findMany({
+async function getRawProducts() {
+  try {
+    return await prisma.product.findMany({
       where: {
         status: "active",
         id: { not: 21 }, // Exclude test payment product
@@ -31,8 +33,17 @@ export default async function B2BWholesalePage() {
         category: true,
       },
       orderBy: { createdAt: "desc" },
-    }),
-    getSiteSettings(),
+    });
+  } catch (err) {
+    console.error("[b2b] Failed to fetch live products, rendering fallback:", err);
+    return [];
+  }
+}
+
+export default async function B2BWholesalePage() {
+  const [rawProducts, settings] = await Promise.all([
+    getRawProducts(),
+    getSiteSettings().catch(() => ({})),
   ]);
 
   const rawMakhanaSlugs = new Set([

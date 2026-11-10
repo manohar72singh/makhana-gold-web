@@ -10,7 +10,7 @@ const globalForPrisma = globalThis as unknown as {
 // Automatically invalidate stale cached client on schema/client updates
 if (globalForPrisma.prismaVersion !== PRISMA_CLIENT_VERSION) {
   if (globalForPrisma.prisma) {
-    globalForPrisma.prisma.$disconnect?.().catch(() => {});
+    globalForPrisma.prisma.$disconnect?.().catch(() => { });
   }
   globalForPrisma.prisma = undefined;
   globalForPrisma.prismaVersion = PRISMA_CLIENT_VERSION;
@@ -25,6 +25,15 @@ function createPrismaClient(): PrismaClient {
   // MySQL 8+ caching_sha2_password compatibility
   if (!url.includes("allowPublicKeyRetrieval")) {
     url += (url.includes("?") ? "&" : "?") + "allowPublicKeyRetrieval=true";
+  }
+  if (!url.includes("acquireTimeout")) {
+    url += (url.includes("?") ? "&" : "?") + "acquireTimeout=30000";
+  }
+  if (!url.includes("connectTimeout")) {
+    url += (url.includes("?") ? "&" : "?") + "connectTimeout=30000";
+  }
+  if (!url.includes("connectionLimit") && !url.includes("connection_limit")) {
+    url += (url.includes("?") ? "&" : "?") + "connectionLimit=10";
   }
 
   const adapter = new PrismaMySQLAdapter(url);
